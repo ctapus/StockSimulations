@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stocks history</title>
+    <script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+    <script src="./scripts/index.js?v=1"></script>
+    <style>
+        body{
+            background-color: lightgrey;
+        }
+        #strategy td, #strategy th {
+            background-color: azure;
+            padding: 4px;
+        }
+        #strategies {
+            background-color: lavenderblush;
+        }
+    </style>
+</head>
+<body>
+<div id="details">
+    <table>
+        <tr>
+            <td>
+                <label for="ticker">Strategy for: </label>
+            </td>
+            <td>
+                <select id="ticker">
+                    <option></option>
+                    <option value="AAPL">AAPL</option>
+                    <option value="AMZN">AMZN</option>
+                    <option value="GOOG">GOOG</option>
+                    <option value="IBM">IBM</option>
+                    <option value="JNJ">JNJ</option>
+                    <option value="KO">KO</option>
+                    <option value="MSFT">MSFT</option>
+                    <option value="PFE">PFE</option>
+                    <option value="VOO">VOO</option>
+                    <option value="VTI">VTI</option>
+                </select>
+        </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="startDate">Starting date:</label>
+            </td>
+            <td>
+                <input type="date" id="startDate" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="startingAmount">Starting amount: </label>
+            </td>
+            <td>
+                <input type="text" id="startingAmount" value="5000" />
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table id="strategy">
+        <thead>
+            <td>Action</td>
+            <td>Amount</td>
+            <td>When</td>
+            <td></td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select id="action">
+                        <option></option>
+                        <option value="BUY">Buy</option>
+                        <option value="SELL">Sell</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" id="numberOfShares" value="1" />
+                    <span>&nbsp;shares&nbsp;</span>
+                </td>
+                <td>
+                    <select id="condition">
+                        <option></option>
+                        <option value="DAILY">Every day</option>
+                        <option value="PREV_LOWER">Current day is lower than previous day's open</option>
+                        <option value="PREV_LE3%LOWER">Current day's open is at least 3% lower than previous day's open</option>
+                        <option value="PREV_HIGHER">Current day's open is higher than previous day's open</option>
+                        <option value="PREV_GE3%HIGHER">Current day's open at least is 3% higher than previous day's open</option>
+                    </select>
+                </td>
+                <td><input type="button" id="addStrategy" value="Add strategy" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <div id="strategies"></div>
+    <br/>
+    <br/>
+    <table id="data">
+        <thead>
+            <td>date</td>
+            <td>open</td>
+            <td>high</td>
+            <td>low</td>
+            <td>close</td>
+            <td>volume</td>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+</body>
+</html>
