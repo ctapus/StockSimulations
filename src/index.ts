@@ -14,7 +14,7 @@ $(() => {
     let startDate: Date;
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
-        $.getJSON(`..\\alphavantage\\${ticker}.json`, (data) => {
+        $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             $('#symbol').text(data["Meta Data"]["2. Symbol"]);
             $.each(data["Time Series (Daily)"], (index, value) =>{
                 const tradeData: TradeData = new TradeData();
