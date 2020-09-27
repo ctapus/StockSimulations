@@ -7,25 +7,54 @@ class TradeData {
     public low: number;
     public close: number;
     public volume: number;
+    public previousDay: TradeData;
+    public deepCopy(): TradeData {
+        const ret: TradeData = new TradeData();
+        ret.date = this.date;
+        ret.open = this.open;
+        ret.high = this.high;
+        ret.low = this.low;
+        ret.close = this.close;
+        ret.volume = this.volume;
+        return ret;
+    }
+}
+interface Selector {
+    (tradeDate: TradeData): boolean;
+}
+const strategyMap: { [id: string]: Selector } = {
+    "DAILY":                (tradeDate: TradeData): boolean => { return true; },
+    "CUR_LOWER_PREV":       (tradeDate: TradeData): boolean => { return tradeDate.open < tradeDate.previousDay?.open; },
+    "CUR_3%LOWER_PREV":     (tradeDate: TradeData): boolean => { return 0.97 * tradeDate.open < tradeDate.previousDay?.open },
+    "CUR_HIGHER_PREV":      (tradeDate: TradeData): boolean => { return tradeDate.open > tradeDate.previousDay?.open; },
+    "CUR_3%HIGHER_PREV":    (tradeDate: TradeData): boolean => { return 0.97 * tradeDate.open > tradeDate.previousDay?.open }
+}
+function getTimeValues(data: any): Array<TradeData> {
+    let ret: Array<TradeData> = new Array<TradeData>();
+    let previousDayTrade: TradeData = null;
+    $.each(data["Time Series (Daily)"], (index, value) =>{
+        const tradeData: TradeData = new TradeData();
+        tradeData.date = new Date(index.toString());
+        tradeData.open = Number(data["Time Series (Daily)"][index]["1. open"]);
+        tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
+        tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
+        tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
+        tradeData.volume = Number(data["Time Series (Daily)"][index]["5. volume"]);
+        tradeData.previousDay = previousDayTrade;
+        previousDayTrade = tradeData;
+        ret.push(tradeData);
+    });
+    return ret;
 }
 $(() => {
-    let timeValues: Array<TradeData> = new Array<TradeData>();
+    let timeValues: Array<TradeData>;
+    let positions: Array<TradeData>;
     let lastOpen: number = 0;
     let startDate: Date;
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            $('#symbol').text(data["Meta Data"]["2. Symbol"]);
-            $.each(data["Time Series (Daily)"], (index, value) =>{
-                const tradeData: TradeData = new TradeData();
-                tradeData.date = new Date(index.toString());
-                tradeData.open = Number(data["Time Series (Daily)"][index]["1. open"]);
-                tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
-                tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
-                tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
-                tradeData.volume = Number(data["Time Series (Daily)"][index]["5. volume"]);
-                timeValues.push(tradeData);
-            });
+            timeValues = getTimeValues(data);
             timeValues.sort((a, b) => a.date.getTime() - b.date.getTime());
             startDate = timeValues[0].date;
             lastOpen = timeValues[timeValues.length - 1].open;
@@ -49,7 +78,7 @@ $(() => {
         
         let endingNumberOfShares: number = 0;
         let endingMoney: number = startingAmount;
-        let previousOpen: number = 0;
+        positions = new Array<TradeData>();
         timeValues.forEach(item => {
             if(item.date < startDate) {
                 return false;
@@ -62,39 +91,12 @@ $(() => {
                         if(endingMoney < actionPrice) {
                             return false;
                         }
-                        switch(condition) {
-                            case "DAILY" : 
-                                endingNumberOfShares += numberOfShares;
-                                endingMoney -= actionPrice;
-                                break;
-                            case "PREV_LOWER" :
-                                if(previousOpen > open) {
-                                    endingNumberOfShares += numberOfShares;
-                                    endingMoney -= actionPrice;
-                                }
-                                previousOpen = open;
-                                break;
-                            case "PREV_LE3%LOWER" :
-                                if(previousOpen >= open * 1.03) {
-                                    endingNumberOfShares += numberOfShares;
-                                    endingMoney -= actionPrice;
-                                }
-                                previousOpen = open;
-                                break;
-                            case "PREV_HIGHER" :
-                                if(previousOpen < open) {
-                                    endingNumberOfShares += numberOfShares;
-                                    endingMoney -= actionPrice;
-                                }
-                                previousOpen = open;
-                                break;
-                            case "PREV_GE3%HIGHER" :
-                                if(previousOpen <= open * 1.03) {
-                                    endingNumberOfShares += numberOfShares;
-                                    endingMoney -= actionPrice;
-                                }
-                                previousOpen = open;
-                                break;
+                        if(strategyMap[condition](item)) {
+                            endingNumberOfShares += numberOfShares;
+                            endingMoney -= actionPrice;
+                            positions.push(item.deepCopy());
+                        } else {
+                            return false;
                         }
                     }
                 case "SELL":
