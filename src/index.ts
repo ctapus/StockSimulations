@@ -19,16 +19,32 @@ class TradeData {
         return ret;
     }
 }
-interface Selector {
+class HistoryItem {
+    public action: string;
+    public date: Date;
+    public numberOfShares: number;
+    public sharePrice: number;
+    constructor(action: string, date: Date, numberOfShares: number, sharePrice: number) {
+        this.action = action;
+        this.date = date;
+        this.numberOfShares = numberOfShares;
+        this.sharePrice = sharePrice;
+    }
+}
+interface ConditionSelector {
     (tradeDate: TradeData): boolean;
 }
-const strategyMap: { [id: string]: Selector } = {
+const conditionSelectorsMap: { [id: string]: ConditionSelector } = {
     "DAILY":                (tradeDate: TradeData): boolean => { return true; },
     "CUR_LOWER_PREV":       (tradeDate: TradeData): boolean => { return tradeDate.open < tradeDate.previousDay?.open; },
     "CUR_3%LOWER_PREV":     (tradeDate: TradeData): boolean => { return 0.97 * tradeDate.open < tradeDate.previousDay?.open },
     "CUR_HIGHER_PREV":      (tradeDate: TradeData): boolean => { return tradeDate.open > tradeDate.previousDay?.open; },
     "CUR_3%HIGHER_PREV":    (tradeDate: TradeData): boolean => { return 0.97 * tradeDate.open > tradeDate.previousDay?.open }
 }
+interface TimeSelector {
+    (tradeDate: TradeData, startDate: Date): boolean;
+}
+const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
     let previousDayTrade: TradeData = null;
@@ -48,11 +64,17 @@ function getTimeValues(data: any): Array<TradeData> {
 }
 $(() => {
     let timeValues: Array<TradeData>;
-    let positions: Array<TradeData>;
+    let history: Array<HistoryItem>;
     let lastOpen: number = 0;
     let startDate: Date;
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
+        $("#startDate").prop("disabled", true);
+        $("#startingAmount").prop("disabled", true);
+        $("#action").prop("disabled", true);
+        $("#numberOfShares").prop("disabled", true);
+        $("#condition").prop("disabled", true);
+        $("#addStrategy").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             timeValues = getTimeValues(data);
             timeValues.sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -63,6 +85,12 @@ $(() => {
                 $('#data > tbody').append("<tr><td>" + item.date.toISOString().split('T')[0] + "</td><td>" + item.open + "</td><td>" + item.high +
                     "</td><td>" + item.low +"</td><td>" + item.close +"</td><td>" + item.volume +"</td></tr>");
                 });
+            $("#startDate").prop("disabled", false);
+            $("#startingAmount").prop("disabled", false);
+            $("#action").prop("disabled", false);
+            $("#numberOfShares").prop("disabled", false);
+            $("#condition").prop("disabled", false);
+            $("#addStrategy").prop("disabled", false);
         }).fail(() => {
             console.log("Error while reading json");
         });
@@ -78,23 +106,19 @@ $(() => {
         
         let endingNumberOfShares: number = 0;
         let endingMoney: number = startingAmount;
-        positions = new Array<TradeData>();
-        timeValues.forEach(item => {
-            if(item.date < startDate) {
-                return false;
-            }
-            let open: number = item.open;
+        history = new Array<HistoryItem>();
+        timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
             switch(action){
                 case "BUY" :
                     {
-                        let actionPrice: number = open * numberOfShares;
+                        let actionPrice: number = item.open * numberOfShares;
                         if(endingMoney < actionPrice) {
                             return false;
                         }
-                        if(strategyMap[condition](item)) {
+                        if(conditionSelectorsMap[condition](item)) {
                             endingNumberOfShares += numberOfShares;
                             endingMoney -= actionPrice;
-                            positions.push(item.deepCopy());
+                            history.push(new HistoryItem("BUY", item.date, numberOfShares, item.open));
                         } else {
                             return false;
                         }
@@ -106,5 +130,9 @@ $(() => {
         $("#strategies").append(`<p>${actionText} ${numberOfShares} shares ${conditionText}</p>`);
         $("#strategies").append(`<p>${endingNumberOfShares} shares x ${lastOpen.toFixed(2)} $ = ${(endingNumberOfShares * lastOpen).toFixed(2)} $. And ${endingMoney.toFixed(2)} $ left. Total = ${(endingNumberOfShares * lastOpen + endingMoney).toFixed(2)}</p>`);
         $("#strategies").append("<br />");
+        $("#strategies").append("<br />");
+        history.forEach((item: HistoryItem) => {
+            $("#strategies").append(`On ${item.date.toLocaleDateString()} ${item.action} ${item.numberOfShares} shares for ${item.sharePrice} each.<br />`);
+        });
     });
 });

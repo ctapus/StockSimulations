@@ -47,7 +47,7 @@
                 <label for="startDate">Starting date:</label>
             </td>
             <td>
-                <input type="date" id="startDate" />
+                <input type="date" id="startDate" disabled />
             </td>
         </tr>
         <tr>
@@ -55,7 +55,7 @@
                 <label for="startingAmount">Starting amount: </label>
             </td>
             <td>
-                <input type="text" id="startingAmount" value="5000" />
+                <input type="text" id="startingAmount" value="5000" disabled />
             </td>
         </tr>
     </table>
@@ -70,18 +70,18 @@
         <tbody>
             <tr>
                 <td>
-                    <select id="action">
+                    <select id="action" disabled>
                         <option></option>
                         <option value="BUY">Buy</option>
                         <option value="SELL">Sell</option>
                     </select>
                 </td>
                 <td>
-                    <input type="number" id="numberOfShares" value="1" />
+                    <input type="number" id="numberOfShares" value="1" disabled />
                     <span>&nbsp;shares&nbsp;</span>
                 </td>
                 <td>
-                    <select id="condition">
+                    <select id="condition" disabled>
                         <option></option>
                         <option value="DAILY">Every day</option>
                         <option value="CUR_LOWER_PREV">Current day is lower than previous day's open</option>
@@ -90,7 +90,7 @@
                         <option value="CUR_3%HIGHER_PREV">Current day's open at least is 3% higher than previous day's open</option>
                     </select>
                 </td>
-                <td><input type="button" id="addStrategy" value="Add strategy" /></td>
+                <td><input type="button" id="addStrategy" value="Add strategy" disabled /></td>
             </tr>
         </tbody>
     </table>
