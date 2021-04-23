@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Stocks history</title>
-    <script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="./scripts/index.js?v=1"></script>
     <style>
         body{
@@ -90,20 +92,32 @@
                         <option value="CUR_3%HIGHER_PREV">Current day's open at least is 3% higher than previous day's open</option>
                     </select>
                 </td>
-                <td><input type="button" id="addStrategy" value="Add strategy" disabled /></td>
+                <td><input type="button" id="addStrategy" class="btn btn-info" value="Add strategy" disabled /></td>
             </tr>
         </tbody>
     </table>
-    <input type="button" id="run" value="Run" disabled />
+    <input type="button" id="run" class="btn btn-info" value="Run" disabled />
     <br/>
     <br/>
     <div id="globalStrategy"></div>
     <br/>
     <br/>
-    <div id="results"></div>
+    <table id="results" class="table table-striped">
+        <thead>
+            <td>date</td>
+            <td>action</td>
+            <td>number of shares</td>
+            <td>share price</td>
+            <td>available cash</td>
+            <td>total number of shares</td>
+            <td>total equity</td>
+        </thead>
+        <tbody></tbody>
+    </table>
     <br/>
     <br/>
-    <table id="data">
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#data">Toggle historic data</button>
+    <table id="data" class="collapse table table-striped">
         <thead>
             <td>date</td>
             <td>open</td>

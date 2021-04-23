@@ -24,11 +24,15 @@ class HistoryItem {
     public date: Date;
     public numberOfShares: number;
     public sharePrice: number;
-    constructor(action: string, date: Date, numberOfShares: number, sharePrice: number) {
+    public availableCash: number;
+    public totalNumberOfShares: number;
+    constructor(action: string, date: Date, numberOfShares: number, sharePrice: number, availableCash: number, totalNumberOfShares: number) {
         this.action = action;
         this.date = date;
         this.numberOfShares = numberOfShares;
         this.sharePrice = sharePrice;
+        this.availableCash = availableCash;
+        this.totalNumberOfShares = totalNumberOfShares;
     }
 }
 interface ConditionSelector {
@@ -67,7 +71,7 @@ const actionsMap: { [id: string]: MappableAction } = {
                                 }
                                 portofolio.numberOfShares += numberOfShares;
                                 portofolio.amountOfMoney -= actionPrice;
-                                portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open));
+                                portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                             },
     "SELL":                 (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): boolean => {
                                 if(portofolio.numberOfShares < numberOfShares) {
@@ -76,7 +80,7 @@ const actionsMap: { [id: string]: MappableAction } = {
                                 let actionPrice: number = tradeData.open * numberOfShares;
                                 portofolio.numberOfShares -= numberOfShares;
                                 portofolio.amountOfMoney += actionPrice;
-                                portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open));
+                                portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                             }
 }
 interface Action {
@@ -162,7 +166,10 @@ $(() => {
             });
         });
         portofolio.history.forEach((item: HistoryItem) => {
-            $("#results").append(`On ${item.date.toLocaleDateString()} ${item.action} ${item.numberOfShares} shares for ${item.sharePrice} each.<br />`);
+            let styleColor: string = item.action === 'BUY' ? "blue" : "red";
+             $('#results > tbody').append("<tr style='color:" + styleColor + "'><td>" + item.date.toLocaleDateString() + "</td><td>" + item.action + "</td><td>" + item.numberOfShares +
+             "</td><td>" + item.sharePrice +"</td><td>" + item.availableCash.toFixed(2) +"</td><td>" + item.totalNumberOfShares + "</td><td>" +
+             (item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2) +"</td></tr>");
         });
     });
 });
