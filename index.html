@@ -19,115 +19,157 @@
         #strategies {
             background-color: lavenderblush;
         }
+        .table{
+            width:50%;
+        }
+        #overlay {
+            background: #ffffff;
+            color: #666666;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 5000;
+            top: 0;
+            left: 0;
+            float: left;
+            text-align: center;
+            padding-top: 25%;
+            opacity: .80;
+        }
+        .spinner {
+            margin: 0 auto;
+            height: 64px;
+            width: 64px;
+            animation: rotate 0.8s infinite linear;
+            border: 5px solid firebrick;
+            border-right-color: transparent;
+            border-radius: 50%;
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
-<div id="details">
-    <table>
-        <tr>
-            <td>
-                <label for="ticker">Strategy for: </label>
-            </td>
-            <td>
-                <select id="ticker">
-                    <option></option>
-                    <option value="AAPL">AAPL</option>
-                    <option value="AMZN">AMZN</option>
-                    <option value="GOOG">GOOG</option>
-                    <option value="IBM">IBM</option>
-                    <option value="JNJ">JNJ</option>
-                    <option value="KO">KO</option>
-                    <option value="MSFT">MSFT</option>
-                    <option value="PFE">PFE</option>
-                    <option value="VOO">VOO</option>
-                    <option value="VTI">VTI</option>
-                </select>
-        </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="startDate">Starting date:</label>
-            </td>
-            <td>
-                <input type="date" id="startDate" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="startingAmount">Starting amount: </label>
-            </td>
-            <td>
-                <input type="text" id="startingAmount" value="5000" disabled />
-            </td>
-        </tr>
-    </table>
-    <br/>
-    <table id="strategy">
-        <thead>
-            <td>Action</td>
-            <td>Amount</td>
-            <td>When</td>
-            <td></td>
-        </thead>
-        <tbody>
+    <div id="overlay" style="display:none;">
+        <div class="spinner"></div>
+        <br/>
+        Loading...
+    </div>
+    <div id="details">
+        <table>
             <tr>
                 <td>
-                    <select id="action" disabled>
-                        <option></option>
-                        <option value="BUY">Buy</option>
-                        <option value="SELL">Sell</option>
-                    </select>
+                    <label for="ticker">Strategy for: </label>
                 </td>
                 <td>
-                    <input type="number" id="numberOfShares" value="1" disabled />
-                    <span>&nbsp;shares&nbsp;</span>
-                </td>
-                <td>
-                    <select id="condition" disabled>
+                    <select id="ticker">
                         <option></option>
-                        <option value="DAILY">Every day</option>
-                        <option value="CUR_LOWER_PREV">Current day is lower than previous day's open</option>
-                        <option value="CUR_3%LOWER_PREV">Current day's open is at least 3% lower than previous day's open</option>
-                        <option value="CUR_HIGHER_PREV">Current day's open is higher than previous day's open</option>
-                        <option value="CUR_3%HIGHER_PREV">Current day's open at least is 3% higher than previous day's open</option>
+                        <option value="AAPL">AAPL</option>
+                        <option value="AMZN">AMZN</option>
+                        <option value="GOOG">GOOG</option>
+                        <option value="IBM">IBM</option>
+                        <option value="JNJ">JNJ</option>
+                        <option value="KO">KO</option>
+                        <option value="MSFT">MSFT</option>
+                        <option value="PFE">PFE</option>
+                        <option value="VOO">VOO</option>
+                        <option value="VTI">VTI</option>
                     </select>
-                </td>
-                <td><input type="button" id="addStrategy" class="btn btn-info" value="Add strategy" disabled /></td>
+            </td>
             </tr>
-        </tbody>
-    </table>
-    <input type="button" id="run" class="btn btn-info" value="Run" disabled />
-    <br/>
-    <br/>
-    <div id="globalStrategy"></div>
-    <br/>
-    <br/>
-    <table id="results" class="table table-striped">
-        <thead>
-            <td>date</td>
-            <td>action</td>
-            <td>number of shares</td>
-            <td>share price</td>
-            <td>available cash</td>
-            <td>total number of shares</td>
-            <td>total equity</td>
-        </thead>
-        <tbody></tbody>
-    </table>
-    <br/>
-    <br/>
-    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#data">Toggle historic data</button>
-    <table id="data" class="collapse table table-striped">
-        <thead>
-            <td>date</td>
-            <td>open</td>
-            <td>high</td>
-            <td>low</td>
-            <td>close</td>
-            <td>volume</td>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
+            <tr>
+                <td>
+                    <label for="startDate">Starting date:</label>
+                </td>
+                <td>
+                    <input type="date" id="startDate" disabled />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="startingAmount">Starting amount: </label>
+                </td>
+                <td>
+                    <input type="text" id="startingAmount" value="5000" disabled />
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <table id="strategy">
+            <thead>
+                <td>Action</td>
+                <td>Amount</td>
+                <td>When</td>
+                <td></td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select id="action" disabled>
+                            <option></option>
+                            <option value="BUY">Buy</option>
+                            <option value="SELL">Sell</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" id="numberOfShares" value="1" disabled />
+                        <span>&nbsp;shares&nbsp;</span>
+                    </td>
+                    <td>
+                        <select id="condition" disabled>
+                            <option></option>
+                            <option value="DAILY">Every day</option>
+                            <option value="CUR_LOWER_PREV">Current day is lower than previous day's open</option>
+                            <option value="CUR_3%LOWER_PREV">Current day's open is at least 3% lower than previous day's open</option>
+                            <option value="CUR_HIGHER_PREV">Current day's open is higher than previous day's open</option>
+                            <option value="CUR_3%HIGHER_PREV">Current day's open at least is 3% higher than previous day's open</option>
+                        </select>
+                    </td>
+                    <td><input type="button" id="addStrategy" class="btn btn-info" value="Add strategy" disabled /></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" id="run" class="btn btn-info" value="Run" disabled />
+        <br/>
+        <br/>
+        <div id="globalStrategy"></div>
+        <br/>
+        <br/>
+        <table id="results" class="table table-striped">
+            <thead>
+                <td>transaction no.</td>
+                <td>date</td>
+                <td>action</td>
+                <td>number of shares</td>
+                <td>share price</td>
+                <td>available cash</td>
+                <td>total number of shares</td>
+                <td>total equity</td>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <br/>
+        <br/>
+        <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#divHistoricData">Toggle historic data</button>
+        <div id="divHistoricData" class="collapse">
+            <table id="data" class="table table-striped">
+                <thead>
+                    <td>date</td>
+                    <td>open</td>
+                    <td>high</td>
+                    <td>low</td>
+                    <td>close</td>
+                    <td>volume</td>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

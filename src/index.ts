@@ -113,6 +113,13 @@ function getTimeValues(data: any): Array<TradeData> {
     return ret;
 }
 $(() => {
+    $(document)
+    .ajaxStart(function () {
+        $('#overlay').fadeIn();
+    })
+    .ajaxStop(function () {
+        $('#overlay').fadeOut();
+    });
     let timeValues: Array<TradeData>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     $("#ticker").on("change", function() {
@@ -139,6 +146,7 @@ $(() => {
             $("#addStrategy").prop("disabled", false);
         }).fail(() => {
             console.log("Error while reading json");
+        }).always(() => {
         });
     });
     $("#addStrategy").on("click", function() {
@@ -165,11 +173,19 @@ $(() => {
                 }
             });
         });
+        let transactionNo: number = 1;
         portofolio.history.forEach((item: HistoryItem) => {
             let styleColor: string = item.action === 'BUY' ? "blue" : "red";
-             $('#results > tbody').append("<tr style='color:" + styleColor + "'><td>" + item.date.toLocaleDateString() + "</td><td>" + item.action + "</td><td>" + item.numberOfShares +
-             "</td><td>" + item.sharePrice +"</td><td>" + item.availableCash.toFixed(2) +"</td><td>" + item.totalNumberOfShares + "</td><td>" +
-             (item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2) +"</td></tr>");
+             $('#results > tbody').append("<tr style='color:" + styleColor + "'><td>" + transactionNo + "</td><td>" + item.date.toLocaleDateString() +
+              "</td><td>" + item.action + "</td><td>" + item.numberOfShares + "</td><td>" + item.sharePrice +"</td><td>" + item.availableCash.toFixed(2) +
+              "</td><td>" + item.totalNumberOfShares + "</td><td>" + (item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2) +"</td></tr>");
+              transactionNo++;
         });
     });
+    const urlParams = new URLSearchParams(window.location.search);
+    const tickerParam = urlParams.get('ticker');
+    if(tickerParam) {
+        $("#ticker").val(tickerParam);
+        $("#ticker").trigger("change");
+    }
 });
