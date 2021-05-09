@@ -80,6 +80,7 @@
                         <option value="PFE">PFE</option>
                         <option value="VOO">VOO</option>
                         <option value="VTI">VTI</option>
+                        <option value="BTC">BTC</option>
                     </select>
             </td>
             </tr>
@@ -114,7 +115,9 @@
                         <select id="action" disabled>
                             <option></option>
                             <option value="BUY">Buy</option>
+                            <option value="BUY_ALL">Buy All</option>
                             <option value="SELL">Sell</option>
+                            <option value="SELL_ALL">Sell All</option>
                         </select>
                     </td>
                     <td>
@@ -141,6 +144,22 @@
         <div id="globalStrategy"></div>
         <br/>
         <br/>
+        <div>Summary</div>
+        <table id="summary" class="table table-striped">
+            <thead>
+                <td>number of transactions</td>
+                <td>date</td>
+                <td>number of shares</td>
+                <td>share price</td>
+                <td>available cash</td>
+                <td>total number of shares</td>
+                <td>total equity</td>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <br/>
+        <br/>
+        <div>Full</div>
         <table id="results" class="table table-striped">
             <thead>
                 <td>transaction no.</td>

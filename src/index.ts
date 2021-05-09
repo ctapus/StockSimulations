@@ -61,30 +61,47 @@ class Portofolio {
     }
 }
 interface MappableAction {
-    (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): boolean;
+    (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void;
 }
 const actionsMap: { [id: string]: MappableAction } = {
-    "BUY":                  (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): boolean => {
-                                let actionPrice: number = tradeData.open * numberOfShares;
-                                if(portofolio.amountOfMoney < actionPrice) {
-                                    return false;
+    "BUY":                  (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                let sharePrice: number = tradeData.open * numberOfShares;
+                                if(portofolio.amountOfMoney < sharePrice) {
+                                    return;
                                 }
                                 portofolio.numberOfShares += numberOfShares;
-                                portofolio.amountOfMoney -= actionPrice;
+                                portofolio.amountOfMoney -= sharePrice;
                                 portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                             },
-    "SELL":                 (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): boolean => {
-                                if(portofolio.numberOfShares < numberOfShares) {
-                                    return false;
+    "BUY_ALL":              (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                if(portofolio.amountOfMoney < tradeData.open) {
+                                    return;
                                 }
-                                let actionPrice: number = tradeData.open * numberOfShares;
+                                numberOfShares = Math.floor(portofolio.amountOfMoney / tradeData.open);
+                                portofolio.numberOfShares += numberOfShares;
+                                portofolio.amountOfMoney -= tradeData.open * numberOfShares;
+                                portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                            },
+    "SELL":                 (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                if(portofolio.numberOfShares < numberOfShares) {
+                                    return;
+                                }
+                                let sharePrice: number = tradeData.open * numberOfShares;
                                 portofolio.numberOfShares -= numberOfShares;
-                                portofolio.amountOfMoney += actionPrice;
+                                portofolio.amountOfMoney += sharePrice;
                                 portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                            },
+    "SELL_ALL":             (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                if(portofolio.numberOfShares === 0) {
+                                    return;
+                                }
+                                portofolio.amountOfMoney += tradeData.open * portofolio.numberOfShares;
+                                portofolio.numberOfShares = 0;
+                                portofolio.history.push(new HistoryItem("SELL", tradeData.date, portofolio.numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                             }
 }
 interface Action {
-    (tradeData: TradeData, portofolio: Portofolio): boolean;
+    (tradeData: TradeData, portofolio: Portofolio): void;
 }
 
 class Strategy {
@@ -156,8 +173,12 @@ $(() => {
         let numberOfShares: number = Number($("#numberOfShares").val());
         let conditionText: string = $("#condition option:selected").text();
         let condition: string = $("#condition option:selected").val().toString();
-        strategies.push(new Strategy(conditionSelectorsMap[condition], (tradeData: TradeData, portofolio: Portofolio): boolean => { return actionsMap[action](tradeData, portofolio, numberOfShares) }));
-        $("#globalStrategy").append(`<p>${actionText} ${numberOfShares} shares ${conditionText}</p>`);
+        strategies.push(new Strategy(conditionSelectorsMap[condition], (tradeData: TradeData, portofolio: Portofolio): void => { return actionsMap[action](tradeData, portofolio, numberOfShares) }));
+        if(action === "BUY_ALL" || action === "SELL_ALL") {
+            $("#globalStrategy").append(`<p>${actionText} shares ${conditionText}</p>`);
+        } else {
+            $("#globalStrategy").append(`<p>${actionText} ${numberOfShares} shares ${conditionText}</p>`);
+        }
     });
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
@@ -181,6 +202,10 @@ $(() => {
               "</td><td>" + item.totalNumberOfShares + "</td><td>" + (item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2) +"</td></tr>");
               transactionNo++;
         });
+        const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
+        $('#summary > tbody').append("<tr><td>" + portofolio.history.length + "</td><td>" + lastTimeValue.date.toLocaleDateString() +
+         "</td><td>" + portofolio.numberOfShares + "</td><td>" + lastTimeValue.close +"</td><td>" + portofolio.amountOfMoney.toFixed(2) +
+         "</td><td>" + portofolio.numberOfShares + "</td><td>" + (portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2) +"</td></tr>");
     });
     const urlParams = new URLSearchParams(window.location.search);
     const tickerParam = urlParams.get('ticker');
