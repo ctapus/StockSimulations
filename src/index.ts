@@ -1,117 +1,74 @@
 import * as $ from "jquery";
+import HistoryItem from "./HistoryItem";
+import Portofolio from "./Portofolio";
+import TradeData from "./TradeData";
+import TradeCondition from './TradeCondition';
+import TradeConditionTemplate from './TradeConditionTemplate';
+import TradeActionTemplate from './TradeActionTemplate';
+import TradeAction from './TradeAction';
+import Strategy from "./Strategy";
 
-class TradeData {
-    public date : Date;
-    public open: number;
-    public high: number;
-    public low: number;
-    public close: number;
-    public volume: number;
-    public previousDay: TradeData;
-    public deepCopy(): TradeData {
-        const ret: TradeData = new TradeData();
-        ret.date = this.date;
-        ret.open = this.open;
-        ret.high = this.high;
-        ret.low = this.low;
-        ret.close = this.close;
-        ret.volume = this.volume;
-        return ret;
-    }
+const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } = {
+    "DAILY":                new TradeConditionTemplate("DAILY", "every day",
+                                    (tradeData: TradeData): boolean => { return true; }),
+    "CUR_LOWER_PREV":       new TradeConditionTemplate("CUR_LOWER_PREV", "if current day opens lower than previous day",
+                                    (tradeData: TradeData): boolean => { return tradeData.open < tradeData.previousDay?.open; }),
+    "CUR_3%LOWER_PREV":     new TradeConditionTemplate("CUR_3%LOWER_PREV", "if current day opens at least 3% lower than previous day",
+                                    (tradeData: TradeData): boolean => { return 0.97 * tradeData.open < tradeData.previousDay?.open }),
+    "CUR_HIGHER_PREV":      new TradeConditionTemplate("CUR_HIGHER_PREV", "if current day open higher than previous day",
+                                    (tradeData: TradeData): boolean => { return tradeData.open > tradeData.previousDay?.open; }),
+    "CUR_3%HIGHER_PREV":    new TradeConditionTemplate("CUR_3%HIGHER_PREV", "if current day opens at least 3% higher than previous day",
+                                    (tradeData: TradeData): boolean => { return 0.97 * tradeData.open > tradeData.previousDay?.open })
 }
-class HistoryItem {
-    public action: string;
-    public date: Date;
-    public numberOfShares: number;
-    public sharePrice: number;
-    public availableCash: number;
-    public totalNumberOfShares: number;
-    constructor(action: string, date: Date, numberOfShares: number, sharePrice: number, availableCash: number, totalNumberOfShares: number) {
-        this.action = action;
-        this.date = date;
-        this.numberOfShares = numberOfShares;
-        this.sharePrice = sharePrice;
-        this.availableCash = availableCash;
-        this.totalNumberOfShares = totalNumberOfShares;
-    }
+const tradeActionTemplates: { [id: string]: TradeActionTemplate } = {
+    "BUY":                  new TradeActionTemplate("BUY", "Buy",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    let sharePrice: number = tradeData.open * numberOfShares;
+                                    if(portofolio.amountOfMoney < sharePrice) {
+                                        return;
+                                    }
+                                    portofolio.numberOfShares += numberOfShares;
+                                    portofolio.amountOfMoney -= sharePrice;
+                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                }),
+    "BUY_ALL":              new TradeActionTemplate("BUY_ALL", "Buy all",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    if(portofolio.amountOfMoney < tradeData.open) {
+                                        return;
+                                    }
+                                    numberOfShares = Math.floor(portofolio.amountOfMoney / tradeData.open);
+                                    portofolio.numberOfShares += numberOfShares;
+                                    portofolio.amountOfMoney -= tradeData.open * numberOfShares;
+                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                }),
+    "SELL":                 new TradeActionTemplate("SELL", "Sell",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    if(portofolio.numberOfShares < numberOfShares) {
+                                        return;
+                                    }
+                                    let sharePrice: number = tradeData.open * numberOfShares;
+                                    portofolio.numberOfShares -= numberOfShares;
+                                    portofolio.amountOfMoney += sharePrice;
+                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                }),
+    "SELL_ALL":             new TradeActionTemplate("SELL_ALL", "Sell all",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    if(portofolio.numberOfShares === 0) {
+                                        return;
+                                    }
+                                    portofolio.amountOfMoney += tradeData.open * portofolio.numberOfShares;
+                                    portofolio.numberOfShares = 0;
+                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, portofolio.numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                })
 }
-interface ConditionSelector {
-    (tradeData: TradeData): boolean;
-}
-const conditionSelectorsMap: { [id: string]: ConditionSelector } = {
-    "DAILY":                (tradeData: TradeData): boolean => { return true; },
-    "CUR_LOWER_PREV":       (tradeData: TradeData): boolean => { return tradeData.open < tradeData.previousDay?.open; },
-    "CUR_3%LOWER_PREV":     (tradeData: TradeData): boolean => { return 0.97 * tradeData.open < tradeData.previousDay?.open },
-    "CUR_HIGHER_PREV":      (tradeData: TradeData): boolean => { return tradeData.open > tradeData.previousDay?.open; },
-    "CUR_3%HIGHER_PREV":    (tradeData: TradeData): boolean => { return 0.97 * tradeData.open > tradeData.previousDay?.open }
-}
+
+
 interface TimeSelector {
     (tradeDate: TradeData, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
-class Portofolio {
-    public amountOfMoney: number;
-    public numberOfShares: number;
-    public history: Array<HistoryItem>;
-    constructor(amountOfMoney: number, numberOfShares: number) {
-        this.amountOfMoney = amountOfMoney;
-        this.numberOfShares = numberOfShares;
-        this.history = new Array<HistoryItem>(); 
-    }
-}
-interface MappableAction {
-    (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void;
-}
-const actionsMap: { [id: string]: MappableAction } = {
-    "BUY":                  (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                let sharePrice: number = tradeData.open * numberOfShares;
-                                if(portofolio.amountOfMoney < sharePrice) {
-                                    return;
-                                }
-                                portofolio.numberOfShares += numberOfShares;
-                                portofolio.amountOfMoney -= sharePrice;
-                                portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                            },
-    "BUY_ALL":              (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                if(portofolio.amountOfMoney < tradeData.open) {
-                                    return;
-                                }
-                                numberOfShares = Math.floor(portofolio.amountOfMoney / tradeData.open);
-                                portofolio.numberOfShares += numberOfShares;
-                                portofolio.amountOfMoney -= tradeData.open * numberOfShares;
-                                portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                            },
-    "SELL":                 (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                if(portofolio.numberOfShares < numberOfShares) {
-                                    return;
-                                }
-                                let sharePrice: number = tradeData.open * numberOfShares;
-                                portofolio.numberOfShares -= numberOfShares;
-                                portofolio.amountOfMoney += sharePrice;
-                                portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                            },
-    "SELL_ALL":             (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                if(portofolio.numberOfShares === 0) {
-                                    return;
-                                }
-                                portofolio.amountOfMoney += tradeData.open * portofolio.numberOfShares;
-                                portofolio.numberOfShares = 0;
-                                portofolio.history.push(new HistoryItem("SELL", tradeData.date, portofolio.numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                            }
-}
-interface Action {
-    (tradeData: TradeData, portofolio: Portofolio): void;
-}
 
-class Strategy {
-    public conditionSelector: ConditionSelector;
-    public action: Action;
-    constructor(conditionSelector: ConditionSelector, action: Action) {
-        this.conditionSelector = conditionSelector;
-        this.action = action;
-    }
-}
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
     let previousDayTrade: TradeData = null;
@@ -130,6 +87,14 @@ function getTimeValues(data: any): Array<TradeData> {
     return ret;
 }
 $(() => {
+    const ddlActions = $("#action");
+    for(var key in tradeActionTemplates) {
+        ddlActions.append($("<option></option>").val(tradeActionTemplates[key].name).html(tradeActionTemplates[key].description));
+    }
+    const ddlConditions = $("#condition");
+    for(var key in tradeConditionTemplates) {
+        ddlConditions.append($("<option></option>").val(tradeConditionTemplates[key].name).html(tradeConditionTemplates[key].description));
+    }
     $(document)
     .ajaxStart(function () {
         $('#overlay').fadeIn();
@@ -173,12 +138,9 @@ $(() => {
         let numberOfShares: number = Number($("#numberOfShares").val());
         let conditionText: string = $("#condition option:selected").text();
         let condition: string = $("#condition option:selected").val().toString();
-        strategies.push(new Strategy(conditionSelectorsMap[condition], (tradeData: TradeData, portofolio: Portofolio): void => { return actionsMap[action](tradeData, portofolio, numberOfShares) }));
-        if(action === "BUY_ALL" || action === "SELL_ALL") {
-            $("#globalStrategy").append(`<p>${actionText} shares ${conditionText}</p>`);
-        } else {
-            $("#globalStrategy").append(`<p>${actionText} ${numberOfShares} shares ${conditionText}</p>`);
-        }
+        const strategy: Strategy = new Strategy(new TradeCondition(tradeConditionTemplates[condition]), new TradeAction(tradeActionTemplates[action], numberOfShares));
+        strategies.push(strategy);
+        $("#globalStrategy").append(`<p>${strategy.toString()}</p>`);
     });
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
@@ -187,8 +149,8 @@ $(() => {
         let portofolio: Portofolio = new Portofolio(startingAmount, 0);
         timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
             strategies.forEach((strategy: Strategy) => {
-                if(strategy.conditionSelector(item)) {
-                    strategy.action(item, portofolio);
+                if(strategy.tradeCondition.condition(item)) {
+                    strategy.tradeAction.action(item, portofolio);
                 } else {
                     return false;
                 }
@@ -205,7 +167,7 @@ $(() => {
         const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
         $('#summary > tbody').append("<tr><td>" + portofolio.history.length + "</td><td>" + lastTimeValue.date.toLocaleDateString() +
          "</td><td>" + portofolio.numberOfShares + "</td><td>" + lastTimeValue.close +"</td><td>" + portofolio.amountOfMoney.toFixed(2) +
-         "</td><td>" + portofolio.numberOfShares + "</td><td>" + (portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2) +"</td></tr>");
+         "</td><td>" + (portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2) +"</td></tr>");
     });
     const urlParams = new URLSearchParams(window.location.search);
     const tickerParam = urlParams.get('ticker');
