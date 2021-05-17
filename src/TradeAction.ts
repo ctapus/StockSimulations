@@ -14,4 +14,11 @@ export default class TradeAction {
         this.action = (tradeData: TradeData, portofolio: Portofolio): void => { return actionTemplate.action(tradeData, portofolio, numberOfShares) };
         this.numberOfShares = numberOfShares;
     }
+    public toString(): string {
+        if(this.name === "BUY_ALL" || this.name === "SELL_ALL") {
+            return `${this.description}`;
+        } else {
+            return `${this.description} ${this.numberOfShares}`;
+        }
+    }
 }

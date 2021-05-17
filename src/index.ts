@@ -10,15 +10,15 @@ import Strategy from "./Strategy";
 
 const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } = {
     "DAILY":                new TradeConditionTemplate("DAILY", "every day",
-                                    (tradeData: TradeData): boolean => { return true; }),
+                                    (tradeData: TradeData, thresholdValue: number): boolean => { return true; }),
     "CUR_LOWER_PREV":       new TradeConditionTemplate("CUR_LOWER_PREV", "if current day opens lower than previous day",
-                                    (tradeData: TradeData): boolean => { return tradeData.open < tradeData.previousDay?.open; }),
-    "CUR_3%LOWER_PREV":     new TradeConditionTemplate("CUR_3%LOWER_PREV", "if current day opens at least 3% lower than previous day",
-                                    (tradeData: TradeData): boolean => { return 0.97 * tradeData.open < tradeData.previousDay?.open }),
+                                    (tradeData: TradeData, thresholdValue: number): boolean => { return tradeData.open < tradeData.previousDay?.open; }),
+    "CUR_X%LOWER_PREV":     new TradeConditionTemplate("CUR_X%LOWER_PREV", "if current day opens lower than previous day with at least",
+                                    (tradeData: TradeData, thresholdValue: number): boolean => { return (100 - thresholdValue) / 100 * tradeData.open < tradeData.previousDay?.open }),
     "CUR_HIGHER_PREV":      new TradeConditionTemplate("CUR_HIGHER_PREV", "if current day open higher than previous day",
-                                    (tradeData: TradeData): boolean => { return tradeData.open > tradeData.previousDay?.open; }),
-    "CUR_3%HIGHER_PREV":    new TradeConditionTemplate("CUR_3%HIGHER_PREV", "if current day opens at least 3% higher than previous day",
-                                    (tradeData: TradeData): boolean => { return 0.97 * tradeData.open > tradeData.previousDay?.open })
+                                    (tradeData: TradeData, thresholdValue: number): boolean => { return tradeData.open > tradeData.previousDay?.open; }),
+    "CUR_X%HIGHER_PREV":    new TradeConditionTemplate("CUR_X%HIGHER_PREV", "if current day opens higher than previous day with at least",
+                                    (tradeData: TradeData, thresholdValue: number): boolean => { return (100 - thresholdValue) / 100 * tradeData.open > tradeData.previousDay?.open })
 }
 const tradeActionTemplates: { [id: string]: TradeActionTemplate } = {
     "BUY":                  new TradeActionTemplate("BUY", "Buy",
@@ -133,12 +133,11 @@ $(() => {
     });
     $("#addStrategy").on("click", function() {
         $("#run").prop("disabled", false);
-        let actionText: string = $("#action option:selected").text();
         let action: string = $("#action option:selected").val().toString();
         let numberOfShares: number = Number($("#numberOfShares").val());
-        let conditionText: string = $("#condition option:selected").text();
         let condition: string = $("#condition option:selected").val().toString();
-        const strategy: Strategy = new Strategy(new TradeCondition(tradeConditionTemplates[condition]), new TradeAction(tradeActionTemplates[action], numberOfShares));
+        let thresholdValue: number = Number($("#thresholdValue").val());
+        const strategy: Strategy = new Strategy(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
         strategies.push(strategy);
         $("#globalStrategy").append(`<p>${strategy.toString()}</p>`);
     });
