@@ -1,14 +1,12 @@
-import TradeCondition from './TradeCondition';
-import TradeAction from './TradeAction';
+import StrategyBranch from './StrategyBranch';
 
 export default class Strategy {
-    public tradeCondition: TradeCondition;
-    public tradeAction: TradeAction;
-    constructor(tradeCondition: TradeCondition, tradeAction: TradeAction) {
-        this.tradeCondition = tradeCondition;
-        this.tradeAction = tradeAction;
-    }
+    public strategyBranches: Array<StrategyBranch> = new Array<StrategyBranch>();
     public toString(): string {
-        return `${this.tradeAction.toString()} shares when ${this.tradeCondition.toString()}`;
+        let ret: string = "";
+        for(var strategyBranchKey in this.strategyBranches) {
+            ret += `${this.strategyBranches[strategyBranchKey].toString()}<br/>`
+        }
+        return ret;
     }
 }

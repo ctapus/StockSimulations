@@ -69,7 +69,6 @@ interface TimeSelector {
 }
 const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
-
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
     let previousDayTrade: TradeData = null;
@@ -104,7 +103,8 @@ $(() => {
         $('#overlay').fadeOut();
     });
     let timeValues: Array<TradeData>;
-    const strategy: Strategy = new Strategy();
+    const strategies: Array<Strategy> = new Array<Strategy>();
+    strategies.push(new Strategy());
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
@@ -113,31 +113,26 @@ $(() => {
         $("#numberOfShares").prop("disabled", true);
         $("#condition").prop("disabled", true);
         $("#addStrategyBranch").prop("disabled", true);
+        $("#newStrategy").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             timeValues = getTimeValues(data);
             timeValues.sort((a, b) => a.date.getTime() - b.date.getTime());
             $("#startDate").val(timeValues[0].date.toISOString().split('T')[0]);
-            timeValues.forEach(item => {
-                $('#data > tbody').append(`
-                    <tr>
-                        <td>${item.date.toISOString().split('T')[0]}</td>
-                        <td>${item.open}</td>
-                        <td>${item.high}</td>
-                        <td>${item.low}</td>
-                        <td>${item.close}</td>
-                        <td>${item.volume}</td>
-                    </tr>`);
-                });
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);
             $("#numberOfShares").prop("disabled", false);
             $("#condition").prop("disabled", false);
             $("#addStrategyBranch").prop("disabled", false);
+            $("#newStrategy").prop("disabled", false);
         }).fail(() => {
             console.log("Error while reading json");
         }).always(() => {
         });
+    });
+    $("#newStrategy").on("click", function() {
+        strategies.push(new Strategy());
+        $("#globalStrategies").append(`<hr/>`);
     });
     $("#addStrategyBranch").on("click", function() {
         $("#run").prop("disabled", false);
@@ -146,49 +141,55 @@ $(() => {
         let condition: string = $("#condition option:selected").val().toString();
         let thresholdValue: number = Number($("#thresholdValue").val());
         const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
-        strategy.strategyBranches.push(strategyBranch);
-        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+        strategies[strategies.length - 1].strategyBranches.push(strategyBranch);
+        let strategiesDescription: string = "";
+        strategies.forEach((strategy: Strategy) => {
+            strategiesDescription += `<p>${strategy.toString()}</p><hr/>`;
+        });
+        $("#globalStrategies").html(strategiesDescription);
     });
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
         let startDate: Date = new Date($("#startDate").val().toString());
-        
-        let portofolio: Portofolio = new Portofolio(startingAmount, 0);
-        timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
-            strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
-                if(strategyBranch.tradeCondition.condition(item)) {
-                    strategyBranch.tradeAction.action(item, portofolio);
-                } else {
-                    return false;
-                }
-            });
+        $("#globalStrategies").empty();
+        strategies.forEach((strategy:Strategy) => {
+            $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
+            let portofolio: Portofolio = new Portofolio(startingAmount, 0);
+            timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
+                    strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
+                        if(strategyBranch.tradeCondition.condition(item)) {
+                            strategyBranch.tradeAction.action(item, portofolio);
+                        } else {
+                            return false;
+                        }
+                    })
+                });
+            const firstTimeValue: TradeData = timeValues[0];
+            const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
+            $("#globalStrategies").append(`
+            <table class="table table-striped">
+                <thead>
+                    <td>number of transactions</td>
+                    <td>date</td>
+                    <td>number of shares</td>
+                    <td>initial share price</td>
+                    <td>final share price</td>
+                    <td>available cash</td>
+                    <td>total equity</td>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>${portofolio.history.length}</td>
+                        <td>${lastTimeValue.date.toLocaleDateString()}</td>
+                        <td>${portofolio.numberOfShares}</td>
+                        <td>${firstTimeValue.close}</td>
+                        <td>${lastTimeValue.close}</td>
+                        <td>${portofolio.amountOfMoney.toFixed(2)}</td>
+                        <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>`);
         });
-        let transactionNo: number = 1;
-        portofolio.history.forEach((item: HistoryItem) => {
-            let styleColor: string = item.action === 'BUY' ? "blue" : "red";
-            $('#results > tbody').append(`
-                <tr style='color:${styleColor}'>
-                    <td>${transactionNo}</td>
-                    <td>${item.date.toLocaleDateString()}</td>
-                    <td>${item.action}</td>
-                    <td>${item.numberOfShares}</td>
-                    <td>${item.sharePrice}</td>
-                    <td>${item.availableCash.toFixed(2)}</td>
-                    <td>${item.totalNumberOfShares}</td>
-                    <td>${(item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2)}</td>
-                </tr>`);
-              transactionNo++;
-        });
-        const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
-        $('#summary > tbody').append(`
-            <tr>
-                <td>${portofolio.history.length}</td>
-                <td>${lastTimeValue.date.toLocaleDateString()}</td>
-                <td>${portofolio.numberOfShares}</td>
-                <td>${lastTimeValue.close}</td>
-                <td>${portofolio.amountOfMoney.toFixed(2)}</td>
-                <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
-            </tr>`);
     });
     const urlParams = new URLSearchParams(window.location.search);
     const tickerParam = urlParams.get('ticker');
