@@ -3,72 +3,15 @@ import HistoryItem from "./HistoryItem";
 import Portofolio from "./Portofolio";
 import TradeData from "./TradeData";
 import TradeCondition from './TradeCondition';
-import TradeConditionTemplate from './TradeConditionTemplate';
-import TradeActionTemplate from './TradeActionTemplate';
 import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
 import Strategy from "./Strategy";
-
-const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } = {
-    "DAILY":                new TradeConditionTemplate("DAILY", "every day",
-                                    (tradeData: TradeData, thresholdValue: number): boolean => { return true; }),
-    "CUR_LOWER_PREV":       new TradeConditionTemplate("CUR_LOWER_PREV", "if current day opens lower than previous day",
-                                    (tradeData: TradeData, thresholdValue: number): boolean => { return tradeData.open < tradeData.previousDay?.open; }),
-    "CUR_X%LOWER_PREV":     new TradeConditionTemplate("CUR_X%LOWER_PREV", "if current day opens lower than previous day with at least",
-                                    (tradeData: TradeData, thresholdValue: number): boolean => { return (100 - thresholdValue) / 100 * tradeData.open < tradeData.previousDay?.open }),
-    "CUR_HIGHER_PREV":      new TradeConditionTemplate("CUR_HIGHER_PREV", "if current day open higher than previous day",
-                                    (tradeData: TradeData, thresholdValue: number): boolean => { return tradeData.open > tradeData.previousDay?.open; }),
-    "CUR_X%HIGHER_PREV":    new TradeConditionTemplate("CUR_X%HIGHER_PREV", "if current day opens higher than previous day with at least",
-                                    (tradeData: TradeData, thresholdValue: number): boolean => { return (100 - thresholdValue) / 100 * tradeData.open > tradeData.previousDay?.open })
-}
-const tradeActionTemplates: { [id: string]: TradeActionTemplate } = {
-    "BUY":                  new TradeActionTemplate("BUY", "Buy",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    let sharePrice: number = tradeData.open * numberOfShares;
-                                    if(portofolio.amountOfMoney < sharePrice) {
-                                        return;
-                                    }
-                                    portofolio.numberOfShares += numberOfShares;
-                                    portofolio.amountOfMoney -= sharePrice;
-                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "BUY_ALL":              new TradeActionTemplate("BUY_ALL", "Buy all",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    if(portofolio.amountOfMoney < tradeData.open) {
-                                        return;
-                                    }
-                                    numberOfShares = Math.floor(portofolio.amountOfMoney / tradeData.open);
-                                    portofolio.numberOfShares += numberOfShares;
-                                    portofolio.amountOfMoney -= tradeData.open * numberOfShares;
-                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "SELL":                 new TradeActionTemplate("SELL", "Sell",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    if(portofolio.numberOfShares < numberOfShares) {
-                                        return;
-                                    }
-                                    let sharePrice: number = tradeData.open * numberOfShares;
-                                    portofolio.numberOfShares -= numberOfShares;
-                                    portofolio.amountOfMoney += sharePrice;
-                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "SELL_ALL":             new TradeActionTemplate("SELL_ALL", "Sell all",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    if(portofolio.numberOfShares === 0) {
-                                        return;
-                                    }
-                                    portofolio.amountOfMoney += tradeData.open * portofolio.numberOfShares;
-                                    portofolio.numberOfShares = 0;
-                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, portofolio.numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                })
-}
-
+import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
 
 interface TimeSelector {
     (tradeDate: TradeData, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
-
 
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
@@ -156,7 +99,7 @@ $(() => {
         let portofolio: Portofolio = new Portofolio(startingAmount, 0);
         timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
             strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
-                if(strategyBranch.tradeCondition.condition(item)) {
+                if(strategyBranch.tradeCondition.condition(item, portofolio)) {
                     strategyBranch.tradeAction.action(item, portofolio);
                 } else {
                     return false;

@@ -1,5 +1,6 @@
+import Portofolio from './Portofolio';
 import TradeData from './TradeData';
 
 export default interface ITradeConditionTemplate {
-    (tradeData: TradeData, thresholdValue: number): boolean;
+    (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean;
 }
