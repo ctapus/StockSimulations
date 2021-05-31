@@ -15,7 +15,6 @@ const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Da
 
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
-    let previousDayTrade: TradeData = null;
     $.each(data["Time Series (Daily)"], (index, value) =>{
         const tradeData: TradeData = new TradeData();
         tradeData.date = new Date(index.toString());
@@ -24,10 +23,14 @@ function getTimeValues(data: any): Array<TradeData> {
         tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
         tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
         tradeData.volume = Number(data["Time Series (Daily)"][index]["5. volume"]);
-        tradeData.previousDay = previousDayTrade;
-        previousDayTrade = tradeData;
         ret.push(tradeData);
     });
+    let previousDayTrade: TradeData = null;
+    ret.sort((a, b) => a.date.getTime() - b.date.getTime());
+    $.each(ret, (index, value) => {
+        ret[index].previousDay = previousDayTrade;
+        previousDayTrade = ret[index];
+    })
     return ret;
 }
 $(() => {
@@ -46,7 +49,7 @@ $(() => {
     .ajaxStop(function () {
         $('#overlay').fadeOut();
     });
-    let timeValues: Array<TradeData>;
+    let tradeData: Array<TradeData>;
     const strategy: Strategy = new Strategy();
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
@@ -57,10 +60,9 @@ $(() => {
         $("#condition").prop("disabled", true);
         $("#addStrategyBranch").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            timeValues = getTimeValues(data);
-            timeValues.sort((a, b) => a.date.getTime() - b.date.getTime());
-            $("#startDate").val(timeValues[0].date.toISOString().split('T')[0]);
-            timeValues.forEach(item => {
+            tradeData = getTimeValues(data);
+            $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
+            tradeData.forEach(item => {
                 $('#data > tbody').append(`
                     <tr>
                         <td>${item.date.toISOString().split('T')[0]}</td>
@@ -97,7 +99,7 @@ $(() => {
         let startDate: Date = new Date($("#startDate").val().toString());
         
         let portofolio: Portofolio = new Portofolio(startingAmount, 0);
-        timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
+        tradeData.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
             strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
                 if(strategyBranch.tradeCondition.condition(item, portofolio)) {
                     strategyBranch.tradeAction.action(item, portofolio);
@@ -122,7 +124,7 @@ $(() => {
                 </tr>`);
               transactionNo++;
         });
-        const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
+        const lastTimeValue: TradeData = tradeData[tradeData.length - 1];
         $('#summary > tbody').append(`
             <tr>
                 <td>${portofolio.history.length}</td>
