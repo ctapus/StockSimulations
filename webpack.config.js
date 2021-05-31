@@ -4,6 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   entry: {
     index: './src/index.ts',
+    indexIntraday: './src/indexIntraday.ts',
     summary: './src/summary.ts'
   },
   devtool: 'inline-source-map',
