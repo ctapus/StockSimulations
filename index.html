@@ -146,19 +146,22 @@
     <div id="globalStrategy"></div>
     <br/>
     <br/>
-    <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="ex1-tab-1" data-mdb-toggle="tab" href="#ex1-tabs-1" role="tab" aria-controls="ex1-tabs-1" aria-selected="true">Summary</a>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#home">Summary</a>
         </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="ex1-tab-2" data-mdb-toggle="tab" href="#ex1-tabs-2" role="tab" aria-controls="ex1-tabs-2" aria-selected="false">Transactions</a>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu1">Trades</a>
         </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="ex1-tab-3" data-mdb-toggle="tab" href="#ex1-tabs-3" role="tab" aria-controls="ex1-tabs-3" aria-selected="false">Historic Date</a>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu2">Historic Data</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu3">Graph</a>
         </li>
     </ul>
-    <div class="tab-content" id="ex1-content">
-        <div class="tab-pane show active" id="ex1-tabs-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+    <div class="tab-content">
+        <div id="home" class="tab-pane active">
             <table id="summary" class="table table-striped">
                 <thead>
                     <td>number of transactions</td>
@@ -171,7 +174,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div class="tab-pane" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+        <div id="menu1" class="tab-pane">
             <table id="results" class="table table-striped">
                 <thead>
                     <td>transaction no.</td>
@@ -186,7 +189,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div class="tab-pane" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+        <div id="menu2" class="tab-pane">
             <table id="data" class="table table-striped">
                 <thead>
                     <td>date</td>
@@ -198,6 +201,10 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+        <div id="menu3" class="tab-pane">
+            <h3>Menu 3</h3>
+            <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
         </div>
     </div>
 </body>

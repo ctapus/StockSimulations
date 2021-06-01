@@ -114,7 +114,7 @@ $(() => {
             $('#results > tbody').append(`
                 <tr style='color:${styleColor}'>
                     <td>${transactionNo}</td>
-                    <td>${item.date.toLocaleDateString()}</td>
+                    <td>${item.date.toISOString().split('T')[0]}</td>
                     <td>${item.action}</td>
                     <td>${item.numberOfShares}</td>
                     <td>${item.sharePrice}</td>
@@ -128,7 +128,7 @@ $(() => {
         $('#summary > tbody').append(`
             <tr>
                 <td>${portofolio.history.length}</td>
-                <td>${lastTimeValue.date.toLocaleDateString()}</td>
+                <td>${lastTimeValue.date.toISOString().split('T')[0]}</td>
                 <td>${portofolio.numberOfShares}</td>
                 <td>${lastTimeValue.close}</td>
                 <td>${portofolio.amountOfMoney.toFixed(2)}</td>
