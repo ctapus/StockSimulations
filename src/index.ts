@@ -1,4 +1,5 @@
 import * as $ from "jquery";
+import * as d3 from "d3";
 import HistoryItem from "./HistoryItem";
 import Portofolio from "./Portofolio";
 import TradeData from "./TradeData";
@@ -32,6 +33,42 @@ function getTimeValues(data: any): Array<TradeData> {
         previousDayTrade = ret[index];
     })
     return ret;
+}
+function drawGraph(data: Array<TradeData>): void {
+    const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
+            width = window.innerWidth - margin.left - margin.right,
+            height = window.innerHeight - margin.top - margin.bottom;
+    const xScale = d3.scaleTime().domain(d3.extent(data, d => { return d.date; })).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, d3.max(data, d => { return d.open; })]).range([height, 0]);
+    const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin['left'] + margin['right'])
+        .attr('height', height + margin['top'] + margin['bottom'])
+        .append('g')
+        .attr('transform', `translate(${margin['left']},  ${margin['top']})`);
+    // create the axes component
+    svg.append('g').attr('id', 'xAxis').attr('transform', `translate(0, ${height})`).call(d3.axisBottom(xScale));
+    svg.append('g').attr('id', 'yAxis').attr('transform', `translate(${width}, 0)`).call(d3.axisRight(yScale));
+    const line = d3.line<TradeData>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
+    // Append the path and bind data
+    svg
+        .append('path')
+        .data([data])
+        .style('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', '1.5')
+        .attr('d', line);
+    svg
+        .selectAll('rect')
+        .data(data)
+        .enter()
+        .append('svg:rect')
+        .attr("x", function(d) { return xScale(d.date); })
+        .attr("y", function(d) {return yScale(d3.max([d.open, d.close]));})
+        .attr("height", function(d) { return yScale(d3.min([d.open, d.close]))-yScale(d3.max([d.open, d.close]));})
+        .attr("width", function(d) { return 0.5 * (width - 100)/data.length; })
+        .attr("fill",function(d) { return d.open > d.close ? "red" : "green" ;});
 }
 $(() => {
     const ddlActions = $("#action");
@@ -73,6 +110,7 @@ $(() => {
                         <td>${item.volume}</td>
                     </tr>`);
                 });
+            drawGraph(tradeData);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);
@@ -135,10 +173,4 @@ $(() => {
                 <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
             </tr>`);
     });
-    const urlParams = new URLSearchParams(window.location.search);
-    const tickerParam = urlParams.get('ticker');
-    if(tickerParam) {
-        $("#ticker").val(tickerParam);
-        $("#ticker").trigger("change");
-    }
 });
