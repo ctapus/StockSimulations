@@ -38,8 +38,8 @@ function drawGraph(data: Array<TradeData>): void {
     const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
             width = window.innerWidth - margin.left - margin.right,
             height = window.innerHeight - margin.top - margin.bottom;
-    const xScale = d3.scaleTime().domain(d3.extent(data, d => { return d.date; })).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, d3.max(data, d => { return d.open; })]).range([height, 0]);
+    const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(data, d => { return d.date; })).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(data, d => { return d.open; })]).range([height, 0]);
     const svg = d3
         .select('#chart')
         .append('svg')
