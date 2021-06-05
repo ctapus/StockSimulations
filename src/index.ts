@@ -34,41 +34,42 @@ function getTimeValues(data: any): Array<TradeData> {
     })
     return ret;
 }
-function drawGraph(data: Array<TradeData>): void {
-    const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
-            width = window.innerWidth - margin.left - margin.right,
-            height = window.innerHeight - margin.top - margin.bottom;
-    const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(data, d => { return d.date; })).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(data, d => { return d.open; })]).range([height, 0]);
+const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
+        width = window.innerWidth - margin.left - margin.right,
+        height = window.innerHeight - margin.top - margin.bottom;
+function drawGraph(tradeData: Array<TradeData>): void {
+    const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(tradeData, d => { return d.date; })).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(tradeData, d => { return d.open; })]).range([height, 0]);
     const svg = d3
-        .select('#chart')
-        .append('svg')
-        .attr('width', width + margin['left'] + margin['right'])
-        .attr('height', height + margin['top'] + margin['bottom'])
-        .append('g')
-        .attr('transform', `translate(${margin['left']},  ${margin['top']})`);
-    // create the axes component
-    svg.append('g').attr('id', 'xAxis').attr('transform', `translate(0, ${height})`).call(d3.axisBottom(xScale));
-    svg.append('g').attr('id', 'yAxis').attr('transform', `translate(${width}, 0)`).call(d3.axisRight(yScale));
+        .select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+    svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
     const line = d3.line<TradeData>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
-    // Append the path and bind data
-    svg
-        .append('path')
-        .data([data])
-        .style('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', '1.5')
-        .attr('d', line);
-    svg
-        .selectAll('rect')
-        .data(data)
+    svg.append("path")
+        .data<TradeData[]>([tradeData])
+        .style("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", "1.5")
+        .attr("d", line);
+}
+function drawActions(tradeData: Array<TradeData>, portofolio: Portofolio): void {
+    const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(tradeData, d => { return d.date; })).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+    const svg = d3.select('#chart').select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+    svg.selectAll("line")
+        .data<HistoryItem>(portofolio.history)
         .enter()
-        .append('svg:rect')
-        .attr("x", function(d) { return xScale(d.date); })
-        .attr("y", function(d) {return yScale(d3.max([d.open, d.close]));})
-        .attr("height", function(d) { return yScale(d3.min([d.open, d.close]))-yScale(d3.max([d.open, d.close]));})
-        .attr("width", function(d) { return 0.5 * (width - 100)/data.length; })
-        .attr("fill",function(d) { return d.open > d.close ? "red" : "green" ;});
+        .append("line")
+        .attr("x1", d => { return xScale(d.date); })
+        .attr("y1", margin.top)
+        .attr("x2", d => { return xScale(d.date); })
+        .attr("y2", height)
+        .attr("style", d => { return d.action === "BUY" ? "stroke:blue; stroke-width:1;" : "stroke:red; stroke-width:1;"; });
 }
 $(() => {
     const ddlActions = $("#action");
@@ -172,5 +173,6 @@ $(() => {
                 <td>${portofolio.amountOfMoney.toFixed(2)}</td>
                 <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
             </tr>`);
+        drawActions(tradeData, portofolio);
     });
 });
