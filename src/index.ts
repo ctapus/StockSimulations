@@ -31,6 +31,9 @@ function getTimeValues(data: any): Array<TradeData> {
     $.each(ret, (index, value) => {
         ret[index].previousDay = previousDayTrade;
         previousDayTrade = ret[index];
+        if(null != ret[index].previousDay) {
+            ret[index].openVariation = ret[index].open / ret[index].previousDay.open * 100;
+        }
     })
     return ret;
 }
@@ -104,11 +107,12 @@ $(() => {
                 $('#data > tbody').append(`
                     <tr>
                         <td>${item.date.toISOString().split('T')[0]}</td>
-                        <td>${item.open}</td>
-                        <td>${item.high}</td>
-                        <td>${item.low}</td>
-                        <td>${item.close}</td>
-                        <td>${item.volume}</td>
+                        <td style="text-align: right;">${item.open.toFixed(4)}</td>
+                        <td style="text-align: right;">${item.high.toFixed(4)}</td>
+                        <td style="text-align: right;">${item.low.toFixed(4)}</td>
+                        <td style="text-align: right;">${item.close.toFixed(4)}</td>
+                        <td style="text-align: right;">${item.volume}</td>
+                        <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                     </tr>`);
                 });
             drawGraph(tradeData);
@@ -136,7 +140,6 @@ $(() => {
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
         let startDate: Date = new Date($("#startDate").val().toString());
-        
         let portofolio: Portofolio = new Portofolio(startingAmount, 0);
         tradeData.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
             strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {

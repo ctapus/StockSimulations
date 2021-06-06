@@ -6,6 +6,7 @@ export default class TradeData {
     public close: number;
     public volume: number;
     public previousDay: TradeData;
+    public openVariation: number;
     public deepCopy(): TradeData {
         const ret: TradeData = new TradeData();
         ret.date = this.date;

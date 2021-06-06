@@ -21,12 +21,13 @@ export const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } =
                                     (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean =>
                                      {
                                         if(!tradeData.previousDay) return false;
-                                        return (100 - thresholdValue) / 100 * tradeData.open < tradeData.previousDay.open; }),
+                                        return (tradeData.open / tradeData.previousDay.open * 100) <= (100 - thresholdValue);
+                                    }),
     "CUR_X%LOWER_PREV_BUY"  :   new TradeConditionTemplate("CUR_X%LOWER_PREV_BUY", "if current day opens lower than previous BUY with at least",
                                     (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean =>
                                      {
                                         if(!portofolio.lastHistoryItem) return false;
-                                        return (100 - thresholdValue) / 100 * tradeData.open < portofolio.lastHistoryItem.sharePrice;
+                                        return (tradeData.open / portofolio.lastHistoryItem.sharePrice * 100) <= (100 - thresholdValue);
                                     }),
     "CUR_HIGHER_PREV_TICK"  :   new TradeConditionTemplate("CUR_HIGHER_PREV_TICK", "if current day open higher than previous DAY",
                                     (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean =>
@@ -38,13 +39,13 @@ export const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } =
                                     (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean =>
                                      {
                                         if(!tradeData.previousDay) return false;
-                                        return (100 - thresholdValue) / 100 * tradeData.open > tradeData.previousDay.open;
+                                        return (tradeData.open / tradeData.previousDay.open * 100) >= (100 - thresholdValue);
                                     }),
     "CUR_X%HIGHER_PREV_BUY" :   new TradeConditionTemplate("CUR_X%HIGHER_PREV_BUY", "if current day opens higher than previous BUY with at least",
                                     (tradeData: TradeData, portofolio: Portofolio, thresholdValue: number): boolean =>
                                     {
                                         if(!portofolio.lastHistoryItem) return false;
-                                        return (100 - thresholdValue) / 100 * tradeData.open > portofolio.lastHistoryItem.sharePrice;
+                                        return (tradeData.open / portofolio.lastHistoryItem.sharePrice * 100) >= (100 - thresholdValue);
                                     })
 }
 export const tradeActionTemplates: { [id: string]: TradeActionTemplate } = {
