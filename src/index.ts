@@ -64,15 +64,14 @@ function drawActions(tradeData: Array<TradeData>, portofolio: Portofolio): void 
     const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(tradeData, d => { return d.date; })).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(tradeData, d => { return d.open; })]).range([height, 0]);
     const svg = d3.select('#chart').select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
-    svg.selectAll("line")
+    svg.selectAll("circle")
         .data<HistoryItem>(portofolio.history)
         .enter()
-        .append("line")
-        .attr("x1", d => { return xScale(d.date); })
-        .attr("y1", margin.top)
-        .attr("x2", d => { return xScale(d.date); })
-        .attr("y2", height)
-        .attr("style", d => { return d.action === "BUY" ? "stroke:blue; stroke-width:1;" : "stroke:red; stroke-width:1;"; });
+        .append("circle")
+        .attr("cx", d => { return xScale(d.date); })
+        .attr("cy", d => { return yScale(d.sharePrice); })
+        .attr("r", 2)
+        .attr("style", d => { return d.action === "BUY" ? "stroke:blue; stroke-width:1; fill: blue;" : "stroke:red; stroke-width:1; fill: red;"; });
 }
 $(() => {
     const ddlActions = $("#action");
