@@ -1,5 +1,6 @@
 import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
+import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
 import HistoryItem from "./HistoryItem";
 import Portofolio from "./Portofolio";
@@ -73,10 +74,13 @@ function drawActions(tradeData: Array<TradeData>, portofolio: Portofolio): void 
         .attr("cy", d => { return yScale(d.sharePrice); })
         .attr("r", 2)
         .attr("style", d => { return d.action === "BUY" ? "stroke:blue; stroke-width:1; fill: blue;" : "stroke:red; stroke-width:1; fill: red;"; })
-        .attr("data-toggle", "tooltip")
-        .attr("data-placement", "bottom")
+        .attr("data-bs-toggle", "tooltip")
+        .attr("data-bs-placement", "auto")
+        .attr("data-bs-html", "true")
         .attr("title", d => `${d.action} ${d.numberOfShares} shares at ${d.sharePrice}`);
-    $('[data-toggle="tooltip"]').tooltip();
+    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
 }
 $(() => {
     const ddlActions = $("#action");
