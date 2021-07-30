@@ -15,7 +15,6 @@ interface TimeSelector {
     (tradeDate: TradeData, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
-
 function getTimeValues(data: any): Array<TradeData> {
     let ret: Array<TradeData> = new Array<TradeData>();
     $.each(data["Time Series (Daily)"], (index, value) =>{
@@ -77,10 +76,79 @@ function drawActions(tradeData: Array<TradeData>, portofolio: Portofolio): void 
         .attr("data-bs-toggle", "tooltip")
         .attr("data-bs-placement", "auto")
         .attr("data-bs-html", "true")
-        .attr("title", d => `${d.action} ${d.numberOfShares} shares at ${d.sharePrice}`);
-    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        .attr("title", d => `On ${d.date.toISOString().split('T')[0]}<br /> ${d.action} ${d.numberOfShares} shares at ${d.sharePrice}`);
+    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(x => { return new bootstrap.Tooltip(x); })
+}
+function printResults(portofolio: Portofolio) {
+    let transactionNo: number = 1;
+    portofolio.history.forEach((item: HistoryItem) => {
+        let styleColor: string = item.action === 'BUY' ? "blue" : "red";
+        $('#results > tbody').append(`
+            <tr style='color:${styleColor}'>
+                <td>${transactionNo}</td>
+                <td>${item.date.toISOString().split('T')[0]}</td>
+                <td>${item.action}</td>
+                <td>${item.numberOfShares}</td>
+                <td>${item.sharePrice}</td>
+                <td>${item.availableCash.toFixed(2)}</td>
+                <td>${item.totalNumberOfShares}</td>
+                <td>${(item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2)}</td>
+            </tr>`);
+          transactionNo++;
+    });
+}
+function printSummary(tradeData: Array<TradeData>, portofolio: Portofolio) {
+    const lastTimeValue: TradeData = tradeData[tradeData.length - 1];
+    $('#summary > tbody').append(`
+        <tr>
+            <td>${portofolio.history.length}</td>
+            <td>${lastTimeValue.date.toISOString().split('T')[0]}</td>
+            <td>${portofolio.numberOfShares}</td>
+            <td>${lastTimeValue.close}</td>
+            <td>${portofolio.amountOfMoney.toFixed(2)}</td>
+            <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
+        </tr>`);
+}
+function runStrategy(tradeData: Array<TradeData>, strategy: Strategy) {
+    let startingAmount: number = Number($("#startingAmount").val());
+    let startDate: Date = new Date($("#startDate").val().toString());
+    let portofolio: Portofolio = new Portofolio(startingAmount, 0);
+    tradeData.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
+        strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
+            if(strategyBranch.tradeCondition.condition(item, portofolio)) {
+                strategyBranch.tradeAction.action(item, portofolio);
+            } else {
+                return false;
+            }
+        });
+    });
+    printResults(portofolio);
+    printSummary(tradeData, portofolio);
+    drawActions(tradeData, portofolio);
+}
+function addStrategy(strategy: Strategy) {
+    $("#run").prop("disabled", false);
+    let action: string = $("#action option:selected").val().toString();
+    let numberOfShares: number = Number($("#numberOfShares").val());
+    let condition: string = $("#condition option:selected").val().toString();
+    let thresholdValue: number = Number($("#thresholdValue").val());
+    const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
+    strategy.strategyBranches.push(strategyBranch);
+    $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+}
+function printTradeDate(tradeData: Array<TradeData>) {
+    tradeData.forEach(item => {
+        $('#data > tbody').append(`
+            <tr>
+                <td>${item.date.toISOString().split('T')[0]}</td>
+                <td style="text-align: right;">${item.open.toFixed(4)}</td>
+                <td style="text-align: right;">${item.high.toFixed(4)}</td>
+                <td style="text-align: right;">${item.low.toFixed(4)}</td>
+                <td style="text-align: right;">${item.close.toFixed(4)}</td>
+                <td style="text-align: right;">${item.volume}</td>
+                <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
+            </tr>`);
+        });
 }
 $(() => {
     const ddlActions = $("#action");
@@ -100,7 +168,7 @@ $(() => {
     });
     let tradeData: Array<TradeData>;
     const strategy: Strategy = new Strategy();
-    $("#ticker").on("change", function() {
+    $("#ticker").on("change", () => {
         let ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
         $("#startingAmount").prop("disabled", true);
@@ -111,18 +179,7 @@ $(() => {
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = getTimeValues(data);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            tradeData.forEach(item => {
-                $('#data > tbody').append(`
-                    <tr>
-                        <td>${item.date.toISOString().split('T')[0]}</td>
-                        <td style="text-align: right;">${item.open.toFixed(4)}</td>
-                        <td style="text-align: right;">${item.high.toFixed(4)}</td>
-                        <td style="text-align: right;">${item.low.toFixed(4)}</td>
-                        <td style="text-align: right;">${item.close.toFixed(4)}</td>
-                        <td style="text-align: right;">${item.volume}</td>
-                        <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
-                    </tr>`);
-                });
+            printTradeDate(tradeData);
             drawGraph(tradeData);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
@@ -135,55 +192,6 @@ $(() => {
         }).always(() => {
         });
     });
-    $("#addStrategyBranch").on("click", function() {
-        $("#run").prop("disabled", false);
-        let action: string = $("#action option:selected").val().toString();
-        let numberOfShares: number = Number($("#numberOfShares").val());
-        let condition: string = $("#condition option:selected").val().toString();
-        let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
-        strategy.strategyBranches.push(strategyBranch);
-        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
-    });
-    $("#run").on("click", function() {
-        let startingAmount: number = Number($("#startingAmount").val());
-        let startDate: Date = new Date($("#startDate").val().toString());
-        let portofolio: Portofolio = new Portofolio(startingAmount, 0);
-        tradeData.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
-            strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
-                if(strategyBranch.tradeCondition.condition(item, portofolio)) {
-                    strategyBranch.tradeAction.action(item, portofolio);
-                } else {
-                    return false;
-                }
-            });
-        });
-        let transactionNo: number = 1;
-        portofolio.history.forEach((item: HistoryItem) => {
-            let styleColor: string = item.action === 'BUY' ? "blue" : "red";
-            $('#results > tbody').append(`
-                <tr style='color:${styleColor}'>
-                    <td>${transactionNo}</td>
-                    <td>${item.date.toISOString().split('T')[0]}</td>
-                    <td>${item.action}</td>
-                    <td>${item.numberOfShares}</td>
-                    <td>${item.sharePrice}</td>
-                    <td>${item.availableCash.toFixed(2)}</td>
-                    <td>${item.totalNumberOfShares}</td>
-                    <td>${(item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2)}</td>
-                </tr>`);
-              transactionNo++;
-        });
-        const lastTimeValue: TradeData = tradeData[tradeData.length - 1];
-        $('#summary > tbody').append(`
-            <tr>
-                <td>${portofolio.history.length}</td>
-                <td>${lastTimeValue.date.toISOString().split('T')[0]}</td>
-                <td>${portofolio.numberOfShares}</td>
-                <td>${lastTimeValue.close}</td>
-                <td>${portofolio.amountOfMoney.toFixed(2)}</td>
-                <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
-            </tr>`);
-        drawActions(tradeData, portofolio);
-    });
+    $("#addStrategyBranch").on("click", () => addStrategy(strategy));
+    $("#run").on("click", () => runStrategy(tradeData, strategy));
 });
