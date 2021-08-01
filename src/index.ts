@@ -41,17 +41,20 @@ function getTimeValues(data: any): Array<TradeData> {
 const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
         height = window.innerHeight - margin.top - margin.bottom;
+function initGraph(): void {
+    const svg = d3.select("#chart").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .call(d3.zoom()
+                .scaleExtent([1, 5])
+                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
+                .extent([[0, 0], [width, height]])
+                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+}
 function drawGraph(tradeData: Array<TradeData>): void {
     const xScale = d3.scaleTime().domain(d3.extent<TradeData, Date>(tradeData, d => { return d.date; })).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(tradeData, d => { return d.open; })]).range([height, 0]);
-    const svg = d3
-        .select("#chart")
-        .select("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom().on("zoom", (event) => { svg.attr("transform", event.transform); }))
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    const svg = d3.select("#chart").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
     svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
     svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
     const line = d3.line<TradeData>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
@@ -80,7 +83,7 @@ function drawActions(tradeData: Array<TradeData>, portofolio: Portofolio): void 
         .attr("title", d => `On ${d.date.toISOString().split('T')[0]}<br /> ${d.action} ${d.numberOfShares} shares at ${d.sharePrice}`);
     [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(x => { return new bootstrap.Tooltip(x); })
 }
-function printResults(portofolio: Portofolio) {
+function printResults(portofolio: Portofolio): void {
     let transactionNo: number = 1;
     portofolio.history.forEach((item: HistoryItem) => {
         let styleColor: string = item.action === 'BUY' ? "blue" : "red";
@@ -98,7 +101,7 @@ function printResults(portofolio: Portofolio) {
           transactionNo++;
     });
 }
-function printSummary(tradeData: Array<TradeData>, portofolio: Portofolio) {
+function printSummary(tradeData: Array<TradeData>, portofolio: Portofolio): void {
     const lastTimeValue: TradeData = tradeData[tradeData.length - 1];
     $('#summary > tbody').append(`
         <tr>
@@ -110,7 +113,7 @@ function printSummary(tradeData: Array<TradeData>, portofolio: Portofolio) {
             <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
         </tr>`);
 }
-function runStrategy(tradeData: Array<TradeData>, strategy: Strategy) {
+function runStrategy(tradeData: Array<TradeData>, strategy: Strategy): void {
     let startingAmount: number = Number($("#startingAmount").val());
     let startDate: Date = new Date($("#startDate").val().toString());
     let portofolio: Portofolio = new Portofolio(startingAmount, 0);
@@ -127,7 +130,7 @@ function runStrategy(tradeData: Array<TradeData>, strategy: Strategy) {
     printSummary(tradeData, portofolio);
     drawActions(tradeData, portofolio);
 }
-function addStrategy(strategy: Strategy) {
+function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
     let action: string = $("#action option:selected").val().toString();
     let numberOfShares: number = Number($("#numberOfShares").val());
@@ -137,7 +140,7 @@ function addStrategy(strategy: Strategy) {
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
 }
-function printTradeDate(tradeData: Array<TradeData>) {
+function printTradeDate(tradeData: Array<TradeData>): void {
     tradeData.forEach(item => {
         $('#data > tbody').append(`
             <tr>
@@ -195,4 +198,5 @@ $(() => {
     });
     $("#addStrategyBranch").on("click", () => addStrategy(strategy));
     $("#run").on("click", () => runStrategy(tradeData, strategy));
+    initGraph();
 });
