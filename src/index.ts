@@ -46,9 +46,10 @@ function drawGraph(tradeData: Array<TradeData>): void {
     const yScale = d3.scaleLinear().domain([0, d3.max<TradeData, number>(tradeData, d => { return d.open; })]).range([height, 0]);
     const svg = d3
         .select("#chart")
-        .append("svg")
+        .select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .call(d3.zoom().on("zoom", (event) => { svg.attr("transform", event.transform); }))
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
     svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
