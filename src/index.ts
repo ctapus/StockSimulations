@@ -140,8 +140,15 @@ function addStrategy(strategy: Strategy): void {
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
 }
-function printTradeDate(tradeData: Array<TradeData>): void {
+function printHistoricData(tradeData: Array<TradeData>): void {
     tradeData.forEach(item => {
+        let variationIcon: string = "";
+        if(item.openVariation > 100) {
+            variationIcon = "<i style='color: green;' class='fas fa-arrow-up'></i>";
+        }
+        if(item.openVariation < 100) {
+            variationIcon = "<i style='color: red;' class='fas fa-arrow-down'></i>";
+        }
         $('#data > tbody').append(`
             <tr>
                 <td>${item.date.toISOString().split('T')[0]}</td>
@@ -151,6 +158,7 @@ function printTradeDate(tradeData: Array<TradeData>): void {
                 <td style="text-align: right;">${item.close.toFixed(4)}</td>
                 <td style="text-align: right;">${item.volume}</td>
                 <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
+                <td style="text-align: right;">${variationIcon}</td>
             </tr>`);
         });
 }
@@ -183,7 +191,7 @@ $(() => {
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = getTimeValues(data);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            printTradeDate(tradeData);
+            printHistoricData(tradeData);
             drawGraph(tradeData);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
