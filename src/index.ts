@@ -28,12 +28,26 @@ function getTimeValues(data: any): Array<TradeData> {
         ret.push(tradeData);
     });
     let previousDayTrade: TradeData = null;
+    let low52Weeks: number = Number.MAX_SAFE_INTEGER;
+    let high52Weeks: number = Number.MIN_SAFE_INTEGER;
     ret.sort((a, b) => a.date.getTime() - b.date.getTime());
     $.each(ret, (index, value) => {
         ret[index].previousDay = previousDayTrade;
         previousDayTrade = ret[index];
         if(null != ret[index].previousDay) {
             ret[index].openVariation = ret[index].open / ret[index].previousDay.open * 100;
+        }
+        if (index >= 52 * 5) { // Ignore the first 52*5 days
+            for(let i: number = index - 52 * 5; i<= index; i++) {
+                if(ret[i].high >= high52Weeks) {
+                    high52Weeks = ret[index].high;
+                }
+                if(ret[i].low <= low52Weeks) {
+                    low52Weeks = ret[index].low;
+                }
+            }
+            ret[index].high52Weeks = high52Weeks;
+            ret[index].low52Weeks = low52Weeks;
         }
     })
     return ret;
@@ -157,6 +171,8 @@ function printHistoricData(tradeData: Array<TradeData>): void {
                 <td style="text-align: right;">${item.low.toFixed(4)}</td>
                 <td style="text-align: right;">${item.close.toFixed(4)}</td>
                 <td style="text-align: right;">${item.volume}</td>
+                <td style="text-align: right;">${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
+                <td style="text-align: right;">${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
                 <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                 <td style="text-align: right;">${variationIcon}</td>
             </tr>`);
