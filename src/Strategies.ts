@@ -59,43 +59,51 @@ export const tradeConditionTemplates: { [id: string]: TradeConditionTemplate } =
                                             })
 }
 export const tradeActionTemplates: { [id: string]: TradeActionTemplate } = {
-    "BUY":                  new TradeActionTemplate("BUY", "Buy",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    let sharePrice: number = tradeData.open * numberOfShares;
+    "BUY":                  new TradeActionTemplate("BUY", "Buy non-fractional number of shares",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfSharesOrPercentage: number): void => {
+                                    let sharePrice: number = tradeData.open * numberOfSharesOrPercentage;
                                     if(portofolio.amountOfMoney < sharePrice) {
                                         return;
                                     }
-                                    portofolio.numberOfShares += numberOfShares;
+                                    portofolio.numberOfShares += numberOfSharesOrPercentage;
                                     portofolio.amountOfMoney -= sharePrice;
-                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "BUY_ALL":              new TradeActionTemplate("BUY_ALL", "Buy all",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfSharesOrPercentage, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                },
+                                "<input type='number' id='numberOfSharesOrPercentage' value='1' min='0' /><span>&nbsp;shares&nbsp;</span>",
+                                (numberOfSharesOrPercentage) => `Buy ${numberOfSharesOrPercentage} shares`),
+    "BUY_PERCENTAGE":       new TradeActionTemplate("BUY_PERCENTAGE", "Buy shares with percentage of money (rounded to the maximum number of non-fractional shares)",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfSharesOrPercentage: number): void => {
                                     if(portofolio.amountOfMoney < tradeData.open) {
                                         return;
                                     }
-                                    numberOfShares = Math.floor(portofolio.amountOfMoney / tradeData.open);
-                                    portofolio.numberOfShares += numberOfShares;
-                                    portofolio.amountOfMoney -= tradeData.open * numberOfShares;
-                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "SELL":                 new TradeActionTemplate("SELL", "Sell",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
-                                    if(portofolio.numberOfShares < numberOfShares) {
+                                    numberOfSharesOrPercentage = Math.floor(portofolio.amountOfMoney / tradeData.open);
+                                    portofolio.numberOfShares += numberOfSharesOrPercentage;
+                                    portofolio.amountOfMoney -= tradeData.open * numberOfSharesOrPercentage;
+                                    portofolio.history.push(new HistoryItem("BUY", tradeData.date, numberOfSharesOrPercentage, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                },
+                                "<input type='number' id='numberOfSharesOrPercentage' value='100' min='0' max='100' /><span> percent of money </span>",
+                                (numberOfSharesOrPercentage) => `Buy ${numberOfSharesOrPercentage} % of money (rounded to the maximum number of non-fractional shares)`),
+    "SELL":                 new TradeActionTemplate("SELL", "Sell non-fractional number of shares",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfSharesOrPercentage: number): void => {
+                                    if(portofolio.numberOfShares < numberOfSharesOrPercentage) {
                                         return;
                                     }
-                                    let sharePrice: number = tradeData.open * numberOfShares;
-                                    portofolio.numberOfShares -= numberOfShares;
+                                    let sharePrice: number = tradeData.open * numberOfSharesOrPercentage;
+                                    portofolio.numberOfShares -= numberOfSharesOrPercentage;
                                     portofolio.amountOfMoney += sharePrice;
-                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                }),
-    "SELL_ALL":             new TradeActionTemplate("SELL_ALL", "Sell all",
-                                (tradeData: TradeData, portofolio: Portofolio, numberOfShares: number): void => {
+                                    portofolio.history.push(new HistoryItem("SELL", tradeData.date, numberOfSharesOrPercentage, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
+                                },
+                                "<input type='number' id='numberOfSharesOrPercentage' value='1' min='0' /><span>&nbsp;shares&nbsp;</span>",
+                                (numberOfSharesOrPercentage) => `Sell ${numberOfSharesOrPercentage} shares`),
+    "SELL_PERCENTAGE":      new TradeActionTemplate("SELL_PERCENTAGE", "Sell percentage of owned shares (rounded to smallest integer)",
+                                (tradeData: TradeData, portofolio: Portofolio, numberOfSharesOrPercentage: number): void => {
                                     if(portofolio.numberOfShares === 0) {
                                         return;
                                     }
                                     portofolio.amountOfMoney += tradeData.open * portofolio.numberOfShares;
                                     portofolio.numberOfShares = 0;
                                     portofolio.history.push(new HistoryItem("SELL", tradeData.date, portofolio.numberOfShares, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
-                                })
+                                },
+                                "<input type='number' id='numberOfSharesOrPercentage' value='100' min='0' max='100' /><span> percent of shares </span>",
+                                (numberOfSharesOrPercentage) => `Sell ${numberOfSharesOrPercentage} % of owned shares (rounded to smallest integer)`)
 }

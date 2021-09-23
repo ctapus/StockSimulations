@@ -6,19 +6,15 @@ import TradeData from './TradeData';
 export default class TradeAction {
     public name: string;
     public description: string;
-    public numberOfShares: number;
+    public numberOfSharesOrPercentage: number;
     public action: ITradeAction;
-    constructor(actionTemplate: TradeActionTemplate, numberOfShares: number) {
+    constructor(actionTemplate: TradeActionTemplate, numberOfSharesOrPercentage: number) {
         this.name = actionTemplate.name;
         this.description = actionTemplate.description;
-        this.action = (tradeData: TradeData, portofolio: Portofolio): void => { return actionTemplate.action(tradeData, portofolio, numberOfShares) };
-        this.numberOfShares = numberOfShares;
+        this.action = (tradeData: TradeData, portofolio: Portofolio): void => { return actionTemplate.action(tradeData, portofolio, numberOfSharesOrPercentage) };
+        this.numberOfSharesOrPercentage = numberOfSharesOrPercentage;
     }
     public toString(): string {
-        if(this.name === "BUY_ALL" || this.name === "SELL_ALL") {
-            return `${this.description}`;
-        } else {
-            return `${this.description} ${this.numberOfShares}`;
-        }
+        return `${this.description} ${this.numberOfSharesOrPercentage}`;
     }
 }

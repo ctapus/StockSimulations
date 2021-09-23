@@ -116,9 +116,9 @@
     <table id="strategy">
         <thead>
             <td>Action</td>
-            <td>Amount</td>
+            <td>Parameter</td>
             <td>When</td>
-            <td>Amount</td>
+            <td>Parameter</td>
             <td></td>
         </thead>
         <tbody>
@@ -128,9 +128,7 @@
                         <option></option>
                     </select>
                 </td>
-                <td>
-                    <input type="number" id="numberOfShares" value="1" disabled />
-                    <span>&nbsp;share(s)&nbsp;</span>
+                <td id="actionRender">
                 </td>
                 <td>
                     <select id="condition" disabled>
@@ -182,7 +180,7 @@
             <table id="results" class="table table-striped">
                 <thead>
                     <td>transaction no.</td>
-                    <td>date</td>
+                    <td style="width: 150px">date</td>
                     <td>action</td>
                     <td>number of shares</td>
                     <td>share price</td>

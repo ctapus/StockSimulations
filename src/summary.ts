@@ -83,7 +83,9 @@ $(() => {
         let numberOfShares: number = Number($("#numberOfShares").val());
         let condition: string = $("#condition option:selected").val().toString();
         let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
+        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue),
+                                                 new TradeAction(tradeActionTemplates[action], numberOfShares),
+                                                 tradeActionTemplates[action].instanceDescription);
         strategies[strategies.length - 1].strategyBranches.push(strategyBranch);
         let strategiesDescription: string = "";
         strategies.forEach((strategy: Strategy) => {

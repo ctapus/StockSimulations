@@ -86,10 +86,12 @@ $(() => {
     $("#addStrategyBranch").on("click", function() {
         $("#run").prop("disabled", false);
         let action: string = $("#action option:selected").val().toString();
-        let numberOfShares: number = Number($("#numberOfShares").val());
+        let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
         let condition: string = $("#condition option:selected").val().toString();
         let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
+        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue),
+                                                 new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
+                                                 tradeActionTemplates[action].instanceDescription);
         strategy.strategyBranches.push(strategyBranch);
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     });

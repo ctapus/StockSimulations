@@ -147,10 +147,12 @@ function runStrategy(tradeData: Array<TradeData>, strategy: Strategy): void {
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
     let action: string = $("#action option:selected").val().toString();
-    let numberOfShares: number = Number($("#numberOfShares").val());
+    let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
     let condition: string = $("#condition option:selected").val().toString();
     let thresholdValue: number = Number($("#thresholdValue").val());
-    const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfShares));
+    const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue),
+                                             new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
+                                             tradeActionTemplates[action].instanceDescription);
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
 }
@@ -219,6 +221,10 @@ $(() => {
             console.log("Error while reading json");
         }).always(() => {
         });
+    });
+    $("#action").on("change", () => {
+        let key: string = $("#action").val().toString();
+        $("#actionRender").html(tradeActionTemplates[key].htmlRender);
     });
     $("#addStrategyBranch").on("click", () => addStrategy(strategy));
     $("#run").on("click", () => runStrategy(tradeData, strategy));
