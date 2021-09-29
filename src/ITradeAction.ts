@@ -1,6 +1,6 @@
-import TradeData from './TradeData';
+import StockHistoryItem from './StockHistoryItem';
 import Portofolio from './Portofolio';
 
 export default interface ITradeAction {
-    (tradeData: TradeData, portofolio: Portofolio): void;
+    (tradeData: StockHistoryItem, portofolio: Portofolio): void;
 }

@@ -1,7 +1,7 @@
 import ITradeCondition from './ITradeCondition';
 import Portofolio from './Portofolio';
 import TradeConditionTemplate from './TradeConditionTemplate';
-import TradeData from './TradeData';
+import StockHistoryItem from './StockHistoryItem';
 
 export default class TradeCondition {
     public name: string;
@@ -11,7 +11,7 @@ export default class TradeCondition {
     constructor(conditionTemplate: TradeConditionTemplate, thresholdValue: number) {
         this.name = conditionTemplate.name;
         this.description = conditionTemplate.description;
-        this.condition = (tradeData: TradeData, portofolio: Portofolio): boolean => { return  conditionTemplate.condition(tradeData, portofolio, thresholdValue) };
+        this.condition = (tradeData: StockHistoryItem, portofolio: Portofolio): boolean => { return  conditionTemplate.condition(tradeData, portofolio, thresholdValue) };
         this.thresholdValue = thresholdValue;
     }
     public toString(): string {

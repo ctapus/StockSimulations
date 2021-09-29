@@ -117,7 +117,7 @@
         <thead>
             <td>Action</td>
             <td>Parameter</td>
-            <td>When</td>
+            <td>Condition</td>
             <td>Parameter</td>
             <td></td>
         </thead>
@@ -135,9 +135,7 @@
                         <option></option>
                     </select>
                 </td>
-                <td>
-                    <input type="number" id="thresholdValue" value="3" disabled />
-                    <span>&nbsp;%&nbsp;</span>
+                <td id="conditionRender">
                 </td>
                 <td><input type="button" id="addStrategyBranch" class="btn btn-info" value="Add strategy" disabled /></td>
             </tr>
@@ -192,9 +190,9 @@
             </table>
         </div>
         <div id="menu2" class="tab-pane">
-            <table id="data" class="table table-striped">
+            <table id="data" class="table table-striped" style="width: 100%">
                 <thead>
-                    <td>date</td>
+                    <td style="width: 150px">date</td>
                     <td>open</td>
                     <td>high</td>
                     <td>low</td>
@@ -204,6 +202,7 @@
                     <td>52 weeks high</td>
                     <td>open variation</td>
                     <td></td>
+                    <td style="width: 550px">trade</td>
                 </thead>
                 <tbody></tbody>
             </table>

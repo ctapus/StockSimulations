@@ -1,6 +1,6 @@
 import Portofolio from './Portofolio';
-import TradeData from './TradeData';
+import StockHistoryItem from './StockHistoryItem';
 
 export default interface ITradeCondition {
-    (tradeData: TradeData, portofolio: Portofolio): boolean;
+    (tradeData: StockHistoryItem, portofolio: Portofolio): boolean;
 }

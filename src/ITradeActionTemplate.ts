@@ -1,6 +1,6 @@
-import TradeData from './TradeData';
+import StockHistoryItem from './StockHistoryItem';
 import Portofolio from './Portofolio';
 
 export default interface ITradeActionTemplate {
-    (tradeData: TradeData, portofolio: Portofolio, numberOfSharesorPercentage: number): void;
+    (tradeData: StockHistoryItem, portofolio: Portofolio, numberOfSharesorPercentage: number): void;
 }

@@ -1,7 +1,7 @@
 import * as $ from "jquery";
-import HistoryItem from "./HistoryItem";
+import TradeHistoryItem from "./TradeHistoryItem";
 import Portofolio from "./Portofolio";
-import TradeData from "./TradeData";
+import StockHistoryItem from "./StockHistoryItem";
 import TradeCondition from './TradeCondition';
 import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
@@ -9,16 +9,16 @@ import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
 
 interface TimeSelector {
-    (tradeDate: TradeData, startDate: Date): boolean;
+    (tradeDate: StockHistoryItem, startDate: Date): boolean;
 }
-const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
+const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
 
-function getTimeValues(data: any): Array<TradeData> {
-    let ret: Array<TradeData> = new Array<TradeData>();
-    let previousDayTrade: TradeData = null;
+function getTimeValues(data: any): Array<StockHistoryItem> {
+    let ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
+    let previousDayTrade: StockHistoryItem = null;
     $.each(data["Time Series Crypto (1min)"], (index, value) =>{
-        const tradeData: TradeData = new TradeData();
+        const tradeData: StockHistoryItem = new StockHistoryItem();
         tradeData.date = new Date(index.toString());
         tradeData.open = Number(data["Time Series Crypto (1min)"][index]["1. open"]);
         tradeData.high = Number(data["Time Series Crypto (1min)"][index]["2. high"]);
@@ -47,7 +47,7 @@ $(() => {
     .ajaxStop(function () {
         $('#overlay').fadeOut();
     });
-    let timeValues: Array<TradeData>;
+    let timeValues: Array<StockHistoryItem>;
     const strategy: Strategy = new Strategy();
     $("#ticker").on("change", function() {
         let ticker: string = $("#ticker").val().toString();
@@ -89,9 +89,9 @@ $(() => {
         let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
         let condition: string = $("#condition option:selected").val().toString();
         let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue),
-                                                 new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
-                                                 tradeActionTemplates[action].instanceDescription);
+        const strategyBranch: StrategyBranch = new StrategyBranch(
+                                                    new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
+                                                    tradeConditionTemplates[condition].instanceDescription, tradeActionTemplates[action].instanceDescription);
         strategy.strategyBranches.push(strategyBranch);
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     });
@@ -110,7 +110,7 @@ $(() => {
             });
         });
         let transactionNo: number = 1;
-        portofolio.history.forEach((item: HistoryItem) => {
+        portofolio.history.forEach((item: TradeHistoryItem) => {
             let styleColor: string = item.action === 'BUY' ? "blue" : "red";
             $('#results > tbody').append(`
                 <tr style='color:${styleColor}'>
@@ -125,7 +125,7 @@ $(() => {
                 </tr>`);
               transactionNo++;
         });
-        const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
+        const lastTimeValue: StockHistoryItem = timeValues[timeValues.length - 1];
         $('#summary > tbody').append(`
             <tr>
                 <td>${portofolio.history.length}</td>

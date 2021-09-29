@@ -1,6 +1,6 @@
 import * as $ from "jquery";
 import Portofolio from "./Portofolio";
-import TradeData from "./TradeData";
+import StockHistoryItem from "./StockHistoryItem";
 import TradeCondition from './TradeCondition';
 import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
@@ -8,15 +8,15 @@ import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
 
 interface TimeSelector {
-    (tradeDate: TradeData, startDate: Date): boolean;
+    (tradeDate: StockHistoryItem, startDate: Date): boolean;
 }
-const startingDateSelector : TimeSelector = (tradeDate: TradeData, startDate: Date): boolean => { return tradeDate.date >= startDate; };
+const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
-function getTimeValues(data: any): Array<TradeData> {
-    let ret: Array<TradeData> = new Array<TradeData>();
-    let previousDayTrade: TradeData = null;
+function getTimeValues(data: any): Array<StockHistoryItem> {
+    let ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
+    let previousDayTrade: StockHistoryItem = null;
     $.each(data["Time Series (Daily)"], (index, value) =>{
-        const tradeData: TradeData = new TradeData();
+        const tradeData: StockHistoryItem = new StockHistoryItem();
         tradeData.date = new Date(index.toString());
         tradeData.open = Number(data["Time Series (Daily)"][index]["1. open"]);
         tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
@@ -45,7 +45,7 @@ $(() => {
     .ajaxStop(function () {
         $('#overlay').fadeOut();
     });
-    let timeValues: Array<TradeData>;
+    let timeValues: Array<StockHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     strategies.push(new Strategy());
     $("#ticker").on("change", function() {
@@ -80,12 +80,12 @@ $(() => {
     $("#addStrategyBranch").on("click", function() {
         $("#run").prop("disabled", false);
         let action: string = $("#action option:selected").val().toString();
-        let numberOfShares: number = Number($("#numberOfShares").val());
+        let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
         let condition: string = $("#condition option:selected").val().toString();
         let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(new TradeCondition(tradeConditionTemplates[condition], thresholdValue),
-                                                 new TradeAction(tradeActionTemplates[action], numberOfShares),
-                                                 tradeActionTemplates[action].instanceDescription);
+        const strategyBranch: StrategyBranch = new StrategyBranch(
+                                                    new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
+                                                    tradeConditionTemplates[condition].instanceDescription, tradeActionTemplates[action].instanceDescription);
         strategies[strategies.length - 1].strategyBranches.push(strategyBranch);
         let strategiesDescription: string = "";
         strategies.forEach((strategy: Strategy) => {
@@ -109,8 +109,8 @@ $(() => {
                         }
                     })
                 });
-            const firstTimeValue: TradeData = timeValues[0];
-            const lastTimeValue: TradeData = timeValues[timeValues.length - 1];
+            const firstTimeValue: StockHistoryItem = timeValues[0];
+            const lastTimeValue: StockHistoryItem = timeValues[timeValues.length - 1];
             $("#globalStrategies").append(`
             <table class="table table-striped">
                 <thead>

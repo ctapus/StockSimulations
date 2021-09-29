@@ -4,13 +4,15 @@ import TradeAction from './TradeAction';
 export default class StrategyBranch {
     public tradeCondition: TradeCondition;
     public tradeAction: TradeAction;
-    public description: (numberOfSharesorPercentage: number) => string;
-    constructor(tradeCondition: TradeCondition, tradeAction: TradeAction, description: (numberOfSharesorPercentage: number) => string) {
+    public conditionDescription: (numberOfSharesorPercentage: number) => string;
+    public actionDescription: (numberOfSharesorPercentage: number) => string;
+    constructor(tradeCondition: TradeCondition, tradeAction: TradeAction, conditionDescription: (thresholdValue: number) => string, actionDescription: (numberOfSharesorPercentage: number) => string) {
         this.tradeCondition = tradeCondition;
         this.tradeAction = tradeAction;
-        this.description = description;
+        this.conditionDescription = conditionDescription;
+        this.actionDescription = actionDescription;
     }
     public toString(): string {
-        return `${this.description(this.tradeAction.numberOfSharesOrPercentage)} when ${this.tradeCondition.toString()}`;
+        return `${this.actionDescription(this.tradeAction.numberOfSharesOrPercentage)} ${this.conditionDescription(this.tradeCondition.thresholdValue)}`;
     }
 }
