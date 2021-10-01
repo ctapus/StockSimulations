@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stocks history</title>
+    <link rel="stylesheet" href="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.css" />
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.13.0/css/all.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous" />
+    <script src="//code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.js"></script>
+    <script src="//unpkg.com/@popperjs/core@2"></script>
+    <script src="//d3js.org/d3.v6.min.js"></script>
+    <script src="./scripts/index.js?v=1"></script>
+    <style>
+        body{
+            background-color: lightgrey;
+        }
+        #strategy td, #strategy th {
+            background-color: azure;
+            padding: 4px;
+        }
+        #strategies {
+            background-color: lavenderblush;
+        }
+        .table{
+            width:50%;
+        }
+        #overlay {
+            background: #ffffff;
+            color: #666666;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 5000;
+            top: 0;
+            left: 0;
+            float: left;
+            text-align: center;
+            padding-top: 25%;
+            opacity: .80;
+        }
+        .spinner {
+            margin: 0 auto;
+            height: 64px;
+            width: 64px;
+            animation: rotate 0.8s infinite linear;
+            border: 5px solid firebrick;
+            border-right-color: transparent;
+            border-radius: 50%;
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay" style="display:none;">
+        <div class="spinner"></div>
+        <br/>
+        Loading...
+    </div>
+    <table>
+        <tr>
+            <td>
+                <label for="ticker">Strategy for: </label>
+            </td>
+            <td>
+                <select id="ticker">
+                    <option></option>
+                    <option value="AAPL">AAPL</option>
+                    <option value="AMZN">AMZN</option>
+                    <option value="BBI">BBI</option>
+                    <option value="F">F</option>
+                    <option value="GM">GM</option>
+                    <option value="GOOG">GOOG</option>
+                    <option value="IBM">IBM</option>
+                    <option value="INTC">INTC</option>
+                    <option value="JNJ">JNJ</option>
+                    <option value="KO">KO</option>
+                    <option value="MCD">MCD</option>
+                    <option value="MSFT">MSFT</option>
+                    <option value="NVDA">NVDA</option>
+                    <option value="PFE">PFE</option>
+                    <option value="T">T</option>
+                    <option value="TSLA">TSLA</option>
+                    <option value="VOO">VOO</option>
+                    <option value="VTI">VTI</option>
+                    <option value="BTC">BTC</option>
+                </select>
+        </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="startDate">Starting date:</label>
+            </td>
+            <td>
+                <input type="date" id="startDate" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="startingAmount">Starting amount: </label>
+            </td>
+            <td>
+                <input type="text" id="startingAmount" value="5000" disabled />
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table id="strategy">
+        <thead>
+            <td>Action</td>
+            <td>Parameter</td>
+            <td>Condition</td>
+            <td>Parameter</td>
+            <td></td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select id="action" disabled>
+                        <option></option>
+                    </select>
+                </td>
+                <td id="actionRender">
+                </td>
+                <td>
+                    <select id="condition" disabled>
+                        <option></option>
+                    </select>
+                </td>
+                <td id="conditionRender">
+                </td>
+                <td><input type="button" id="addStrategyBranch" class="btn btn-info" value="Add strategy" disabled /></td>
+            </tr>
+        </tbody>
+    </table>
+    <br/>
+    <div id="globalStrategy"></div>
+    <input type="button" id="run" class="btn btn-info" value="Run" disabled />
+    <br/>
+    <br/>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#home">Summary</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu1">Trades</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu2">Historic Data</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu3">Graph</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane active">
+            <table id="summary" class="table table-striped">
+                <thead>
+                    <td>number of transactions</td>
+                    <td>date</td>
+                    <td>number of shares</td>
+                    <td>share price</td>
+                    <td>available cash</td>
+                    <td>total equity</td>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="menu1" class="tab-pane">
+            <table id="results" class="table table-striped">
+                <thead>
+                    <td>transaction no.</td>
+                    <td style="width: 150px">date</td>
+                    <td>action</td>
+                    <td>number of shares</td>
+                    <td>share price</td>
+                    <td>available cash</td>
+                    <td>total number of shares</td>
+                    <td>total equity</td>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="menu2" class="tab-pane">
+            <table id="data" class="table table-striped" style="width: 100%">
+                <thead>
+                    <td style="width: 150px">date</td>
+                    <td>open</td>
+                    <td>high</td>
+                    <td>low</td>
+                    <td>close</td>
+                    <td>volume</td>
+                    <td>52 weeks low</td>
+                    <td>52 weeks high</td>
+                    <td>open variation</td>
+                    <td></td>
+                    <td style="width: 550px">trade</td>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="menu3" class="tab-pane">
+            <div id="chart">
+                <svg></svg>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
