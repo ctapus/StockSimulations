@@ -56,7 +56,7 @@ function getTimeValues(data: any): Array<StockHistoryItem> {
 const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
         height = window.innerHeight - margin.top - margin.bottom;
-function initGraph(): void {
+function initGraphs(): void {
     const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -65,8 +65,16 @@ function initGraph(): void {
                 .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
                 .extent([[0, 0], [width, height]])
                 .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+    const svg2 = d3.select("#chartEquity").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .call(d3.zoom()
+                .scaleExtent([1, 5])
+                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
+                .extent([[0, 0], [width, height]])
+                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
 }
-function drawGraph(tradeData: Array<StockHistoryItem>): void {
+function drawHistoricDataGraph(tradeData: Array<StockHistoryItem>): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
     const svg = d3.select("#chart").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -80,7 +88,7 @@ function drawGraph(tradeData: Array<StockHistoryItem>): void {
         .attr("stroke-width", "1.5")
         .attr("d", line);
 }
-function drawActions(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
+function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
     const svg = d3.select('#chart').select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -98,6 +106,20 @@ function drawActions(tradeData: Array<StockHistoryItem>, portofolio: Portofolio)
         .attr("title", d => `On ${d.date.toISOString().split('T')[0]}<br /> ${d.action} ${d.numberOfShares} shares at ${d.sharePrice}`);
     [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(x => { return new bootstrap.Tooltip(x); })
 }
+function drawEquityGraph(portofolio: Portofolio): void {
+    const xScale = d3.scaleTime().domain(d3.extent<TradeHistoryItem, Date>(portofolio.history, d => { return d.date; })).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, d3.max<TradeHistoryItem, number>(portofolio.history, d => { return d.totalEquity; })]).range([height, 0]);
+    const svg = d3.select("#chartEquity").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+    svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+    svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
+    const line = d3.line<TradeHistoryItem>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.totalEquity); }).curve(d3.curveBasis);
+    svg.append("path")
+        .data<TradeHistoryItem[]>([portofolio.history])
+        .style("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", "1.5")
+        .attr("d", line);
+}
 function printResults(portofolio: Portofolio): void {
     let transactionNo: number = 1;
     portofolio.history.forEach((item: TradeHistoryItem) => {
@@ -111,7 +133,7 @@ function printResults(portofolio: Portofolio): void {
                 <td>${item.sharePrice}</td>
                 <td>${item.availableCash.toFixed(2)}</td>
                 <td>${item.totalNumberOfShares}</td>
-                <td>${(item.availableCash + item.totalNumberOfShares * item.sharePrice).toFixed(2)}</td>
+                <td>${(item.totalEquity).toFixed(2)}</td>
             </tr>`);
           transactionNo++;
     });
@@ -144,11 +166,12 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
     });
     printResults(portofolio);
     printSummary(tradeData, portofolio);
-    drawActions(tradeData, portofolio);
+    drawTransactionsGraph(tradeData, portofolio);
+    drawEquityGraph(portofolio);
     //HACK
     tradeData.forEach(item => {
         const t: TradeHistoryItem = portofolio.history.find(x => x.date === item.date);
-        item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares} <br/>RULE: ${t.executionDescription}` : "";
+        item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares}. Total Equity ${t.totalEquity}$. <br/>RULE: ${t.executionDescription}` : "";
     });
     $('#data > tbody').empty();
     printHistoricData(tradeData);
@@ -164,6 +187,10 @@ function addStrategy(strategy: Strategy): void {
                                                 tradeConditionTemplates[condition].instanceDescription, tradeActionTemplates[action].instanceDescription);
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+    $("#action").val("");
+    $("#condition").val("");
+    $("#conditionRender").empty();
+    $("#actionRender").empty();
 }
 function printHistoricData(tradeData: Array<StockAndTradeHistoryItem>): void {
     tradeData.forEach(item => {
@@ -177,15 +204,15 @@ function printHistoricData(tradeData: Array<StockAndTradeHistoryItem>): void {
         $('#data > tbody').append(`
             <tr>
                 <td>${item.date.toISOString().split('T')[0]}</td>
-                <td style="text-align: right;">${item.open.toFixed(4)}</td>
-                <td style="text-align: right;">${item.high.toFixed(4)}</td>
-                <td style="text-align: right;">${item.low.toFixed(4)}</td>
-                <td style="text-align: right;">${item.close.toFixed(4)}</td>
-                <td style="text-align: right;">${item.volume}</td>
-                <td style="text-align: right;">${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
-                <td style="text-align: right;">${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
-                <td style="text-align: right;">${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
-                <td style="text-align: right;">${variationIcon}</td>
+                <td>${item.open.toFixed(4)}</td>
+                <td>${item.high.toFixed(4)}</td>
+                <td>${item.low.toFixed(4)}</td>
+                <td>${item.close.toFixed(4)}</td>
+                <td>${item.volume}</td>
+                <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
+                <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
+                <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
+                <td>${variationIcon}</td>
                 <td style="text-align: left;">${item.trade}</td>
             </tr>`);
         });
@@ -220,7 +247,7 @@ $(() => {
             tradeData = getTimeValues(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
             printHistoricData(tradeData);
-            drawGraph(tradeData);
+            drawHistoricDataGraph(tradeData);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);
@@ -242,5 +269,5 @@ $(() => {
     });
     $("#addStrategyBranch").on("click", () => addStrategy(strategy));
     $("#run").on("click", () => runStrategy(tradeData, strategy));
-    initGraph();
+    initGraphs();
 });

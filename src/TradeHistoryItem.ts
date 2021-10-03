@@ -6,6 +6,7 @@ export default class TradeHistoryItem {
     public availableCash: number;
     public totalNumberOfShares: number;
     public executionDescription: string;
+    public totalEquity: number;
     constructor(action: string, date: Date, numberOfShares: number, sharePrice: number, availableCash: number, totalNumberOfShares: number) {
         this.action = action;
         this.date = date;
@@ -13,5 +14,6 @@ export default class TradeHistoryItem {
         this.sharePrice = sharePrice;
         this.availableCash = availableCash;
         this.totalNumberOfShares = totalNumberOfShares;
+        this.totalEquity = this.availableCash + this.totalNumberOfShares * this.sharePrice;
     }
 }
