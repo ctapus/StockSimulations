@@ -1,0 +1,80 @@
+{
+    "tickers": [
+        {
+            "symbol": "AAPL",
+            "name": "Apple"
+        },
+        {
+            "symbol": "AMZN",
+            "name": "Amazon"
+        },
+        {
+            "symbol": "BBI",
+            "name": "Blockbuster"
+        },
+        {
+            "symbol": "BTC",
+            "name": "Bitcoin"
+        },
+        {
+            "symbol": "F",
+            "name": "Ford"
+        },
+        {
+            "symbol": "GM",
+            "name": "General Motors"
+        },
+        {
+            "symbol": "GOOG",
+            "name": "Google"
+        },
+        {
+            "symbol": "IBM",
+            "name": "IBM"
+        },
+        {
+            "symbol": "INTC",
+            "name": "Intel Corporation"
+        },
+        {
+            "symbol": "JNU",
+            "name": "Johnson & Johnson"
+        },
+        {
+            "symbol": "KO",
+            "name": "Coca Cola"
+        },
+        {
+            "symbol": "MCD",
+            "name": "McDonald's Corporation"
+        },
+        {
+            "symbol": "MSFT",
+            "name": "Microsoft"
+        },
+        {
+            "symbol": "NVDA",
+            "name": "NVIDIA"
+        },
+        {
+            "symbol": "PFE",
+            "name": "Pfizer Inc"
+        },
+        {
+            "symbol": "T",
+            "name": "AT&T"
+        },
+        {
+            "symbol": "TSLA",
+            "name": "Tesla"
+        },
+        {
+            "symbol": "VOO",
+            "name": "Vanguard S&P 500 ETF"
+        },
+        {
+            "symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF"
+        }
+    ]
+}
