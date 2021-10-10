@@ -12,23 +12,6 @@ interface TimeSelector {
 }
 const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
-function getTimeValues(data: any): Array<StockHistoryItem> {
-    let ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
-    let previousDayTrade: StockHistoryItem = null;
-    $.each(data["Time Series (Daily)"], (index, value) =>{
-        const tradeData: StockHistoryItem = new StockHistoryItem();
-        tradeData.date = new Date(index.toString());
-        tradeData.open = Number(data["Time Series (Daily)"][index]["1. open"]);
-        tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
-        tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
-        tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
-        tradeData.volume = Number(data["Time Series (Daily)"][index]["5. volume"]);
-        tradeData.previousDay = previousDayTrade;
-        previousDayTrade = tradeData;
-        ret.push(tradeData);
-    });
-    return ret;
-}
 $(() => {
     const ddlActions = $("#action");
     for(var key in tradeActionTemplates) {
@@ -45,7 +28,7 @@ $(() => {
     .ajaxStop(function () {
         $('#overlay').fadeOut();
     });
-    let timeValues: Array<StockHistoryItem>;
+    let tradeData: Array<StockHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     strategies.push(new Strategy());
     $("#ticker").on("change", function() {
@@ -58,9 +41,9 @@ $(() => {
         $("#addStrategyBranch").prop("disabled", true);
         $("#newStrategy").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            timeValues = getTimeValues(data);
-            timeValues.sort((a, b) => a.date.getTime() - b.date.getTime());
-            $("#startDate").val(timeValues[0].date.toISOString().split('T')[0]);
+            tradeData = StockHistoryItem.loadFromAlphavantage(data);
+            tradeData.sort((a, b) => a.date.getTime() - b.date.getTime());
+            $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);
@@ -100,17 +83,9 @@ $(() => {
         strategies.forEach((strategy:Strategy) => {
             $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
             let portofolio: Portofolio = new Portofolio(startingAmount, 0);
-            timeValues.filter((item) => { return startingDateSelector(item, startDate); }).forEach(item => {
-                    strategy.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
-                        if(strategyBranch.tradeCondition.condition(item, portofolio)) {
-                            strategyBranch.tradeAction.action(item, portofolio);
-                        } else {
-                            return false;
-                        }
-                    })
-                });
-            const firstTimeValue: StockHistoryItem = timeValues[0];
-            const lastTimeValue: StockHistoryItem = timeValues[timeValues.length - 1];
+            strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
+            const firstTimeValue: StockHistoryItem = tradeData[0];
+            const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
             $("#globalStrategies").append(`
             <table class="table table-striped">
                 <thead>
