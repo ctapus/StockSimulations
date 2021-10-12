@@ -1,5 +1,6 @@
 import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
+import "datatables.net"
 import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
 import TradeHistoryItem from "./TradeHistoryItem";
@@ -114,7 +115,7 @@ function printSummary(tradeData: Array<StockHistoryItem>, startDate: Date, porto
             <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
         </tr>`);
 }
-function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
+function runSimulations(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
     let startingAmount: number = Number($("#startingAmount").val());
     let numberOfSimulations: number = Number($("#numberOfSimulations").val());
     let firstTradingDay: Date = tradeData[0].date;
@@ -132,6 +133,10 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
         strategy.run(tradeData.filter((item) => { return startingDateSelector(item, simulationDay); }), portofolio);
         printSummary(tradeData, simulationDay, portofolio);
     }
+    $("#summary").DataTable({
+        paging: false,
+        ordering: true
+    });
 }
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
@@ -173,6 +178,7 @@ function printHistoricData(tradeData: Array<StockAndTradeHistoryItem>): void {
             </tr>`);
         });
 }
+
 $(() => {
     const ddlActions = $("#action");
     for(var key in tradeActionTemplates) {
@@ -184,16 +190,17 @@ $(() => {
     }
     $(document)
     .ajaxStart(function () {
-        $('#overlay').fadeIn();
+        $("#overlay").fadeIn();
     })
     .ajaxStop(function () {
-        $('#overlay').fadeOut();
+        $("#overlay").fadeOut();
     });
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategy: Strategy = new Strategy();
     $("#ticker").on("change", () => {
         let ticker: string = $("#ticker").val().toString();
         $("#startingAmount").prop("disabled", true);
+        $("#numberOfSimulations").prop("disabled", true);
         $("#action").prop("disabled", true);
         $("#numberOfShares").prop("disabled", true);
         $("#condition").prop("disabled", true);
@@ -203,6 +210,7 @@ $(() => {
             printHistoricData(tradeData);
             drawHistoricDataGraph(tradeData);
             $("#startingAmount").prop("disabled", false);
+            $("#numberOfSimulations").prop("disabled", false);
             $("#action").prop("disabled", false);
             $("#numberOfShares").prop("disabled", false);
             $("#condition").prop("disabled", false);
@@ -221,6 +229,6 @@ $(() => {
         $("#conditionRender").html(tradeConditionTemplates[key].htmlRender);
     });
     $("#addStrategyBranch").on("click", () => addStrategy(strategy));
-    $("#run").on("click", () => runStrategy(tradeData, strategy));
+    $("#run").on("click", () => runSimulations(tradeData, strategy));
     initGraphs();
 });
