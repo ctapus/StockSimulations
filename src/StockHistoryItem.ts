@@ -1,3 +1,5 @@
+import Indicators from "./Indicators";
+
 export default class StockHistoryItem {
     public date: Date;
     public open: number;
@@ -9,6 +11,9 @@ export default class StockHistoryItem {
     public openVariation: number;
     public high52Weeks: number;
     public low52Weeks: number;
+    public sma50DaysOpen: number;
+    public sma100DaysOpen: number;
+    public sma200DaysOpen: number;
     public deepCopy(): StockHistoryItem {
         const ret: StockHistoryItem = new StockHistoryItem();
         ret.date = this.date;
@@ -34,8 +39,6 @@ export default class StockHistoryItem {
             ret.push(tradeData);
         });
         let previousDayTrade: StockHistoryItem = null;
-        let low52Weeks: number = Number.MAX_SAFE_INTEGER;
-        let high52Weeks: number = Number.MIN_SAFE_INTEGER;
         ret.sort((a, b) => a.date.getTime() - b.date.getTime());
         $.each(ret, (index, value) => {
             ret[index].previousDay = previousDayTrade;
@@ -43,19 +46,13 @@ export default class StockHistoryItem {
             if(null != ret[index].previousDay) {
                 ret[index].openVariation = ret[index].open / ret[index].previousDay.open * 100;
             }
-            if (index >= 52 * 5) { // Ignore the first 52*5 days
-                for(let i: number = index - 52 * 5; i<= index; i++) {
-                    if(ret[i].high >= high52Weeks) {
-                        high52Weeks = ret[index].high;
-                    }
-                    if(ret[i].low <= low52Weeks) {
-                        low52Weeks = ret[index].low;
-                    }
-                }
-                ret[index].high52Weeks = high52Weeks;
-                ret[index].low52Weeks = low52Weeks;
-            }
-        })
+        });
+        const indicator: Indicators = new Indicators(ret);
+        // TODO: investigate running all in the same loop to improve performance
+        indicator.populate52WeeksRange();
+        indicator.populate50DaysOpenSMA();
+        indicator.populate100DaysOpenSMA();
+        indicator.populate200DaysOpenSMA();
         return ret;
     }
 }

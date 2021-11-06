@@ -166,9 +166,12 @@ function printHistoricData(tradeData: Array<StockAndTradeHistoryItem>): void {
                 <td>${item.volume}</td>
                 <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
                 <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
+                <td>${item.sma50DaysOpen === null || item.sma50DaysOpen == undefined ? "" : item.sma50DaysOpen.toFixed(4)}</td>
+                <td>${item.sma100DaysOpen === null || item.sma100DaysOpen == undefined ? "" : item.sma100DaysOpen.toFixed(4)}</td>
+                <td>${item.sma200DaysOpen === null || item.sma200DaysOpen == undefined ? "" : item.sma200DaysOpen.toFixed(4)}</td>
                 <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                 <td>${variationIcon}</td>
-                <td style="text-align: left;">${item.trade}</td>
+                <td style="text-align: left;">${item.trade ? item.trade : ""}</td>
             </tr>`);
         });
 }
