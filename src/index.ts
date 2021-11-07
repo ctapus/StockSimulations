@@ -12,6 +12,7 @@ import StrategyBranch from "./StrategyBranch";
 import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
 import StockHistoryItemsPresenter from "./StockHistoryItemsPresenter";
+import PortofolioPresenter from "./PortofolioPresenter";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -38,20 +39,6 @@ function initGraphs(): void {
                 .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
                 .extent([[0, 0], [width, height]])
                 .on("zoom", (event) => { svg.attr("transform", event.transform); }));
-}
-function drawHistoricDataGraph(tradeData: Array<StockHistoryItem>): void {
-    const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
-    const svg = d3.select("#chart").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
-    svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
-    svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
-    const line = d3.line<StockHistoryItem>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
-    svg.append("path")
-        .data<StockHistoryItem[]>([tradeData])
-        .style("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", "1.5")
-        .attr("d", line);
 }
 function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
@@ -85,43 +72,13 @@ function drawEquityGraph(portofolio: Portofolio): void {
         .attr("stroke-width", "1.5")
         .attr("d", line);
 }
-function printResults(portofolio: Portofolio): void {
-    let transactionNo: number = 1;
-    portofolio.history.forEach((item: TradeHistoryItem) => {
-        let styleColor: string = item.action === 'BUY' ? "blue" : "red";
-        $('#results > tbody').append(`
-            <tr style='color:${styleColor}'>
-                <td>${transactionNo}</td>
-                <td>${item.date.toISOString().split('T')[0]}</td>
-                <td>${item.action}</td>
-                <td>${item.numberOfShares}</td>
-                <td>${item.sharePrice}</td>
-                <td>${item.availableCash.toFixed(2)}</td>
-                <td>${item.totalNumberOfShares}</td>
-                <td>${(item.totalEquity).toFixed(2)}</td>
-            </tr>`);
-          transactionNo++;
-    });
-}
-function printSummary(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
-    const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
-    $('#summary > tbody').append(`
-        <tr>
-            <td>${portofolio.history.length}</td>
-            <td>${lastTimeValue.date.toISOString().split('T')[0]}</td>
-            <td>${portofolio.numberOfShares}</td>
-            <td>${lastTimeValue.close}</td>
-            <td>${portofolio.amountOfMoney.toFixed(2)}</td>
-            <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
-        </tr>`);
-}
 function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
     let startingAmount: number = Number($("#startingAmount").val());
     let startDate: Date = new Date($("#startDate").val().toString());
-    let portofolio: Portofolio = new Portofolio(startingAmount, 0);
+    let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
-    printResults(portofolio);
-    printSummary(tradeData, portofolio);
+    PortofolioPresenter.printResults($("#menu1"), portofolio);
+    PortofolioPresenter.printSummary($("#home"), tradeData, portofolio);
     drawTransactionsGraph(tradeData, portofolio);
     drawEquityGraph(portofolio);
     //HACK
@@ -129,7 +86,7 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
         const t: TradeHistoryItem = portofolio.history.find(x => x.date === item.date);
         item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares}. Total Equity ${t.totalEquity}$. <br/>RULE: ${t.executionDescription}` : "";
     });
-    $('#data > tbody').empty();
+    $("#menu2").empty();
     StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
 }
 function addStrategy(strategy: Strategy): void {
@@ -178,7 +135,7 @@ $(() => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
             StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
-            drawHistoricDataGraph(tradeData);
+            StockHistoryItemsPresenter.drawHistoricDataGraph(tradeData, margin);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);

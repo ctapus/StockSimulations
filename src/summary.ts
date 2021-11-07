@@ -82,7 +82,7 @@ $(() => {
         $("#globalStrategies").empty();
         strategies.forEach((strategy:Strategy) => {
             $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
-            let portofolio: Portofolio = new Portofolio(startingAmount, 0);
+            let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
             strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
             const firstTimeValue: StockHistoryItem = tradeData[0];
             const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];

@@ -1,4 +1,6 @@
 import StockAndTradeHistoryItem from "./StockAndTradeHistoryItem";
+import StockHistoryItem from "./StockHistoryItem";
+import * as d3 from "d3";
 
 export default class StockHistoryItemsPresenter {
     public static printHistoricData(container: JQuery, tradeData: Array<StockAndTradeHistoryItem>): void {
@@ -56,5 +58,21 @@ export default class StockHistoryItemsPresenter {
                 </tr>`);
             });
             container.append(table);
+    }
+    public static drawHistoricDataGraph(tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = d3.select("#chart").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+        svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
+        const line = d3.line<StockHistoryItem>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
     }
 }

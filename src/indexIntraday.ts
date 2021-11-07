@@ -80,7 +80,7 @@ $(() => {
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
         let startDate: Date = new Date($("#startDate").val().toString());
-        let portofolio: Portofolio = new Portofolio(startingAmount, 0);
+        let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
         strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
         let transactionNo: number = 1;
         portofolio.history.forEach((item: TradeHistoryItem) => {
