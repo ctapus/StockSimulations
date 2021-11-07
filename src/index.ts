@@ -11,6 +11,7 @@ import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
 import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
+import StockHistoryItemsPresenter from "./StockHistoryItemsPresenter";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -129,7 +130,7 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
         item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares}. Total Equity ${t.totalEquity}$. <br/>RULE: ${t.executionDescription}` : "";
     });
     $('#data > tbody').empty();
-    printHistoricData(tradeData);
+    StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
 }
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
@@ -146,34 +147,6 @@ function addStrategy(strategy: Strategy): void {
     $("#condition").val("");
     $("#conditionRender").empty();
     $("#actionRender").empty();
-}
-function printHistoricData(tradeData: Array<StockAndTradeHistoryItem>): void {
-    tradeData.forEach(item => {
-        let variationIcon: string = "";
-        if(item.openVariation > 100) {
-            variationIcon = "<i style='color: green;' class='fas fa-arrow-up'></i>";
-        }
-        if(item.openVariation < 100) {
-            variationIcon = "<i style='color: red;' class='fas fa-arrow-down'></i>";
-        }
-        $('#data > tbody').append(`
-            <tr>
-                <td>${item.date.toISOString().split('T')[0]}</td>
-                <td>${item.open.toFixed(4)}</td>
-                <td>${item.high.toFixed(4)}</td>
-                <td>${item.low.toFixed(4)}</td>
-                <td>${item.close.toFixed(4)}</td>
-                <td>${item.volume}</td>
-                <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
-                <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
-                <td>${item.sma50DaysOpen === null || item.sma50DaysOpen == undefined ? "" : item.sma50DaysOpen.toFixed(4)}</td>
-                <td>${item.sma100DaysOpen === null || item.sma100DaysOpen == undefined ? "" : item.sma100DaysOpen.toFixed(4)}</td>
-                <td>${item.sma200DaysOpen === null || item.sma200DaysOpen == undefined ? "" : item.sma200DaysOpen.toFixed(4)}</td>
-                <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
-                <td>${variationIcon}</td>
-                <td style="text-align: left;">${item.trade ? item.trade : ""}</td>
-            </tr>`);
-        });
 }
 $(() => {
     const ddlActions = $("#action");
@@ -204,7 +177,7 @@ $(() => {
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            printHistoricData(tradeData);
+            StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
             drawHistoricDataGraph(tradeData);
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);

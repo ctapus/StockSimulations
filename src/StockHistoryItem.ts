@@ -14,6 +14,9 @@ export default class StockHistoryItem {
     public sma50DaysOpen: number;
     public sma100DaysOpen: number;
     public sma200DaysOpen: number;
+    public ema50DaysOpen: number;
+    public ema100DaysOpen: number;
+    public ema200DaysOpen: number;
     public deepCopy(): StockHistoryItem {
         const ret: StockHistoryItem = new StockHistoryItem();
         ret.date = this.date;
@@ -53,6 +56,9 @@ export default class StockHistoryItem {
         indicator.populate50DaysOpenSMA();
         indicator.populate100DaysOpenSMA();
         indicator.populate200DaysOpenSMA();
+        indicator.populate50DaysOpenEMA();
+        indicator.populate100DaysOpenEMA();
+        indicator.populate200DaysOpenEMA();
         return ret;
     }
 }

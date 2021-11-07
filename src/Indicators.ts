@@ -24,21 +24,41 @@ export default class Indicators {
         });
     }
     public populate50DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma50DaysOpen = this.getSMA(50, index));
+        this.stockHistory.map((value, index) => value.sma50DaysOpen = this.getSimpleMovingAverage(50, index));
     }
     public populate100DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma100DaysOpen = this.getSMA(100, index));
+        this.stockHistory.map((value, index) => value.sma100DaysOpen = this.getSimpleMovingAverage(100, index));
     }
     public populate200DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma200DaysOpen = this.getSMA(200, index));
+        this.stockHistory.map((value, index) => value.sma200DaysOpen = this.getSimpleMovingAverage(200, index));
     }
-    private getSMA(numberOfDays: number, index: number): number {
+    private getSimpleMovingAverage(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
             let sum: number = 0;
             for(let i: number = index - numberOfDays; i<= index; i++) {
                 sum += this.stockHistory[i].open;
             }
             return sum/numberOfDays;
+        }
+        return null;
+    }
+    public populate50DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema50DaysOpen = this.getExponentialMovingAverage(50, index, index < 50 ? 0 : this.stockHistory[index - 1].ema50DaysOpen));
+    }
+    public populate100DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema100DaysOpen = this.getExponentialMovingAverage(100, index, index < 100 ? 0 : this.stockHistory[index - 1].ema100DaysOpen));
+    }
+    public populate200DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema200DaysOpen = this.getExponentialMovingAverage(200, index, index < 200 ? 0 : this.stockHistory[index - 1].ema200DaysOpen));
+    }
+    private getExponentialMovingAverage(numberOfDays: number, index: number, previousEMA: number): number {
+        const smoothing: number = 2;
+        const k: number = smoothing/(numberOfDays + 1);
+        if(index === numberOfDays) {
+            return this.getSimpleMovingAverage(numberOfDays, index);
+        }
+        if (index > numberOfDays) { // Ignore the first numberOfDays days
+            return this.stockHistory[index].open * k + previousEMA*(1-k);
         }
         return null;
     }
