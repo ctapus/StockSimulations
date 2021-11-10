@@ -59,12 +59,12 @@ export default class StockHistoryItemsPresenter {
             });
             container.append(table);
     }
-    public static drawHistoricDataGraph(tradeData: Array<StockHistoryItem>, margin): void {
+    public static drawHistoricDataGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
         const width: number = window.innerWidth - margin.left - margin.right;
         const height: number = window.innerHeight - margin.top - margin.bottom;
         const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
         const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
-        const svg = d3.select("#chart").select("svg").append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
         svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
         svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
         const line = d3.line<StockHistoryItem>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.open); }).curve(d3.curveBasis);
@@ -72,6 +72,90 @@ export default class StockHistoryItemsPresenter {
             .data<StockHistoryItem[]>([tradeData])
             .style("fill", "none")
             .attr("stroke", "steelblue")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw50DaysSMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma50DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.sma50DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "chocolate")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw100DaysSMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma100DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.sma100DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "brown")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw200DaysSMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma200DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.sma200DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "maroon")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw50DaysEMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema50DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.ema50DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "darkgreen")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw100DaysEMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema100DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.ema100DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "forestgreen")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
+    public static draw200DaysEMAGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema200DaysOpen).x(d => { return xScale(d.date); }).y(d => { return yScale(d.ema200DaysOpen); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<StockHistoryItem[]>([tradeData])
+            .style("fill", "none")
+            .attr("stroke", "lightgreen")
             .attr("stroke-width", "1.5")
             .attr("d", line);
     }

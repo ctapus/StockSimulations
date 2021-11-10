@@ -1,9 +1,7 @@
 import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
 import "datatables.net"
-import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
-import TradeHistoryItem from "./TradeHistoryItem";
 import StockAndTradeHistoryItem from "./StockAndTradeHistoryItem";
 import Portofolio from "./Portofolio";
 import StockHistoryItem from "./StockHistoryItem";
@@ -107,7 +105,8 @@ $(() => {
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
-            StockHistoryItemsPresenter.drawHistoricDataGraph(tradeData, margin);
+            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+            StockHistoryItemsPresenter.drawHistoricDataGraph(svgContainer, tradeData, margin);
             $("#startingAmount").prop("disabled", false);
             $("#numberOfSimulations").prop("disabled", false);
             $("#action").prop("disabled", false);

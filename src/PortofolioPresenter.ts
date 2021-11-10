@@ -97,4 +97,20 @@ export default class PortofolioPresenter {
         });
         container.append(table);
     }
+    public static drawEquityGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, portofolio: Portofolio, margin): void {
+        const width: number = window.innerWidth - margin.left - margin.right;
+        const height: number = window.innerHeight - margin.top - margin.bottom;
+        const xScale = d3.scaleTime().domain(d3.extent<TradeHistoryItem, Date>(portofolio.history, d => { return d.date; })).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, d3.max<TradeHistoryItem, number>(portofolio.history, d => { return d.totalEquity; })]).range([height, 0]);
+        const svg = svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+        svg.append("g").attr("id", "yAxis").attr("transform", `translate(${width}, 0)`).call(d3.axisRight(yScale));
+        const line = d3.line<TradeHistoryItem>().x(d => { return xScale(d.date); }).y(d => { return yScale(d.totalEquity); }).curve(d3.curveBasis);
+        svg.append("path")
+            .data<TradeHistoryItem[]>([portofolio.history])
+            .style("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", "1.5")
+            .attr("d", line);
+    }
 }
