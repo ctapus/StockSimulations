@@ -11,8 +11,9 @@ import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
 import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
-import StockHistoryItemsPresenter from "./StockHistoryItemsPresenter";
+import StockHistoryItemsPresenterTable from "./StockHistoryItemsPresenterTable";
 import PortofolioPresenter from "./PortofolioPresenter";
+import StockHistoryItemsPresenterGraph from "./StockHistoryItemsPresenterGraph";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -74,7 +75,7 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
         item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares}. Total Equity ${t.totalEquity}$. <br/>RULE: ${t.executionDescription}` : "";
     });
     $("#menu2").empty();
-    StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
+    StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
 }
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
@@ -121,15 +122,17 @@ $(() => {
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
+            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
             const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            StockHistoryItemsPresenter.drawHistoricDataGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw50DaysSMAGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw100DaysSMAGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw200DaysSMAGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw50DaysEMAGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw100DaysEMAGraph(svgContainer, tradeData, margin);
-            StockHistoryItemsPresenter.draw200DaysEMAGraph(svgContainer, tradeData, margin);
+            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+            graph.drawHistoricDataGraph();
+            graph.draw50DaysSMAGraph();
+            graph.draw100DaysSMAGraph();
+            graph.draw200DaysSMAGraph();
+            graph.draw50DaysEMAGraph();
+            graph.draw100DaysEMAGraph();
+            graph.draw200DaysEMAGraph();
+            graph.drawLegend();
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
             $("#action").prop("disabled", false);

@@ -10,8 +10,9 @@ import TradeAction from './TradeAction';
 import StrategyBranch from "./StrategyBranch";
 import Strategy from "./Strategy";
 import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
-import StockHistoryItemsPresenter from "./StockHistoryItemsPresenter";
+import StockHistoryItemsPresenterTable from "./StockHistoryItemsPresenterTable";
 import PortofolioPresenter from "./PortofolioPresenter";
+import StockHistoryItemsPresenterGraph from "./StockHistoryItemsPresenterGraph";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -104,9 +105,10 @@ $(() => {
         $("#addStrategyBranch").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-            StockHistoryItemsPresenter.printHistoricData($("#menu2"), tradeData);
+            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
             const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            StockHistoryItemsPresenter.drawHistoricDataGraph(svgContainer, tradeData, margin);
+            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+            graph.drawHistoricDataGraph();
             $("#startingAmount").prop("disabled", false);
             $("#numberOfSimulations").prop("disabled", false);
             $("#action").prop("disabled", false);

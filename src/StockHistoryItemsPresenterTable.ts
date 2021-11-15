@@ -1,0 +1,60 @@
+import StockAndTradeHistoryItem from "./StockAndTradeHistoryItem";
+
+export default class StockHistoryItemsPresenterTable {
+    public static printHistoricData(container: JQuery, tradeData: Array<StockAndTradeHistoryItem>): void {
+        const table: JQuery = $(`
+        <table class="table table-striped" style="width: 100%">
+            <thead>
+                <tr><td style="width: 110px">date</td>
+                    <td style="width: 80px; text-align: right;">open</td>
+                    <td style="width: 80px; text-align: right;">high</td>
+                    <td style="width: 80px; text-align: right;">low</td>
+                    <td style="width: 80px; text-align: right;">close</td>
+                    <td style="width: 80px; text-align: right;">volume</td>
+                    <td style="width: 80px; text-align: right;">52 weeks low</td>
+                    <td style="width: 80px; text-align: right;">52 weeks high</td>
+                    <td style="width: 80px; text-align: right;">50 days SMA</td>
+                    <td style="width: 80px; text-align: right;">100 days SMA</td>
+                    <td style="width: 80px; text-align: right;">200 days SMA</td>
+                    <td style="width: 80px; text-align: right;">50 days EMA</td>
+                    <td style="width: 80px; text-align: right;">100 days EMA</td>
+                    <td style="width: 80px; text-align: right;">200 days EMA</td>
+                    <td style="width: 80px; text-align: right;">open variation</td>
+                    <td style="width: 10px"></td>
+                    <td>trade</td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>`);
+        tradeData.forEach(item => {
+            let variationIcon: string = "";
+            if(item.openVariation > 100) {
+                variationIcon = "<i style='color: green;' class='fas fa-arrow-up'></i>";
+            }
+            if(item.openVariation < 100) {
+                variationIcon = "<i style='color: red;' class='fas fa-arrow-down'></i>";
+            }
+            table.children('tbody').append(`
+                <tr>
+                    <td>${item.date.toISOString().split('T')[0]}</td>
+                    <td>${item.open.toFixed(4)}</td>
+                    <td>${item.high.toFixed(4)}</td>
+                    <td>${item.low.toFixed(4)}</td>
+                    <td>${item.close.toFixed(4)}</td>
+                    <td>${item.volume}</td>
+                    <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
+                    <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
+                    <td>${item.sma50DaysOpen === null || item.sma50DaysOpen == undefined ? "" : item.sma50DaysOpen.toFixed(4)}</td>
+                    <td>${item.sma100DaysOpen === null || item.sma100DaysOpen == undefined ? "" : item.sma100DaysOpen.toFixed(4)}</td>
+                    <td>${item.sma200DaysOpen === null || item.sma200DaysOpen == undefined ? "" : item.sma200DaysOpen.toFixed(4)}</td>
+                    <td>${item.ema50DaysOpen === null || item.ema50DaysOpen == undefined ? "" : item.ema50DaysOpen.toFixed(4)}</td>
+                    <td>${item.ema100DaysOpen === null || item.ema100DaysOpen == undefined ? "" : item.ema100DaysOpen.toFixed(4)}</td>
+                    <td>${item.ema200DaysOpen === null || item.ema200DaysOpen == undefined ? "" : item.ema200DaysOpen.toFixed(4)}</td>
+                    <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
+                    <td>${variationIcon}</td>
+                    <td style="text-align: left;">${item.trade ? item.trade : ""}</td>
+                </tr>`);
+            });
+            container.append(table);
+    }
+}
