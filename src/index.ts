@@ -125,7 +125,7 @@ $(() => {
             StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
             const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
             const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawHistoricDataGraph();
+            graph.drawDayOpenGraph();
             graph.draw50DaysSMAGraph();
             graph.draw100DaysSMAGraph();
             graph.draw200DaysSMAGraph();

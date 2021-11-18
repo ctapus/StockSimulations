@@ -108,7 +108,7 @@ $(() => {
             StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
             const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
             const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawHistoricDataGraph();
+            graph.drawDayOpenGraph();
             $("#startingAmount").prop("disabled", false);
             $("#numberOfSimulations").prop("disabled", false);
             $("#action").prop("disabled", false);
