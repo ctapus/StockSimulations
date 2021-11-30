@@ -1,0 +1,65 @@
+import StockHistoryItem from "./StockHistoryItem";
+
+export default class Indicators {
+    private stockHistory: Array<StockHistoryItem>;
+    constructor(stockHistory: Array<StockHistoryItem>){
+        this.stockHistory = stockHistory;
+    }
+    public populate52WeeksRange(): void {
+        let low52Weeks: number = Number.MAX_SAFE_INTEGER;
+        let high52Weeks: number = Number.MIN_SAFE_INTEGER;
+        $.each(this.stockHistory, (index, value) => {
+            if (index >= 52 * 5) { // Ignore the first 52*5 days
+                for(let i: number = index - 52 * 5; i<= index; i++) {
+                    if(this.stockHistory[i].high >= high52Weeks) {
+                        high52Weeks = this.stockHistory[index].high;
+                    }
+                    if(this.stockHistory[i].low <= low52Weeks) {
+                        low52Weeks = this.stockHistory[index].low;
+                    }
+                }
+                this.stockHistory[index].high52Weeks = high52Weeks;
+                this.stockHistory[index].low52Weeks = low52Weeks;
+            }
+        });
+    }
+    public populate50DaysOpenSMA(): void {
+        this.stockHistory.map((value, index) => value.sma50DaysOpen = this.getSimpleMovingAverage(50, index));
+    }
+    public populate100DaysOpenSMA(): void {
+        this.stockHistory.map((value, index) => value.sma100DaysOpen = this.getSimpleMovingAverage(100, index));
+    }
+    public populate200DaysOpenSMA(): void {
+        this.stockHistory.map((value, index) => value.sma200DaysOpen = this.getSimpleMovingAverage(200, index));
+    }
+    private getSimpleMovingAverage(numberOfDays: number, index: number): number {
+        if (index >= numberOfDays) { // Ignore the first numberOfDays days
+            let sum: number = 0;
+            for(let i: number = index - numberOfDays; i<= index; i++) {
+                sum += this.stockHistory[i].open;
+            }
+            return sum/numberOfDays;
+        }
+        return null;
+    }
+    public populate50DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema50DaysOpen = this.getExponentialMovingAverage(50, index, index < 50 ? 0 : this.stockHistory[index - 1].ema50DaysOpen));
+    }
+    public populate100DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema100DaysOpen = this.getExponentialMovingAverage(100, index, index < 100 ? 0 : this.stockHistory[index - 1].ema100DaysOpen));
+    }
+    public populate200DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema200DaysOpen = this.getExponentialMovingAverage(200, index, index < 200 ? 0 : this.stockHistory[index - 1].ema200DaysOpen));
+    }
+    private getExponentialMovingAverage(numberOfDays: number, index: number, previousEMA: number): number {
+        const smoothing: number = 2;
+        const k: number = smoothing/(numberOfDays + 1);
+        if(index === numberOfDays) {
+            return this.getSimpleMovingAverage(numberOfDays, index);
+        }
+        if (index > numberOfDays) { // Ignore the first numberOfDays days
+            return this.stockHistory[index].open * k + previousEMA*(1-k);
+        }
+        return null;
+    }
+}

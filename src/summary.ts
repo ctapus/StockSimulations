@@ -1,26 +1,30 @@
 import * as $ from "jquery";
-import Portofolio from "./Portofolio";
-import StockHistoryItem from "./StockHistoryItem";
-import TradeCondition from './TradeCondition';
-import TradeAction from './TradeAction';
-import StrategyBranch from "./StrategyBranch";
-import Strategy from "./Strategy";
-import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
+import Portofolio from "./entities/Portofolio";
+import StockHistoryItem from "./entities/StockHistoryItem";
+import StrategyBranch from "./entities/StrategyBranch";
+import Strategy from "./entities/Strategy";
+import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";
+import StockHistoryItemsPresenterTable from "./Presenters/StockHistoryItemsPresenterTable";
+import StockHistoryItemsPresenterGraph from "./Presenters/StockHistoryItemsPresenterGraph";
+import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
+import ActionPresenter from "./Presenters/ActionPresenter";
+import BinaryCondition from "./entities/BinaryCondition";
+import Action from "./entities/Action";
+import * as d3 from "d3";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
 
+const binaryConditionPresenter: BinaryConditionPresenter = new BinaryConditionPresenter("binaryCondition");
+const actionPresenter: ActionPresenter = new ActionPresenter("action");
+
+const margin = { top: 50, right: 50, bottom: 50, left: 50 },
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight - margin.top - margin.bottom;
+
 $(() => {
-    const ddlActions = $("#action");
-    for(var key in tradeActionTemplates) {
-        ddlActions.append($("<option></option>").val(tradeActionTemplates[key].name).html(tradeActionTemplates[key].description));
-    }
-    const ddlConditions = $("#condition");
-    for(var key in tradeConditionTemplates) {
-        ddlConditions.append($("<option></option>").val(tradeConditionTemplates[key].name).html(tradeConditionTemplates[key].description));
-    }
     $(document)
     .ajaxStart(function () {
         $('#overlay').fadeIn();
@@ -28,29 +32,29 @@ $(() => {
     .ajaxStop(function () {
         $('#overlay').fadeOut();
     });
-    let tradeData: Array<StockHistoryItem>;
+    let tradeData: Array<StockAndTradeHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     strategies.push(new Strategy());
-    $("#ticker").on("change", function() {
+    $("#ticker").on("change", () => {
         let ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
         $("#startingAmount").prop("disabled", true);
-        $("#action").prop("disabled", true);
-        $("#numberOfShares").prop("disabled", true);
-        $("#condition").prop("disabled", true);
-        $("#addStrategyBranch").prop("disabled", true);
-        $("#newStrategy").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            tradeData = StockHistoryItem.loadFromAlphavantage(data);
-            tradeData.sort((a, b) => a.date.getTime() - b.date.getTime());
+            tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
+            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
+            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+            graph.drawDayOpenGraph();
+            graph.draw50DaysSMAGraph();
+            graph.draw100DaysSMAGraph();
+            graph.draw200DaysSMAGraph();
+            graph.draw50DaysEMAGraph();
+            graph.draw100DaysEMAGraph();
+            graph.draw200DaysEMAGraph();
+            graph.drawLegend();
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
-            $("#action").prop("disabled", false);
-            $("#numberOfShares").prop("disabled", false);
-            $("#condition").prop("disabled", false);
-            $("#addStrategyBranch").prop("disabled", false);
-            $("#newStrategy").prop("disabled", false);
         }).fail(() => {
             console.log("Error while reading json");
         }).always(() => {
@@ -61,7 +65,7 @@ $(() => {
         $("#globalStrategies").append(`<hr/>`);
     });
     $("#addStrategyBranch").on("click", function() {
-        $("#run").prop("disabled", false);
+        /*$("#run").prop("disabled", false);
         let action: string = $("#action option:selected").val().toString();
         let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
         let condition: string = $("#condition option:selected").val().toString();
@@ -74,7 +78,7 @@ $(() => {
         strategies.forEach((strategy: Strategy) => {
             strategiesDescription += `<p>${strategy.toString()}</p><hr/>`;
         });
-        $("#globalStrategies").html(strategiesDescription);
+        $("#globalStrategies").html(strategiesDescription);*/
     });
     $("#run").on("click", function() {
         let startingAmount: number = Number($("#startingAmount").val());
@@ -111,10 +115,6 @@ $(() => {
             </table>`);
         });
     });
-    const urlParams = new URLSearchParams(window.location.search);
-    const tickerParam = urlParams.get('ticker');
-    if(tickerParam) {
-        $("#ticker").val(tickerParam);
-        $("#ticker").trigger("change");
-    }
+    $("#actionRender").html(actionPresenter.render());
+    $("#conditionRender").html(binaryConditionPresenter.render());
 });

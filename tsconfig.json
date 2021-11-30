@@ -3,6 +3,7 @@
         "noImplicitAny": false,
         "noEmitOnError": true,
         "removeComments": false,
+        "strictNullChecks": false, // TODO: enable strict null checks
         "sourceMap": true,
         "target": "ES2015"
     },

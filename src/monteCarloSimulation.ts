@@ -2,22 +2,27 @@ import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
 import "datatables.net"
 import * as d3 from "d3";
-import StockAndTradeHistoryItem from "./StockAndTradeHistoryItem";
-import Portofolio from "./Portofolio";
-import StockHistoryItem from "./StockHistoryItem";
-import TradeCondition from './TradeCondition';
-import TradeAction from './TradeAction';
-import StrategyBranch from "./StrategyBranch";
-import Strategy from "./Strategy";
-import {tradeConditionTemplates, tradeActionTemplates} from "./Strategies";
-import StockHistoryItemsPresenterTable from "./StockHistoryItemsPresenterTable";
-import PortofolioPresenter from "./PortofolioPresenter";
-import StockHistoryItemsPresenterGraph from "./StockHistoryItemsPresenterGraph";
+import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";
+import Portofolio from "./entities/Portofolio";
+import StockHistoryItem from "./entities/StockHistoryItem";
+import Strategy from "./entities/Strategy";
+import StockHistoryItemsPresenterTable from "./Presenters/StockHistoryItemsPresenterTable";
+import PortofolioPresenter from "./Presenters/PortofolioPresenter";
+import StockHistoryItemsPresenterGraph from "./Presenters/StockHistoryItemsPresenterGraph";
+import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
+import ActionPresenter from "./Presenters/ActionPresenter";
+import BinaryCondition from "./entities/BinaryCondition";
+import Action from "./entities/Action";
+import StrategyBranch from "./entities/StrategyBranch";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
+
+const binaryConditionPresenter: BinaryConditionPresenter = new BinaryConditionPresenter("binaryCondition");
+const actionPresenter: ActionPresenter = new ActionPresenter("action");
+
 const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
         height = window.innerHeight - margin.top - margin.bottom;
@@ -62,30 +67,19 @@ function runSimulations(tradeData: Array<StockAndTradeHistoryItem>, strategy: St
 }
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
-    let action: string = $("#action option:selected").val().toString();
-    let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
-    let condition: string = $("#condition option:selected").val().toString();
-    let thresholdValue: number = Number($("#thresholdValue").val());
-    const strategyBranch: StrategyBranch = new StrategyBranch(
-                                                new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
-                                                tradeConditionTemplates[condition].instanceDescription, tradeActionTemplates[action].instanceDescription);
+    let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
+    let action: Action = actionPresenter.read();
+    const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
-    $("#action").val("");
-    $("#condition").val("");
-    $("#conditionRender").empty();
+    // REFACTORING
     $("#actionRender").empty();
+    $("#actionRender").html(actionPresenter.render());
+    $("#conditionRender").empty();
+    $("#conditionRender").html(`${binaryConditionPresenter.render()}`);
 }
 
 $(() => {
-    const ddlActions = $("#action");
-    for(var key in tradeActionTemplates) {
-        ddlActions.append($("<option></option>").val(tradeActionTemplates[key].name).html(tradeActionTemplates[key].description));
-    }
-    const ddlConditions = $("#condition");
-    for(var key in tradeConditionTemplates) {
-        ddlConditions.append($("<option></option>").val(tradeConditionTemplates[key].name).html(tradeConditionTemplates[key].description));
-    }
     $(document)
     .ajaxStart(function () {
         $("#overlay").fadeIn();
@@ -120,15 +114,9 @@ $(() => {
         }).always(() => {
         });
     });
-    $("#action").on("change", () => {
-        let key: string = $("#action").val().toString();
-        $("#actionRender").html(tradeActionTemplates[key].htmlRender);
-    });
-    $("#condition").on("change", () => {
-        let key: string = $("#condition").val().toString();
-        $("#conditionRender").html(tradeConditionTemplates[key].htmlRender);
-    });
     $("#addStrategyBranch").on("click", () => addStrategy(strategy));
     $("#run").on("click", () => runSimulations(tradeData, strategy));
     initGraphs();
+    $("#actionRender").html(actionPresenter.render());
+    $("#conditionRender").html(binaryConditionPresenter.render());
 });
