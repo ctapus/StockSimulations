@@ -19,7 +19,7 @@ export default class ActionPresenter extends Presenter<Action> {
             case "BUY_PERCENTAGE": s.textContent = 'Percentage of cash'; i.min='0'; i.max='100'; break;
             case "SELL": s.textContent = 'Number of shares'; i.removeAttribute('min'); i.removeAttribute('max'); break;
             case "SELL_PERCENTAGE": s.textContent = 'Percentage of owned shares'; i.min='0'; i.max='100'; break;
-        } // TODO: replace magic stirngs with enum.
+        } // TODO: replace magic strings with enum.
     }
     public read(): Action {
         const actionType: string = (<HTMLInputElement>document.getElementById(`${this.controlId}_ActionType`))?.value.toString();
