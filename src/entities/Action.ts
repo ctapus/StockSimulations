@@ -56,8 +56,10 @@ export default class Action {
     }
 }
 
-export enum ActionType {    BUY = "Buy number of shares",
-                            SELL = "Sell number of owned shares",
+export enum ActionType {    BUY = "Buy exact number of shares",
+                            SELL = "Sell exact number of owned shares",
                             BUY_PERCENTAGE = "Buy using percentage of cash",
-                            SELL_PERCENTAGE = "Sell percentage of owned shares"
+                            SELL_PERCENTAGE = "Sell percentage of owned shares",
+                            BUY_AT_MOST = "Buy at most number of shares",
+                            SELL_AT_LEAST = "Sell at least number of shares"
 } // TODO: these are EXACT number of shares, add BUY_AT_MOST, SELL_AT_LEAST
