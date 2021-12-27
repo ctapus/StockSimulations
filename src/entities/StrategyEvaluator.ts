@@ -1,8 +1,7 @@
 import { ActionType } from "./Action";
 import { ComparisonOperatorType, IndicatorType } from "./BinaryCondition";
 
-export enum StrategyTokenType { Action, When, Plus, Minus, Asterisk, Slash, Number, Indicator, LParen, RParen, Percentage,
-                                ComparisonOperator, Space, End, Unknown }
+export enum StrategyTokenType { Action, When, Plus, Minus, Asterisk, Slash, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, End, Unknown }
 
 export class StrategyToken {
     public type: StrategyTokenType;
@@ -28,7 +27,10 @@ export class StrategyLexer {
     }
     public getTokenAndAdvance(): StrategyToken {
         if(this.tokens.length === this.tokenIndex) { return new StrategyToken(StrategyTokenType.End); }
-        const input: string = this.tokens[this.tokenIndex++];
+        let input: string;
+        do {
+            input = this.tokens[this.tokenIndex++];
+        } while(/\s+/.test(input));
         return this.getToken(input);
     }
     public revert(): void {
@@ -48,13 +50,6 @@ export class StrategyLexer {
             const i: IndicatorType =  IndicatorType[x] as IndicatorType;
             if(x.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, i, null, null); }
         }
-
-        if(/\=/.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.EQUAL); }
-        if(/\!=/.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.NOT_EQUAL); }
-        if(/\</.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.LESS_THAN); }
-        if(/\<=/.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.LESS_THAN_OR_EQUAL_TO); }
-        if(/\>/.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.GREATER_THAN); }
-        if(/\>=/.test(input)) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, ComparisonOperatorType.GREATER_THAN_OR_EQUAL_TO); }
         if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
         if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
         if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
@@ -62,10 +57,59 @@ export class StrategyLexer {
         if(/BUY_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.BUY_PERCENTAGE); }
         if(/SELL/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.SELL); }
         if(/SELL_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.SELL_PERCENTAGE); }
-        if(/\s+/.test(input)) { return new StrategyToken(StrategyTokenType.Space); }
 		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
         if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
 
         return new StrategyToken(StrategyTokenType.Unknown);
     }
+}
+
+export class StrategyParser {
+    private lex: StrategyLexer;
+    public parse(code: string): StrategyTree {
+        this.lex = new StrategyLexer(code);
+        const expression: StrategyTree = this.expr();
+        const token: StrategyToken = this.lex.getTokenAndAdvance();
+		if (token.type === StrategyTokenType.End) {
+			return expression;
+		}
+		throw Error("End expected");
+    }
+    private expr(): StrategyTree {
+        let strategyTree: StrategyTree = new StrategyTree();
+        strategyTree.actionBranch = this.actionBranch();
+        strategyTree.conditionBranch = this.conditionBranch();
+        return strategyTree;
+    }
+    private actionBranch(): ActionBranch { // ACTION number %|
+        const ret: ActionBranch = new ActionBranch();
+        let token: StrategyToken = this.lex.getTokenAndAdvance();
+        if(token.type === StrategyTokenType.Action) {
+            token = this.lex.getTokenAndAdvance();
+            if(token.type === StrategyTokenType.Number) {
+                token = this.lex.getTokenAndAdvance();
+                if(token.type === StrategyTokenType.Percentage) {
+                    return ret;
+                } else {
+                    this.lex.revert();
+                    return ret;
+                }
+            }
+        }
+        throw "Incorect syntax: ActionBrach";
+    }
+    private conditionBranch(): ConditionBranch {
+        throw "";
+    }
+}
+
+export class StrategyTree {
+    public actionBranch: ActionBranch;
+    public conditionBranch: ConditionBranch;
+}
+export class ActionBranch {
+
+}
+export class ConditionBranch {
+
 }
