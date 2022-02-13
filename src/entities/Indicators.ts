@@ -5,10 +5,17 @@ export default class Indicators {
     constructor(stockHistory: Array<StockHistoryItem>){
         this.stockHistory = stockHistory;
     }
+    public populateVariation(): void {
+        this.stockHistory.forEach((element, index, array) => {
+            if(null != this.stockHistory[index].previousDay) {
+                this.stockHistory[index].openVariation = this.stockHistory[index].open / this.stockHistory[index].previousDay.open * 100;
+            }
+        });
+    }
     public populate52WeeksRange(): void {
         let low52Weeks: number = Number.MAX_SAFE_INTEGER;
         let high52Weeks: number = Number.MIN_SAFE_INTEGER;
-        $.each(this.stockHistory, (index, value) => {
+        this.stockHistory.forEach((element, index, array) => {
             if (index >= 52 * 5) { // Ignore the first 52*5 days
                 for(let i: number = index - 52 * 5; i<= index; i++) {
                     if(this.stockHistory[i].high >= high52Weeks) {

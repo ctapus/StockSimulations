@@ -1,5 +1,8 @@
-import { ActionType } from "./Action";
+import Action, { ActionType, ActionTypes } from "./Action";
 import { ComparisonOperatorType, IndicatorType } from "./BinaryCondition";
+import Portofolio from "./Portofolio";
+import StockHistoryItem from "./StockHistoryItem";
+import TradeHistoryItem from "./TradeHistoryItem";
 
 export enum StrategyTokenType { Action, When, Plus, Minus, Asterisk, Slash, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, End, Unknown }
 
@@ -7,13 +10,13 @@ export class StrategyToken {
     public type: StrategyTokenType;
     public value: number;
     public indicator: IndicatorType;
-    public action: ActionType;
+    public actionType: ActionType;
     public comparisonOperator: ComparisonOperatorType;
     constructor(type: StrategyTokenType, value?: number, indicator?: IndicatorType, action?: ActionType, comparisonOperator?: ComparisonOperatorType) {
         this.type = type;
         this.value = value;
         this.indicator = indicator;
-        this.action = action;
+        this.actionType = action;
         this.comparisonOperator = comparisonOperator;
     }
 }
@@ -53,10 +56,10 @@ export class StrategyLexer {
         if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
         if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
         if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
-        if(/BUY/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.BUY); }
-        if(/BUY_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.BUY_PERCENTAGE); }
-        if(/SELL/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.SELL); }
-        if(/SELL_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionType.SELL_PERCENTAGE); }
+        if(/BUY/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.BUY); }
+        if(/BUY_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.BUY_PERCENTAGE); }
+        if(/SELL/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.SELL); }
+        if(/SELL_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.SELL_PERCENTAGE); }
 		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
         if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
 
@@ -81,18 +84,22 @@ export class StrategyParser {
         strategyTree.conditionBranch = this.conditionBranch();
         return strategyTree;
     }
-    private actionBranch(): ActionBranch { // ACTION number %|
-        const ret: ActionBranch = new ActionBranch();
+    private actionBranch(): Action { // ACTION number %|
+        let ret: Action;
+        let actionType: ActionType;
+        let param: number;
         let token: StrategyToken = this.lex.getTokenAndAdvance();
         if(token.type === StrategyTokenType.Action) {
             token = this.lex.getTokenAndAdvance();
+            actionType = token.actionType;
             if(token.type === StrategyTokenType.Number) {
                 token = this.lex.getTokenAndAdvance();
+                param = token.value;
                 if(token.type === StrategyTokenType.Percentage) {
-                    return ret;
+                    return new Action(actionType, param);// TODO: Investigate removing BUY_PERCENTAGE and SELL_PERCENTAGE or replacing with %
                 } else {
                     this.lex.revert();
-                    return ret;
+                    return new Action(actionType, param);
                 }
             }
         }
@@ -104,11 +111,8 @@ export class StrategyParser {
 }
 
 export class StrategyTree {
-    public actionBranch: ActionBranch;
+    public actionBranch: Action;
     public conditionBranch: ConditionBranch;
-}
-export class ActionBranch {
-
 }
 export class ConditionBranch {
 

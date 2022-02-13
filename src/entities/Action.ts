@@ -5,14 +5,14 @@ import TradeHistoryItem from "./TradeHistoryItem";
 export default class Action {
     public actionType: ActionType;
     public param: number; // Represents either number of shares or percentage of cash or shares
-    public constructor(s: string, param: number) {
-        this.actionType = ActionType[s];
+    public constructor(actionType: ActionType, param: number) {
+        this.actionType = actionType;
         this.param = param;
     }
     public trade(tradeData: StockHistoryItem, portofolio: Portofolio): void {
         switch(this.actionType)
         {
-            case ActionType.BUY:
+            case ActionTypes.BUY:
                 const sharesPrice: number = tradeData.open * this.param;
                 if(portofolio.amountOfMoney < sharesPrice) {
                     return;
@@ -21,7 +21,7 @@ export default class Action {
                 portofolio.amountOfMoney -= sharesPrice;
                 portofolio.history.push(new TradeHistoryItem("BUY", tradeData.date, this.param, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                 break;
-            case ActionType.SELL:
+            case ActionTypes.SELL:
                 if(portofolio.numberOfShares < this.param) {
                     return;
                 }
@@ -30,7 +30,7 @@ export default class Action {
                 portofolio.amountOfMoney += sharePrice;
                 portofolio.history.push(new TradeHistoryItem("SELL", tradeData.date, this.param, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                 break;
-            case ActionType.BUY_PERCENTAGE:
+            case ActionTypes.BUY_PERCENTAGE:
                 const maximumAmountOfMoney: number = portofolio.amountOfMoney * this.param / 100;
                 if(maximumAmountOfMoney < tradeData.open) {
                     return;
@@ -40,7 +40,7 @@ export default class Action {
                 portofolio.amountOfMoney -= tradeData.open * numberOfShares;
                 portofolio.history.push(new TradeHistoryItem("BUY_PERCENTAGE", tradeData.date, this.param, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                 break;
-            case ActionType.SELL_PERCENTAGE:
+            case ActionTypes.SELL_PERCENTAGE:
                 const numberOfSharesToSell: number = Math.floor(portofolio.numberOfShares * this.param / 100);
                 if(portofolio.numberOfShares < numberOfSharesToSell) {
                     return;
@@ -52,14 +52,30 @@ export default class Action {
         }
     }
     public toString(): string {
-        return `${this.actionType} ${this.param}`;
+        return this.actionType.instanceDescription(this.param);
     }
 }
 
-export enum ActionType {    BUY = "Buy exact number of shares",
-                            SELL = "Sell exact number of owned shares",
-                            BUY_PERCENTAGE = "Buy using percentage of cash",
-                            SELL_PERCENTAGE = "Sell percentage of owned shares",
-                            BUY_AT_MOST = "Buy at most number of shares",
-                            SELL_AT_LEAST = "Sell at least number of shares"
+export class ActionType {
+    public value: string;
+    public classDescription: string;
+    public instanceDescription: (param: number) => string;
+    constructor(value: string, classDescription: string, instanceDescription: (param: number) => string) {
+        this.value = value;
+        this.classDescription = classDescription;
+        this.instanceDescription = instanceDescription;
+    }
+}
+
+export class ActionTypes {
+    public static readonly BUY = new ActionType("BUY", "Buy exact number of shares", param => `Buy ${param} number of shares`);
+    public static readonly SELL = new ActionType("SELL", "Sell exact number of owned shares", param => `Sell ${param} number of owned shares`);
+    public static readonly BUY_PERCENTAGE = new ActionType("BUY_PERCENTAGE", "Buy using percentage of cash", param => `Buy using ${param}% of cash`);
+    public static readonly SELL_PERCENTAGE = new ActionType("SELL_PERCENTAGE", "Sell percentage of owned shares", param => `Sell ${param}% of owned shares`);
+    public static readonly BUY_AT_MOST = new ActionType("BUY_AT_MOST", "Buy at most number of shares", param => `Buy at most ${param} shares`);
+    public static readonly SELL_AT_LEAST = new ActionType("SELL_AT_LEAST", "Sell at least number of shares", param => `Sell at least ${param} shares`);
+    public static readonly All = [ this.BUY, this.SELL, this.BUY_PERCENTAGE, this.SELL_PERCENTAGE, this.BUY_AT_MOST, this.SELL_AT_LEAST];
+    public static item(key: string): ActionType {
+        return this.All.filter(x => x.value.toUpperCase() === key.toUpperCase())[0];
+    }
 } // TODO: these are EXACT number of shares, add BUY_AT_MOST, SELL_AT_LEAST

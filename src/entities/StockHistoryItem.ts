@@ -46,12 +46,10 @@ export default class StockHistoryItem {
         $.each(ret, (index, value) => {
             ret[index].previousDay = previousDayTrade;
             previousDayTrade = ret[index];
-            if(null != ret[index].previousDay) {
-                ret[index].openVariation = ret[index].open / ret[index].previousDay.open * 100;
-            }
         });
         const indicator: Indicators = new Indicators(ret);
         // TODO: investigate running all in the same loop to improve performance
+        indicator.populateVariation();
         indicator.populate52WeeksRange();
         indicator.populate50DaysOpenSMA();
         indicator.populate100DaysOpenSMA();
