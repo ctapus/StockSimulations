@@ -1,24 +1,9 @@
+import { ArithmeticOperator, ArithmeticOperatorTypes } from "./ArithmeticOperator";
 import { ComparisonOperator, ComparisonOperatorTypes } from "./ComparisonOperator";
 import { Indicator } from "./Indicator";
 import Portofolio from "./Portofolio";
 import StockHistoryItem from "./StockHistoryItem";
 
-export enum ArithmeticOperatorType {    ADDITION = "+",
-                                        SUBSTRACTION = "-",
-                                        MULTIPLICATION = "*",
-                                        DIVISION = "/" }
-export class ArithmeticOperator {
-    public arithmeticOperatorType: ArithmeticOperatorType;
-    public constructor(s: string) {
-        this.arithmeticOperatorType = ArithmeticOperatorType[s];
-    }
-    public toString(): string {
-        return this.arithmeticOperatorType;
-    }
-    public toCode(): string {
-        return this.arithmeticOperatorType;
-    }
-}
 export class Term {
     public coeficient: number;
     public arithmeticOperator: ArithmeticOperator;
@@ -30,10 +15,10 @@ export class Term {
     }
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): number {
         switch(this.arithmeticOperator.arithmeticOperatorType) {
-            case ArithmeticOperatorType.ADDITION: return this.indicator.evaluate(tradeTick, portofolio) + this.coeficient;
-            case ArithmeticOperatorType.SUBSTRACTION: return this.indicator.evaluate(tradeTick, portofolio) - this.coeficient;
-            case ArithmeticOperatorType.MULTIPLICATION: return this.indicator.evaluate(tradeTick, portofolio) * this.coeficient;
-            case ArithmeticOperatorType.DIVISION: return this.indicator.evaluate(tradeTick, portofolio) / this.coeficient;
+            case ArithmeticOperatorTypes.ADDITION: return this.indicator.evaluate(tradeTick, portofolio) + this.coeficient;
+            case ArithmeticOperatorTypes.SUBSTRACTION: return this.indicator.evaluate(tradeTick, portofolio) - this.coeficient;
+            case ArithmeticOperatorTypes.MULTIPLICATION: return this.indicator.evaluate(tradeTick, portofolio) * this.coeficient;
+            case ArithmeticOperatorTypes.DIVISION: return this.indicator.evaluate(tradeTick, portofolio) / this.coeficient;
         }
     }
     public toString(): string {
