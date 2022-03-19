@@ -1,9 +1,9 @@
-import { Indicator, IndicatorType } from "../entities/BinaryCondition";
+import { Indicator, IndicatorTypes } from "../entities/Indicator";
 import { Presenter } from "./Presenter";
 
 export class IndicatorPresenter extends Presenter<Indicator> {
     public render(): string {
-        const options: string = Object.keys(IndicatorType).map(x => `<option value='${x}'>${IndicatorType[x]}</option>`).reduce((p, c) => p + c);
+        const options: string = IndicatorTypes.AllIndicatorTypes.map(x => `<option value='${x.code}'>${x.classDescription}</option>`).reduce((p, c) => p + c);
         return `<select id='${this.controlId}'><option></option>${options}</select>`;
     }
     public read(): Indicator {

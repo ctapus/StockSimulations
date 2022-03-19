@@ -8,7 +8,14 @@ export default class Strategy {
     public toString(): string {
         let ret: string = "";
         for(var strategyBranchKey in this.strategyBranches) {
-            ret += `${this.strategyBranches[strategyBranchKey].toString()}<br/>`
+            ret += `${this.strategyBranches[strategyBranchKey].toString()}<br/>`;
+        }
+        return ret;
+    }
+    public toCode(): string {
+        let ret: string = "";
+        for(var strategyBranchKey in this.strategyBranches) {
+            ret += `${this.strategyBranches[strategyBranchKey].toCode()}; `;
         }
         return ret;
     }

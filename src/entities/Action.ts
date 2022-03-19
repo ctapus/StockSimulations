@@ -54,14 +54,17 @@ export default class Action {
     public toString(): string {
         return this.actionType.instanceDescription(this.param);
     }
+    public toCode(): string {
+        return `${this.actionType.code} ${this.param}`;
+    }
 }
 
 export class ActionType {
-    public value: string;
+    public code: string;
     public classDescription: string;
     public instanceDescription: (param: number) => string;
-    constructor(value: string, classDescription: string, instanceDescription: (param: number) => string) {
-        this.value = value;
+    constructor(code: string, classDescription: string, instanceDescription: (param: number) => string) {
+        this.code = code;
         this.classDescription = classDescription;
         this.instanceDescription = instanceDescription;
     }
@@ -74,8 +77,8 @@ export class ActionTypes {
     public static readonly SELL_PERCENTAGE = new ActionType("SELL_PERCENTAGE", "Sell percentage of owned shares", param => `Sell ${param}% of owned shares`);
     public static readonly BUY_AT_MOST = new ActionType("BUY_AT_MOST", "Buy at most number of shares", param => `Buy at most ${param} shares`);
     public static readonly SELL_AT_LEAST = new ActionType("SELL_AT_LEAST", "Sell at least number of shares", param => `Sell at least ${param} shares`);
-    public static readonly All = [ this.BUY, this.SELL, this.BUY_PERCENTAGE, this.SELL_PERCENTAGE, this.BUY_AT_MOST, this.SELL_AT_LEAST];
+    public static readonly AllActionTypes: ActionType[] = [ this.BUY, this.SELL, this.BUY_PERCENTAGE, this.SELL_PERCENTAGE, this.BUY_AT_MOST, this.SELL_AT_LEAST];
     public static item(key: string): ActionType {
-        return this.All.filter(x => x.value.toUpperCase() === key.toUpperCase())[0];
+        return this.AllActionTypes.filter(x => x.code.toUpperCase() === key.toUpperCase())[0];
     }
 } // TODO: these are EXACT number of shares, add BUY_AT_MOST, SELL_AT_LEAST

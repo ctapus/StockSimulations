@@ -11,4 +11,7 @@ export default class StrategyBranch {
     public toString(): string {
         return `${this.action.toString()} when ${this.binaryCondition.toString()}`;
     }
+    public toCode(): string {
+        return `${this.action.toCode()} WHEN ${this.binaryCondition.toCode()}`;
+    }
 }

@@ -3,7 +3,7 @@ import { Presenter } from "./Presenter";
 
 export default class ActionPresenter extends Presenter<Action> {
     public render(): string {
-        const options: string = ActionTypes.All.map(x => `<option value='${x.value}'>${x.classDescription}</option>`).reduce((p, c) => p + c);
+        const options: string = ActionTypes.AllActionTypes.map(x => `<option value='${x.code}'>${x.classDescription}</option>`).reduce((p, c) => p + c);
         return `<select id='${this.controlId}_ActionType'><option></option>${options}</select><span id='${this.controlId}_Span'></span><input type='number' id='${this.controlId}_Param' step='1' size='4' />`;
     }
     public addJavascript(): void {

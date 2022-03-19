@@ -1,8 +1,6 @@
 import Action, { ActionType, ActionTypes } from "./Action";
-import { ComparisonOperatorType, IndicatorType } from "./BinaryCondition";
-import Portofolio from "./Portofolio";
-import StockHistoryItem from "./StockHistoryItem";
-import TradeHistoryItem from "./TradeHistoryItem";
+import { ComparisonOperatorType, ComparisonOperatorTypes } from "./ComparisonOperator";
+import { IndicatorType, IndicatorTypes } from "./Indicator";
 
 export enum StrategyTokenType { Action, When, Plus, Minus, Asterisk, Slash, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, End, Unknown }
 
@@ -45,13 +43,11 @@ export class StrategyLexer {
         if(/\-/.test(input)) { return new StrategyToken(StrategyTokenType.Minus); }
         if(/\*/.test(input)) { return new StrategyToken(StrategyTokenType.Asterisk); }
         if(/\\/.test(input)) { return new StrategyToken(StrategyTokenType.Slash); }
-        for(let x in ComparisonOperatorType) {
-            const co: ComparisonOperatorType =  ComparisonOperatorType[x] as ComparisonOperatorType;
-            if(co.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, co); }
+        for(let x of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
+            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, x); }
         }
-        for(let x in IndicatorType) {
-            const i: IndicatorType =  IndicatorType[x] as IndicatorType;
-            if(x.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, i, null, null); }
+        for(let x of IndicatorTypes.AllIndicatorTypes) {
+            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, x, null, null); }
         }
         if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
         if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
@@ -85,7 +81,6 @@ export class StrategyParser {
         return strategyTree;
     }
     private actionBranch(): Action { // ACTION number %|
-        let ret: Action;
         let actionType: ActionType;
         let param: number;
         let token: StrategyToken = this.lex.getTokenAndAdvance();

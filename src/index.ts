@@ -136,4 +136,7 @@ $(() => {
     $("#actionRender").html(actionPresenter.render());
     $("#conditionRender").html(binaryConditionPresenter.render());
     actionPresenter.addJavascript();
+    $("#getLink").on("click", () => {
+        $("#link").val(strategy.toCode());
+    });
 });
