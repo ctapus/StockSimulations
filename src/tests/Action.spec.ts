@@ -6,7 +6,7 @@ import StockAndTradeHistoryItem from "../entities/StockAndTradeHistoryItem";
 
 describe("Action test suite", () => {
 	it("Can BUY", () => {
-		const action: Action = new Action(ActionTypes.BUY, 5);
+		const action: Action = new Action(ActionTypes.BUY_EXACT, 5);
         const tradeDataPrevDay: StockAndTradeHistoryItem = new StockAndTradeHistoryItem();
         tradeDataPrevDay.date = new Date('2022-01-01');
         tradeDataPrevDay.open = 100;

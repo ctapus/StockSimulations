@@ -12,7 +12,7 @@ export default class Action {
     public trade(tradeData: StockHistoryItem, portofolio: Portofolio): void {
         switch(this.actionType)
         {
-            case ActionTypes.BUY:
+            case ActionTypes.BUY_EXACT:
                 const sharesPrice: number = tradeData.open * this.param;
                 if(portofolio.amountOfMoney < sharesPrice) {
                     return;
@@ -21,7 +21,7 @@ export default class Action {
                 portofolio.amountOfMoney -= sharesPrice;
                 portofolio.history.push(new TradeHistoryItem("BUY", tradeData.date, this.param, tradeData.open, portofolio.amountOfMoney, portofolio.numberOfShares));
                 break;
-            case ActionTypes.SELL:
+            case ActionTypes.SELL_EXACT:
                 if(portofolio.numberOfShares < this.param) {
                     return;
                 }
@@ -71,13 +71,13 @@ export class ActionType {
 }
 
 export class ActionTypes {
-    public static readonly BUY = new ActionType("BUY", "Buy exact number of shares", param => `Buy ${param} number of shares`);
-    public static readonly SELL = new ActionType("SELL", "Sell exact number of owned shares", param => `Sell ${param} number of owned shares`);
+    public static readonly BUY_EXACT = new ActionType("BUY_EXACT", "Buy exact number of shares", param => `Buy ${param} number of shares`);
+    public static readonly SELL_EXACT = new ActionType("SELL_EXACT", "Sell exact number of owned shares", param => `Sell ${param} number of owned shares`);
     public static readonly BUY_PERCENTAGE = new ActionType("BUY_PERCENTAGE", "Buy using percentage of cash", param => `Buy using ${param}% of cash`);
     public static readonly SELL_PERCENTAGE = new ActionType("SELL_PERCENTAGE", "Sell percentage of owned shares", param => `Sell ${param}% of owned shares`);
     public static readonly BUY_AT_MOST = new ActionType("BUY_AT_MOST", "Buy at most number of shares", param => `Buy at most ${param} shares`);
     public static readonly SELL_AT_LEAST = new ActionType("SELL_AT_LEAST", "Sell at least number of shares", param => `Sell at least ${param} shares`);
-    public static readonly AllActionTypes: ActionType[] = [ this.BUY, this.SELL, this.BUY_PERCENTAGE, this.SELL_PERCENTAGE, this.BUY_AT_MOST, this.SELL_AT_LEAST];
+    public static readonly AllActionTypes: ActionType[] = [ this.BUY_EXACT, this.SELL_EXACT, this.BUY_PERCENTAGE, this.SELL_PERCENTAGE, this.BUY_AT_MOST, this.SELL_AT_LEAST];
     public static item(key: string): ActionType {
         return this.AllActionTypes.filter(x => x.code.toUpperCase() === key.toUpperCase())[0];
     }

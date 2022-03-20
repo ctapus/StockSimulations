@@ -43,21 +43,20 @@ export class StrategyLexer {
         if(/\-/.test(input)) { return new StrategyToken(StrategyTokenType.Minus); }
         if(/\*/.test(input)) { return new StrategyToken(StrategyTokenType.Asterisk); }
         if(/\\/.test(input)) { return new StrategyToken(StrategyTokenType.Slash); }
+        if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
+        if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
+        if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
+		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
+        if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
         for(let x of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
             if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, x); }
         }
         for(let x of IndicatorTypes.AllIndicatorTypes) {
             if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, x, null, null); }
         }
-        if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
-        if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
-        if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
-        if(/BUY/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.BUY); }
-        if(/BUY_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.BUY_PERCENTAGE); }
-        if(/SELL/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.SELL); }
-        if(/SELL_PERCENTAGE/i.test(input)) { return new StrategyToken(StrategyTokenType.Action, null, null, ActionTypes.SELL_PERCENTAGE); }
-		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
-        if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
+        for(let x of ActionTypes.AllActionTypes) {
+            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Action, null, null, x, null); }
+        }
 
         return new StrategyToken(StrategyTokenType.Unknown);
     }

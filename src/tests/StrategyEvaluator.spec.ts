@@ -4,14 +4,12 @@ import { StrategyLexer, StrategyToken, StrategyTokenType } from "../entities/Str
 
 describe("BooleanEvaluatorMath test suite", () => {
 	it("Can lex", () => {
-		const lexer: StrategyLexer = new StrategyLexer("BUY 100 % WHEN PREV_DAY_OPEN < DAY_OPEN");
+		const lexer: StrategyLexer = new StrategyLexer("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < DAY_OPEN");
 		let token: StrategyToken = lexer.getTokenAndAdvance();
 		expect(token.type).to.equal(StrategyTokenType.Action);
-		expect(token.actionType).to.equal(ActionTypes.BUY);
+		expect(token.actionType).to.equal(ActionTypes.BUY_PERCENTAGE);
 		token = lexer.getTokenAndAdvance();
 		expect(token.type).to.equal(StrategyTokenType.Number);
-		token = lexer.getTokenAndAdvance();
-		expect(token.type).to.equal(StrategyTokenType.Percentage);
 		token = lexer.getTokenAndAdvance();
 		expect(token.type).to.equal(StrategyTokenType.When);
 		token = lexer.getTokenAndAdvance();
