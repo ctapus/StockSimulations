@@ -8,7 +8,7 @@ export class Term {
     public coeficient: number;
     public arithmeticOperator: ArithmeticOperator;
     public indicator: Indicator;
-    public constructor(coeficient: number, arithmeticOperator: ArithmeticOperator, indicator: Indicator) {
+    public constructor(indicator: Indicator, coeficient?: number, arithmeticOperator?: ArithmeticOperator) {
         this.coeficient = coeficient;
         this.arithmeticOperator = arithmeticOperator;
         this.indicator = indicator;
@@ -22,10 +22,10 @@ export class Term {
         }
     }
     public toString(): string {
-        return `${this.coeficient.toString()} ${this.arithmeticOperator.toString()} ${this.indicator.toString()}`;
+        return `${this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
     }
     public toCode(): string {
-        return `${this.coeficient.toString()} ${this.arithmeticOperator.toCode()} ${this.indicator.toCode()}`;
+        return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
     }
 }
 export default class BinaryCondition {

@@ -12,6 +12,6 @@ export default class TermPresenter extends Presenter<Term> {
         return `${this.coeficientPresenter.render()} ${this.arithmeticOperatorPresenter.render()} ${this.indicatorPresenter.render()}`;
     }
     public read(): Term {
-        return new Term(this.coeficientPresenter.read(), this.arithmeticOperatorPresenter.read(), this.indicatorPresenter.read());
+        return new Term(this.indicatorPresenter.read(), this.coeficientPresenter.read(), this.arithmeticOperatorPresenter.read());
     }
 }
