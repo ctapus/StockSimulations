@@ -15,6 +15,7 @@ import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
 import ActionPresenter from "./Presenters/ActionPresenter";
 import BinaryCondition from "./entities/BinaryCondition";
 import Action from "./entities/Action";
+import { StrategyParser } from "./entities/StrategyEvaluator";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -103,7 +104,7 @@ $(() => {
         $('#overlay').fadeOut();
     });
     let tradeData: Array<StockAndTradeHistoryItem>;
-    const strategy: Strategy = new Strategy();
+    let strategy: Strategy = new Strategy();
     $("#ticker").on("change", () => {
         let ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
@@ -136,7 +137,15 @@ $(() => {
     $("#actionRender").html(actionPresenter.render());
     $("#conditionRender").html(binaryConditionPresenter.render());
     actionPresenter.addJavascript();
+    const urlParamStrategy = "strategy";
     $("#getLink").on("click", () => {
-        $("#link").val(strategy.toCode());
+        $("#link").val(window.location.href + "?" + urlParamStrategy + "=" + encodeURIComponent(strategy.toCode()));
     });
+    let searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.has(urlParamStrategy)) {
+        let strategiesString = searchParams.get(urlParamStrategy);
+		const parser: StrategyParser = new StrategyParser();
+        strategy = parser.parse(decodeURIComponent(strategiesString));
+        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+    }
 });

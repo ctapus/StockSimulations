@@ -1,12 +1,12 @@
 import Action, { ActionType, ActionTypes } from "./Action";
 import { ArithmeticOperator, ArithmeticOperatorType, ArithmeticOperatorTypes } from "./ArithmeticOperator";
 import BinaryCondition, { Term } from "./BinaryCondition";
-import { ComparisonOperatorType, ComparisonOperatorTypes } from "./ComparisonOperator";
+import { ComparisonOperator, ComparisonOperatorType, ComparisonOperatorTypes } from "./ComparisonOperator";
 import { Indicator, IndicatorType, IndicatorTypes } from "./Indicator";
 import Strategy from "./Strategy";
 import StrategyBranch from "./StrategyBranch";
 
-export enum StrategyTokenType { Action, When, ArithmeticOperator, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, End, Unknown }
+export enum StrategyTokenType { Action, When, ArithmeticOperator, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, Semicolon, End }
 
 export class StrategyToken {
     public type: StrategyTokenType;
@@ -29,7 +29,7 @@ export class StrategyLexer {
     private tokens: string[];
     private tokenIndex: number;
     constructor(input: string) {
-		this.tokens = input.match(/\(|\)|\d+(\.\d+)?|[\+\-\*\/]|[a-zA-Z]+[a-zA-Z0-9_]*|\s+|%|BUY|SELL|WHEN|!=|=|<|>|<=|>=/g);
+		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[\+\-\*\/]|[a-zA-Z]+[a-zA-Z0-9_]*|\s+|%|BUY|SELL|WHEN|!=|=|<|>|<=|>=|;/g);
 		this.tokenIndex = 0;
     }
     public getTokenAndAdvance(): StrategyToken {
@@ -62,21 +62,26 @@ export class StrategyLexer {
         for(let x of ActionTypes.AllActionTypes) {
             if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Action, null, null, x, null, null); }
         }
-
-        return new StrategyToken(StrategyTokenType.Unknown);
+        if(/;/.test(input)) { return new StrategyToken(StrategyTokenType.Semicolon); }
+        throw "Unknown token";
     }
 }
 
 export class StrategyParser {
     private lex: StrategyLexer;
-    // Strategy = StrategyBranch [; StrategyBranch]
+    // Strategy = StrategyBranch; [StrategyBranch;]
     public parse(code: string): Strategy {
         this.lex = new StrategyLexer(code);
         let strategy: Strategy = new Strategy();
-        const token: StrategyToken = this.lex.getTokenAndAdvance();
+        let token: StrategyToken;
         do {
             const strategyBranch: StrategyBranch = this.strategyBranch();
             strategy.strategyBranches.push(strategyBranch);
+            token = this.lex.getTokenAndAdvance();
+            if(token.type !== StrategyTokenType.Semicolon) {
+                throw "Missing ;";
+            }
+            token = this.lex.getTokenAndAdvance();
         } while (token.type !== StrategyTokenType.End);
         return strategy;
     }
@@ -115,6 +120,7 @@ export class StrategyParser {
         if(token.type === StrategyTokenType.ComparisonOperator) {
             comparisonOperator = token.comparisonOperator;
             term2 = this.term();
+            return new BinaryCondition(term1, new ComparisonOperator(comparisonOperator.code), term2);
         }
         throw "Incorect syntax: BinaryCondition";
     }
@@ -128,7 +134,7 @@ export class StrategyParser {
             coeficient = token.value;
             token = this.lex.getTokenAndAdvance();
             if(token.type === StrategyTokenType.ArithmeticOperator) {
-                arithmeticOperator = new ArithmeticOperator(token.arithmeticOperator.classDescription);
+                arithmeticOperator = new ArithmeticOperator(token.arithmeticOperator.code);
                 token = this.lex.getTokenAndAdvance();
                 if(token.type === StrategyTokenType.Indicator) {
                     indicator = new Indicator(token.indicator.code);
