@@ -29,7 +29,7 @@ export class StrategyLexer {
     private tokens: string[];
     private tokenIndex: number;
     constructor(input: string) {
-		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[\+\-\*\/]|[a-zA-Z]+[a-zA-Z0-9_]*|\s+|%|BUY|SELL|WHEN|!=|=|<|>|<=|>=|;/g);
+		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[\+\-\*\/]|[a-zA-Z]+[a-zA-Z0-9_]*|\s+|%|BUY|SELL|WHEN|!=|=|<=|>=|<|>|;/g);
 		this.tokenIndex = 0;
     }
     public getTokenAndAdvance(): StrategyToken {
@@ -102,8 +102,8 @@ export class StrategyParser {
         let param: number;
         let token: StrategyToken = this.lex.getTokenAndAdvance();
         if(token.type === StrategyTokenType.Action) {
-            token = this.lex.getTokenAndAdvance();
             actionType = token.actionType;
+            token = this.lex.getTokenAndAdvance();
             if(token.type === StrategyTokenType.Number) {
                 return new Action(actionType, param);
             }
