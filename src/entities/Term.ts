@@ -1,4 +1,4 @@
-import { ArithmeticOperator, ArithmeticOperatorTypes } from "./ArithmeticOperator";
+import { ArithmeticOperator, ArithmeticOperatorType, ArithmeticOperatorTypes } from "./ArithmeticOperator";
 import { Indicator } from "./Indicator";
 import Portofolio from "./Portofolio";
 import StockHistoryItem from "./StockHistoryItem";
@@ -20,10 +20,29 @@ export default class Term {
             case ArithmeticOperatorTypes.DIVISION: return this.indicator.evaluate(tradeTick, portofolio) / this.coeficient;
         }
     }
+    public simplify(): void {
+        if((this.arithmeticOperator.arithmeticOperatorType.code === ArithmeticOperatorTypes.MULTIPLICATION.code && this.coeficient === 1) ||
+         (this.arithmeticOperator.arithmeticOperatorType.code === ArithmeticOperatorTypes.ADDITION.code && this.coeficient === 0)){
+                this.coeficient = null;
+                this.arithmeticOperator = null;
+            }
+    }
     public toString(): string {
-        return `${this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
+        if(this.coeficient !== null && this.arithmeticOperator !== null) {
+            return `${ this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
+        }
+        if(this.coeficient === null && this.arithmeticOperator === null) {
+            return `${this.indicator?.toString()}`;
+        }
+        throw "Term.toString(): Incorect params";
     }
     public toCode(): string {
-        return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
+        if(this.coeficient !== null && this.arithmeticOperator !== null) {
+            return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
+        }
+        if(this.coeficient === null && this.arithmeticOperator === null) {
+            return `${this.indicator?.toCode()}`;
+        }
+        throw "Term.toCode(): Incorect params";
     }
 }

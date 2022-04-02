@@ -51,6 +51,8 @@ export default class Action {
                 break;
         }
     }
+    public simplify(): void {
+    }
     public toString(): string {
         return this.actionType.instanceDescription(this.param);
     }

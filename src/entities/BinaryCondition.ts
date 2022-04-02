@@ -22,6 +22,10 @@ export default class BinaryCondition {
             case ComparisonOperatorTypes.LESS_THAN: return this.term1.evaluate(tradeTick, portofolio) < this.term2.evaluate(tradeTick, portofolio);
         }
     }
+    public simplify(): void {
+        this.term1.simplify();
+        this.term2.simplify();
+    }
     public toString(): string {
         return `${this.term1.toString()} ${this.comparisonOperator.toString()} ${this.term2.toString()}`;
     }

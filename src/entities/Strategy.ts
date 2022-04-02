@@ -12,6 +12,11 @@ export default class Strategy {
         }
         return ret;
     }
+    public simplify(): void {
+        for(var strategyBranchKey in this.strategyBranches) {
+            this.strategyBranches[strategyBranchKey].simplify();
+        }
+    }
     public toCode(): string {
         let ret: string = "";
         for(var strategyBranchKey in this.strategyBranches) {

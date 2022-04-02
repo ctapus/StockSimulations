@@ -146,6 +146,7 @@ $(() => {
         let strategiesString = searchParams.get(urlParamStrategy);
 		const parser: StrategyParser = new StrategyParser();
         strategy = parser.parse(decodeURIComponent(strategiesString));
+        strategy.simplify();
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     }
 });
