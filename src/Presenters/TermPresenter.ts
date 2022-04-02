@@ -1,4 +1,4 @@
-import { Term } from "../entities/BinaryCondition";
+import Term from "../entities/Term";
 import ArithmeticOperatorPresenter from "./ArithmeticOperatorPresenter";
 import { CoeficientPresenter } from "./CoeficientPresenter";
 import { IndicatorPresenter } from "./IndicatorPresenter";

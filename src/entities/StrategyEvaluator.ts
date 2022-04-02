@@ -1,10 +1,11 @@
 import Action, { ActionType, ActionTypes } from "./Action";
 import { ArithmeticOperator, ArithmeticOperatorType, ArithmeticOperatorTypes } from "./ArithmeticOperator";
-import BinaryCondition, { Term } from "./BinaryCondition";
+import BinaryCondition from "./BinaryCondition";
 import { ComparisonOperator, ComparisonOperatorType, ComparisonOperatorTypes } from "./ComparisonOperator";
 import { Indicator, IndicatorType, IndicatorTypes } from "./Indicator";
 import Strategy from "./Strategy";
 import StrategyBranch from "./StrategyBranch";
+import Term from "./Term";
 
 export enum StrategyTokenType { Action, When, ArithmeticOperator, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, Semicolon, End }
 
@@ -106,6 +107,7 @@ export class StrategyParser {
             actionType = token.actionType;
             token = this.lex.getTokenAndAdvance();
             if(token.type === StrategyTokenType.Number) {
+                param = token.value;
                 return new Action(actionType, param);
             }
         }
