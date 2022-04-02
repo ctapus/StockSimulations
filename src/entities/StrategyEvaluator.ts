@@ -82,6 +82,7 @@ export class StrategyParser {
                 throw "Missing ;";
             }
             token = this.lex.getTokenAndAdvance();
+            this.lex.revert();
         } while (token.type !== StrategyTokenType.End);
         return strategy;
     }
