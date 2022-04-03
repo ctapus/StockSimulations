@@ -136,6 +136,7 @@ $(() => {
     // REFACTORING
     $("#actionRender").html(actionPresenter.render());
     $("#conditionRender").html(binaryConditionPresenter.render());
+
     actionPresenter.addJavascript();
     const urlParamStrategy = "strategy";
     $("#getLink").on("click", () => {
@@ -148,5 +149,6 @@ $(() => {
         strategy = parser.parse(decodeURIComponent(strategiesString));
         strategy.simplify();
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+        $("#run").prop("disabled", false);
     }
 });

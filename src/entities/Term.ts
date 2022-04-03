@@ -13,6 +13,9 @@ export default class Term {
         this.indicator = indicator;
     }
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): number {
+        if(!this.coeficient || !this.arithmeticOperator) {
+            return this.indicator.evaluate(tradeTick, portofolio);
+        }
         switch(this.arithmeticOperator.arithmeticOperatorType) {
             case ArithmeticOperatorTypes.ADDITION: return this.indicator.evaluate(tradeTick, portofolio) + this.coeficient;
             case ArithmeticOperatorTypes.SUBSTRACTION: return this.indicator.evaluate(tradeTick, portofolio) - this.coeficient;
@@ -21,6 +24,9 @@ export default class Term {
         }
     }
     public simplify(): void {
+        if(!this.arithmeticOperator || !this.coeficient) {
+            return;
+        }
         if((this.arithmeticOperator.arithmeticOperatorType.code === ArithmeticOperatorTypes.MULTIPLICATION.code && this.coeficient === 1) ||
          (this.arithmeticOperator.arithmeticOperatorType.code === ArithmeticOperatorTypes.ADDITION.code && this.coeficient === 0)){
                 this.coeficient = null;
@@ -28,21 +34,19 @@ export default class Term {
             }
     }
     public toString(): string {
-        if(this.coeficient !== null && this.arithmeticOperator !== null) {
-            return `${ this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
-        }
-        if(this.coeficient === null && this.arithmeticOperator === null) {
+        if(!this.coeficient || !this.arithmeticOperator) {
             return `${this.indicator?.toString()}`;
         }
-        throw "Term.toString(): Incorect params";
+        else {
+            return `${ this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
+        }
     }
     public toCode(): string {
-        if(this.coeficient !== null && this.arithmeticOperator !== null) {
-            return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
-        }
-        if(this.coeficient === null && this.arithmeticOperator === null) {
+        if(!this.coeficient || !this.arithmeticOperator) {
             return `${this.indicator?.toCode()}`;
         }
-        throw "Term.toCode(): Incorect params";
+        else {
+            return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
+        }
     }
 }

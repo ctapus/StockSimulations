@@ -133,8 +133,6 @@
     <input type="button" id="run" class="btn btn-info" value="Run" disabled />
     <br/>
     <br/>
-    <input type="button" id="getLink" class="btn btn-info" value="Get Link" />
-    <textarea id="link" rows="5" cols="160"></textarea>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link active" data-toggle="tab" href="#home">Summary</a>
@@ -150,6 +148,9 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#menu4">Equity Graph</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu5">Share</a>
         </li>
     </ul>
     <div class="tab-content">
@@ -168,6 +169,10 @@
             <div id="chartEquity">
                 <svg></svg>
             </div>
+        </div>
+        <div id="menu5" class="tab-pane">
+            <input type="button" id="getLink" class="btn btn-info" value="Generate Link" /><br />
+            <textarea id="link" rows="5" cols="160"></textarea>
         </div>
     </div>
 </body>
