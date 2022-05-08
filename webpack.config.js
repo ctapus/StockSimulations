@@ -5,6 +5,7 @@ module.exports = {
   mode: 'development',
   entry: {
     index: './src/index.ts',
+    indexExperimental: './src/indexExperimental.ts',
     monteCarloSimulation: './src/monteCarloSimulation.ts',
     indexIntraday: './src/indexIntraday.ts',
     summary: './src/summary.ts'
