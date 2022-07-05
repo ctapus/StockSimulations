@@ -17,6 +17,9 @@ export default class StockHistoryItem {
     public ema50DaysOpen: number;
     public ema100DaysOpen: number;
     public ema200DaysOpen: number;
+    public derivativeFirst: number;
+    public derivativeSecond: number;
+    public derivativeThird: number;
     public deepCopy(): StockHistoryItem {
         const ret: StockHistoryItem = new StockHistoryItem();
         ret.date = this.date;
@@ -57,6 +60,9 @@ export default class StockHistoryItem {
         indicator.populate50DaysOpenEMA();
         indicator.populate100DaysOpenEMA();
         indicator.populate200DaysOpenEMA();
+        indicator.populateDerivativeFirst();
+        indicator.populateDerivativeSecond();
+        indicator.populateDerivativeThird();
         return ret;
     }
 }

@@ -45,6 +45,9 @@ function initGraphs(): void {
                 .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
                 .extent([[0, 0], [width, height]])
                 .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+    const svg3 = d3.select("#chartExperimental").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
 }
 function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
@@ -123,6 +126,13 @@ $(() => {
             graph.draw100DaysEMAGraph();
             graph.draw200DaysEMAGraph();
             graph.drawLegend();
+            graph.drawDayOpenGraph();
+            const svgContainerExperimental: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chartExperimental").select("svg");
+            const graphExperimental: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainerExperimental, tradeData, margin);
+            graphExperimental.drawDayOpenGraph();
+            graphExperimental.drawDerivativeFirstGraph();
+            graphExperimental.drawDerivativeSecondGraph();
+            graphExperimental.drawDerivativeThirdGraph();
             $("#startDate").prop("disabled", false);
             $("#startingAmount").prop("disabled", false);
         }).fail(() => {

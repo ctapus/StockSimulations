@@ -69,4 +69,25 @@ export default class Indicators {
         }
         return null;
     }
+    public populateDerivativeFirst(): void {
+        this.stockHistory[0].derivativeFirst = 0;
+        for(var i=1; i<this.stockHistory.length; i++) {
+            this.stockHistory[i].derivativeFirst = this.stockHistory[i].previousDay.open - this.stockHistory[i].open;
+        }
+    }
+    public populateDerivativeSecond(): void {
+        this.stockHistory[0].derivativeSecond = 0;
+        this.stockHistory[1].derivativeSecond = 0;
+        for(var i=2; i<this.stockHistory.length; i++) {
+            this.stockHistory[i].derivativeSecond = this.stockHistory[i].previousDay.derivativeFirst - this.stockHistory[i].derivativeFirst;
+        }
+    }
+    public populateDerivativeThird(): void {
+        this.stockHistory[0].derivativeThird = 0;
+        this.stockHistory[1].derivativeThird = 0;
+        this.stockHistory[2].derivativeThird = 0;
+        for(var i=3; i<this.stockHistory.length; i++) {
+            this.stockHistory[i].derivativeThird = this.stockHistory[i].previousDay.derivativeSecond - this.stockHistory[i].derivativeSecond;
+        }
+    }
 }

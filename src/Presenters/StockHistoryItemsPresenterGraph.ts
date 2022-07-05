@@ -17,6 +17,9 @@ export default class StockHistoryItemsPresenterGraph {
     private readonly ema50DaysColor: string = "darkgreen";
     private readonly ema100DaysColor: string = "forestgreen";
     private readonly ema200DaysColor: string = "lightgreen";
+    private readonly derivativeFirst: string = "mediumslateblue";
+    private readonly derivativeSecond: string = "mediumturquoise";
+    private readonly derivativeThird: string = "midnightblue";
     public constructor(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin) {
         this.svgContainer = svgContainer;
         this.tradeData = tradeData;
@@ -143,5 +146,38 @@ export default class StockHistoryItemsPresenterGraph {
             g.append("text").attr("x", legendOffsetX + squareLength + 10 + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10 + 10)
                             .style("fill", "black").text(dict[i][0]).attr("text-anchor", "left").style("alignment-baseline", "middle");
         }
+    }
+    public drawDerivativeFirstGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.derivativeFirst).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.derivativeFirst); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "derivativeFirst")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.derivativeFirst)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","derivativeFirst");
+    }
+    public drawDerivativeSecondGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.derivativeSecond).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.derivativeSecond); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "derivativeSecond")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.derivativeSecond)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","derivativeSecond");
+    }
+    public drawDerivativeThirdGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.derivativeThird).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.derivativeThird); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "derivativeThird")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.derivativeThird)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","derivativeThird");
     }
 }
