@@ -78,10 +78,10 @@ export default class Indicators {
             let losses: number = 0;
             for(let i: number = index-numberOfDays; i<=index; i++) {
                 if(this.stockHistory[i-1].open < this.stockHistory[i].open) {
-                    gains += this.stockHistory[i].open;
+                    gains += this.stockHistory[i].open - this.stockHistory[i-1].open;
                 }
                 if(this.stockHistory[i-1].open > this.stockHistory[i].open) {
-                    losses += this.stockHistory[i].open;
+                    losses += this.stockHistory[i-1].open - this.stockHistory[i].open;
                 }
             }
             let rs: number = gains/losses; // No point in using averages since the number of days will simplify for both
