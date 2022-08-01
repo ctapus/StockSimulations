@@ -42,7 +42,7 @@ export default class Indicators {
     private getSimpleMovingAverage(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
             let sum: number = 0;
-            for(let i: number = index - numberOfDays; i<= index; i++) {
+            for(let i: number = index-numberOfDays; i<=index; i++) {
                 sum += this.stockHistory[i].open;
             }
             return sum/numberOfDays;
@@ -66,6 +66,26 @@ export default class Indicators {
         }
         if (index > numberOfDays) { // Ignore the first numberOfDays days
             return this.stockHistory[index].open * k + previousEMA*(1-k);
+        }
+        return null;
+    }
+    public populate14DaysOpenRSI(): void {
+        this.stockHistory.map((value, index) => value.rsi14DaysOpen = this.getRelativeStrengthIndex(14, index));
+    }
+    private getRelativeStrengthIndex(numberOfDays: number, index: number): number {
+        if (index >= numberOfDays + 1) { // Ignore the first numberOfDays days
+            let gains: number = 0;
+            let losses: number = 0;
+            for(let i: number = index-numberOfDays; i<=index; i++) {
+                if(this.stockHistory[i-1].open < this.stockHistory[i].open) {
+                    gains += this.stockHistory[i].open;
+                }
+                if(this.stockHistory[i-1].open > this.stockHistory[i].open) {
+                    losses += this.stockHistory[i].open;
+                }
+            }
+            let rs: number = gains/losses; // No point in using averages since the number of days will simplify for both
+            return 100 - 100/(1+rs);
         }
         return null;
     }

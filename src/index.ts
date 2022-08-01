@@ -125,6 +125,7 @@ $(() => {
             graph.draw50DaysEMAGraph();
             graph.draw100DaysEMAGraph();
             graph.draw200DaysEMAGraph();
+            graph.draw14DaysRSIGraph();
             graph.drawLegend();
             graph.drawDayOpenGraph();
             const svgContainerExperimental: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chartExperimental").select("svg");

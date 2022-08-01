@@ -21,8 +21,9 @@ export class IndicatorTypes {
     public static readonly EMA_50_DAYS      = new IndicatorType("EMA_50_DAYS", "Exponential Moving Average 50 Days");
     public static readonly EMA_100_DAYS     = new IndicatorType("EMA_100_DAYS", "Exponential Moving Average 100 Days");
     public static readonly EMA_200_DAYS     = new IndicatorType("EMA_200_DAYS", "Exponential Moving Average 200 Days");
+    public static readonly RSI_14_DAYS      = new IndicatorType("RSI_14_DAYS", "Relative Strength Index 200 Days");
     public static AllIndicatorTypes: IndicatorType[] = [ this.DAY_OPEN, this.PREV_DAY_OPEN, this.PREV_BUY, this.MIN_52_WEEK, this.MAX_52_WEEK, this.SMA_50_DAYS,
-                                                         this.SMA_100_DAYS, this.SMA_200_DAYS, this.EMA_50_DAYS, this.EMA_100_DAYS, this.EMA_200_DAYS ];
+                                                         this.SMA_100_DAYS, this.SMA_200_DAYS, this.EMA_50_DAYS, this.EMA_100_DAYS, this.EMA_200_DAYS, this.RSI_14_DAYS ];
     public static item(key: string): IndicatorType {
         return this.AllIndicatorTypes.filter(x => x.code.toUpperCase() === key.toUpperCase())[0];
     }
@@ -45,6 +46,7 @@ export class Indicator {
             case IndicatorTypes.EMA_50_DAYS: return tradeTick.ema50DaysOpen;
             case IndicatorTypes.EMA_100_DAYS: return tradeTick.ema100DaysOpen;
             case IndicatorTypes.EMA_200_DAYS: return tradeTick.ema200DaysOpen;
+            case IndicatorTypes.RSI_14_DAYS: return tradeTick.rsi14DaysOpen;
         }
     }
     public toString(): string {

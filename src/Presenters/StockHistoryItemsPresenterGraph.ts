@@ -17,6 +17,7 @@ export default class StockHistoryItemsPresenterGraph {
     private readonly ema50DaysColor: string = "darkgreen";
     private readonly ema100DaysColor: string = "forestgreen";
     private readonly ema200DaysColor: string = "lightgreen";
+    private readonly rsi14DaysColor: string = "mediumpurple";
     private readonly derivativeFirst: string = "mediumslateblue";
     private readonly derivativeSecond: string = "mediumturquoise";
     private readonly derivativeThird: string = "midnightblue";
@@ -108,6 +109,17 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("d", line)
             .attr("id","ema200Days");
     }
+    public draw14DaysRSIGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.rsi14DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.rsi14DaysOpen); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "rsi14Days")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.rsi14DaysColor)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","rsi14Days");
+    }
     public drawLegend() {
         const g: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = this.svgContainer.append("g");
         const legendOffsetX: number = 50;
@@ -119,7 +131,8 @@ export default class StockHistoryItemsPresenterGraph {
                         ["200 simple moving average",       this.sma200DaysColor,   "sma200Days"],
                         ["50 exponential moving average",   this.ema50DaysColor,    "ema50Days"],
                         ["100 exponential moving average",  this.ema100DaysColor,   "ema100Days"],
-                        ["200 exponential moving average",  this.ema200DaysColor,   "ema200Days"]]; // TODO: type this!
+                        ["200 exponential moving average",  this.ema200DaysColor,   "ema200Days"],
+                        ["14 relative strength index",      this.rsi14DaysColor,    "rsi14Days"]]; // TODO: type this!
         const legendBgColor: string = "lightsteelblue";
         g.append("rect").attr("x", legendOffsetX).attr("y", legendOffsetY)
                         .attr("width", 270).attr("height", dict.length * (squareLength + 10) + 20)
