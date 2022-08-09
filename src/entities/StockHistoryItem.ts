@@ -17,6 +17,8 @@ export default class StockHistoryItem {
     public ema50DaysOpen: number;
     public ema100DaysOpen: number;
     public ema200DaysOpen: number;
+    public averageGains14Days: number;
+    public averageLosses14Days: number;
     public rsi14DaysOpen: number;
     public derivativeFirst: number;
     public derivativeSecond: number;
@@ -61,6 +63,7 @@ export default class StockHistoryItem {
         indicator.populate50DaysOpenEMA();
         indicator.populate100DaysOpenEMA();
         indicator.populate200DaysOpenEMA();
+        indicator.populate14DaysOpenAverages();
         indicator.populate14DaysOpenRSI();
         indicator.populateDerivativeFirst();
         indicator.populateDerivativeSecond();

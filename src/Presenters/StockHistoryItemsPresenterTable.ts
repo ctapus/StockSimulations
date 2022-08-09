@@ -19,6 +19,7 @@ export default class StockHistoryItemsPresenterTable {
                     <td style="width: 80px; text-align: right;">50 days EMA</td>
                     <td style="width: 80px; text-align: right;">100 days EMA</td>
                     <td style="width: 80px; text-align: right;">200 days EMA</td>
+                    <td style="width: 80px; text-align: right;">14 days average gains/losses</td>
                     <td style="width: 80px; text-align: right;">14 days RSI</td>
                     <td style="width: 80px; text-align: right;">open variation</td>
                     <td style="width: 10px"></td>
@@ -51,6 +52,10 @@ export default class StockHistoryItemsPresenterTable {
                     <td>${item.ema50DaysOpen === null || item.ema50DaysOpen == undefined ? "" : item.ema50DaysOpen.toFixed(4)}</td>
                     <td>${item.ema100DaysOpen === null || item.ema100DaysOpen == undefined ? "" : item.ema100DaysOpen.toFixed(4)}</td>
                     <td>${item.ema200DaysOpen === null || item.ema200DaysOpen == undefined ? "" : item.ema200DaysOpen.toFixed(4)}</td>
+                    <td>
+                        ${item.averageGains14Days === null || item.averageGains14Days == undefined || item.averageGains14Days == 0 ? "" : "+" + item.averageGains14Days.toFixed(4)}
+                        ${item.averageLosses14Days === null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}
+                    </td>
                     <td>${item.rsi14DaysOpen === null || item.rsi14DaysOpen == undefined ? "" : item.rsi14DaysOpen.toFixed(4)}</td>
                     <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                     <td>${variationIcon}</td>

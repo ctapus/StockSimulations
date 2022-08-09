@@ -69,22 +69,39 @@ export default class Indicators {
         }
         return null;
     }
-    public populate14DaysOpenRSI(): void {
+    public populate14DaysOpenAverages(): void {
+        const numberOfDays: number = 14;
+        let gains: number = 0;
+        let losses: number = 0;
+        for(let j: number = 1; j<numberOfDays; j++) {
+            if(this.stockHistory[j-1].open < this.stockHistory[j].open) {
+                gains += this.stockHistory[j].open - this.stockHistory[j-1].open;
+            }
+            if(this.stockHistory[j-1].open > this.stockHistory[j].open) {
+                losses += this.stockHistory[j-1].open - this.stockHistory[j].open;
+            }
+        }
+        this.stockHistory[numberOfDays].averageGains14Days = gains/numberOfDays;
+        this.stockHistory[numberOfDays].averageLosses14Days = losses/numberOfDays;
+        for(let i: number = numberOfDays + 1; i<this.stockHistory.length; i++) {
+            let gain: number = 0;
+            let loss: number = 0;
+            if(this.stockHistory[i-1].open < this.stockHistory[i].open) {
+                gain += this.stockHistory[i].open - this.stockHistory[i-1].open;
+            }
+            if(this.stockHistory[i-1].open > this.stockHistory[i].open) {
+                loss += this.stockHistory[i-1].open - this.stockHistory[i].open;
+            }
+            this.stockHistory[i].averageGains14Days = (this.stockHistory[i-1].averageGains14Days*(numberOfDays-1) + gain)/numberOfDays;
+            this.stockHistory[i].averageLosses14Days = (this.stockHistory[i-1].averageLosses14Days*(numberOfDays-1) + loss)/numberOfDays;
+        }
+    }
+    public populate14DaysOpenRSI(): void { // TODO refactor the dependency of this function on the populate14DaysAverages being called first
         this.stockHistory.map((value, index) => value.rsi14DaysOpen = this.getRelativeStrengthIndex(14, index));
     }
     private getRelativeStrengthIndex(numberOfDays: number, index: number): number {
-        if (index >= numberOfDays + 1) { // Ignore the first numberOfDays days
-            let gains: number = 0;
-            let losses: number = 0;
-            for(let i: number = index-numberOfDays; i<=index; i++) {
-                if(this.stockHistory[i-1].open < this.stockHistory[i].open) {
-                    gains += this.stockHistory[i].open - this.stockHistory[i-1].open;
-                }
-                if(this.stockHistory[i-1].open > this.stockHistory[i].open) {
-                    losses += this.stockHistory[i-1].open - this.stockHistory[i].open;
-                }
-            }
-            let rs: number = gains/losses; // No point in using averages since the number of days will simplify for both
+        if (index >= numberOfDays) { // Ignore the first numberOfDays days
+            let rs: number = this.stockHistory[index].averageGains14Days/this.stockHistory[index].averageLosses14Days;
             return 100 - 100/(1+rs);
         }
         return null;
