@@ -40,13 +40,13 @@ export class Indicator {
             case IndicatorTypes.PREV_BUY: return portofolio?.lastHistoryItem.sharePrice;
             case IndicatorTypes.MIN_52_WEEK: return tradeTick.low52Weeks;
             case IndicatorTypes.MAX_52_WEEK: return tradeTick.high52Weeks;
-            case IndicatorTypes.SMA_50_DAYS: return tradeTick.sma50DaysOpen;
-            case IndicatorTypes.SMA_100_DAYS: return tradeTick.sma100DaysOpen;
-            case IndicatorTypes.SMA_200_DAYS: return tradeTick.sma200DaysOpen;
-            case IndicatorTypes.EMA_50_DAYS: return tradeTick.ema50DaysOpen;
-            case IndicatorTypes.EMA_100_DAYS: return tradeTick.ema100DaysOpen;
-            case IndicatorTypes.EMA_200_DAYS: return tradeTick.ema200DaysOpen;
-            case IndicatorTypes.RSI_14_DAYS: return tradeTick.rsi14DaysOpen;
+            case IndicatorTypes.SMA_50_DAYS: return tradeTick.sma50Days;
+            case IndicatorTypes.SMA_100_DAYS: return tradeTick.sma100Days;
+            case IndicatorTypes.SMA_200_DAYS: return tradeTick.sma200Days;
+            case IndicatorTypes.EMA_50_DAYS: return tradeTick.ema50Days;
+            case IndicatorTypes.EMA_100_DAYS: return tradeTick.ema100Days;
+            case IndicatorTypes.EMA_200_DAYS: return tradeTick.ema200Days;
+            case IndicatorTypes.RSI_14_DAYS: return tradeTick.rsi14Days;
         }
     }
     public toString(): string {

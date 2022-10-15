@@ -1,14 +1,33 @@
 import StockHistoryItem from "./StockHistoryItem";
 
+export type PropertySelector<T> = (stockHistoryItem: StockHistoryItem) => T;
+
 export default class Indicators {
     private stockHistory: Array<StockHistoryItem>;
-    constructor(stockHistory: Array<StockHistoryItem>){
+    private propertySelector: PropertySelector<number>;
+    constructor(stockHistory: Array<StockHistoryItem>, propertySelector: PropertySelector<number>){
         this.stockHistory = stockHistory;
+        this.propertySelector = propertySelector;
     }
-    public populateVariation(): void {
+    public populateOpenVariation(): void {
         this.stockHistory.forEach((element, index, array) => {
             if(null != this.stockHistory[index].previousDay) {
-                this.stockHistory[index].openVariation = this.stockHistory[index].open / this.stockHistory[index].previousDay.open * 100;
+                this.stockHistory[index].openVariation = this.propertySelector(this.stockHistory[index]) / this.propertySelector(this.stockHistory[index].previousDay) * 100;
+            }
+        });
+    }
+    public populateDayVariation(): void {
+        this.stockHistory.forEach((element, index, array) => {
+            this.stockHistory[index].oneDayVariation = (this.stockHistory[index].high - this.stockHistory[index].low) / this.stockHistory[index].low * 100;
+            if(null != this.stockHistory[index].previousDay) {
+                var high2days: number = Math.max(this.stockHistory[index].high, this.stockHistory[index].previousDay.high);
+                var low2Days: number = Math.min(this.stockHistory[index].low, this.stockHistory[index].previousDay.low);
+                this.stockHistory[index].twoDaysVariation = (high2days - low2Days) / low2Days * 100;
+                if(null != this.stockHistory[index].previousDay.previousDay) {
+                    var high3Days: number = Math.max(high2days, this.stockHistory[index].previousDay.previousDay.high);
+                    var low3Days: number = Math.min(low2Days, this.stockHistory[index].previousDay.previousDay.low);
+                    this.stockHistory[index].threeDaysVariation = (high3Days - low3Days) / low3Days * 100;
+                }
             }
         });
     }
@@ -31,32 +50,32 @@ export default class Indicators {
         });
     }
     public populate50DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma50DaysOpen = this.getSimpleMovingAverage(50, index));
+        this.stockHistory.map((value, index) => value.sma50Days = this.getSimpleMovingAverage(50, index));
     }
     public populate100DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma100DaysOpen = this.getSimpleMovingAverage(100, index));
+        this.stockHistory.map((value, index) => value.sma100Days = this.getSimpleMovingAverage(100, index));
     }
     public populate200DaysOpenSMA(): void {
-        this.stockHistory.map((value, index) => value.sma200DaysOpen = this.getSimpleMovingAverage(200, index));
+        this.stockHistory.map((value, index) => value.sma200Days = this.getSimpleMovingAverage(200, index));
     }
     private getSimpleMovingAverage(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
             let sum: number = 0;
             for(let i: number = index-numberOfDays; i<=index; i++) {
-                sum += this.stockHistory[i].open;
+                sum += this.propertySelector(this.stockHistory[i]);
             }
             return sum/numberOfDays;
         }
         return null;
     }
     public populate50DaysOpenEMA(): void {
-        this.stockHistory.map((value, index) => value.ema50DaysOpen = this.getExponentialMovingAverage(50, index, index < 50 ? 0 : this.stockHistory[index - 1].ema50DaysOpen));
+        this.stockHistory.map((value, index) => value.ema50Days = this.getExponentialMovingAverage(50, index, index < 50 ? 0 : this.stockHistory[index - 1].ema50Days));
     }
     public populate100DaysOpenEMA(): void {
-        this.stockHistory.map((value, index) => value.ema100DaysOpen = this.getExponentialMovingAverage(100, index, index < 100 ? 0 : this.stockHistory[index - 1].ema100DaysOpen));
+        this.stockHistory.map((value, index) => value.ema100Days = this.getExponentialMovingAverage(100, index, index < 100 ? 0 : this.stockHistory[index - 1].ema100Days));
     }
     public populate200DaysOpenEMA(): void {
-        this.stockHistory.map((value, index) => value.ema200DaysOpen = this.getExponentialMovingAverage(200, index, index < 200 ? 0 : this.stockHistory[index - 1].ema200DaysOpen));
+        this.stockHistory.map((value, index) => value.ema200Days = this.getExponentialMovingAverage(200, index, index < 200 ? 0 : this.stockHistory[index - 1].ema200Days));
     }
     private getExponentialMovingAverage(numberOfDays: number, index: number, previousEMA: number): number {
         const smoothing: number = 2;
@@ -65,7 +84,7 @@ export default class Indicators {
             return this.getSimpleMovingAverage(numberOfDays, index);
         }
         if (index > numberOfDays) { // Ignore the first numberOfDays days
-            return this.stockHistory[index].open * k + previousEMA*(1-k);
+            return this.propertySelector(this.stockHistory[index]) * k + previousEMA*(1-k);
         }
         return null;
     }
@@ -74,11 +93,11 @@ export default class Indicators {
         let gains: number = 0;
         let losses: number = 0;
         for(let j: number = 1; j<numberOfDays; j++) {
-            if(this.stockHistory[j-1].open < this.stockHistory[j].open) {
-                gains += this.stockHistory[j].open - this.stockHistory[j-1].open;
+            if(this.propertySelector(this.stockHistory[j-1]) < this.propertySelector(this.stockHistory[j])) {
+                gains += this.propertySelector(this.stockHistory[j]) - this.propertySelector(this.stockHistory[j-1]);
             }
-            if(this.stockHistory[j-1].open > this.stockHistory[j].open) {
-                losses += this.stockHistory[j-1].open - this.stockHistory[j].open;
+            if(this.propertySelector(this.stockHistory[j-1]) > this.propertySelector(this.stockHistory[j])) {
+                losses += this.propertySelector(this.stockHistory[j-1]) - this.propertySelector(this.stockHistory[j]);
             }
         }
         this.stockHistory[numberOfDays].averageGains14Days = gains/numberOfDays;
@@ -86,18 +105,18 @@ export default class Indicators {
         for(let i: number = numberOfDays + 1; i<this.stockHistory.length; i++) {
             let gain: number = 0;
             let loss: number = 0;
-            if(this.stockHistory[i-1].open < this.stockHistory[i].open) {
-                gain += this.stockHistory[i].open - this.stockHistory[i-1].open;
+            if(this.propertySelector(this.stockHistory[i-1]) < this.propertySelector(this.stockHistory[i])) {
+                gain += this.propertySelector(this.stockHistory[i]) - this.propertySelector(this.stockHistory[i-1]);
             }
-            if(this.stockHistory[i-1].open > this.stockHistory[i].open) {
-                loss += this.stockHistory[i-1].open - this.stockHistory[i].open;
+            if(this.propertySelector(this.stockHistory[i-1]) > this.propertySelector(this.stockHistory[i])) {
+                loss += this.propertySelector(this.stockHistory[i-1]) - this.propertySelector(this.stockHistory[i]);
             }
             this.stockHistory[i].averageGains14Days = (this.stockHistory[i-1].averageGains14Days*(numberOfDays-1) + gain)/numberOfDays;
             this.stockHistory[i].averageLosses14Days = (this.stockHistory[i-1].averageLosses14Days*(numberOfDays-1) + loss)/numberOfDays;
         }
     }
     public populate14DaysOpenRSI(): void { // TODO refactor the dependency of this function on the populate14DaysAverages being called first
-        this.stockHistory.map((value, index) => value.rsi14DaysOpen = this.getRelativeStrengthIndex(14, index));
+        this.stockHistory.map((value, index) => value.rsi14Days = this.getRelativeStrengthIndex(14, index));
     }
     private getRelativeStrengthIndex(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
@@ -109,7 +128,7 @@ export default class Indicators {
     public populateDerivativeFirst(): void {
         this.stockHistory[0].derivativeFirst = 0;
         for(var i=1; i<this.stockHistory.length; i++) {
-            this.stockHistory[i].derivativeFirst = this.stockHistory[i].previousDay.open - this.stockHistory[i].open;
+            this.stockHistory[i].derivativeFirst = this.propertySelector(this.stockHistory[i].previousDay) - this.propertySelector(this.stockHistory[i]);
         }
     }
     public populateDerivativeSecond(): void {

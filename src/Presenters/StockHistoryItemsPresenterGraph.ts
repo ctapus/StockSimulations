@@ -44,7 +44,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("d", line);
     }
     public draw50DaysSMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma50DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma50DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma50Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma50Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "sma50Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -55,7 +55,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","sma50Days");
     }
     public draw100DaysSMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma100DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma100DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma100Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma100Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "sma100Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -66,7 +66,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","sma100Days");
     }
     public draw200DaysSMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma200DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma200DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.sma200Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.sma200Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "sma200Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -77,7 +77,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","sma200Days");
     }
     public draw50DaysEMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema50DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema50DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema50Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema50Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "ema50Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -88,7 +88,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","ema50Days");
     }
     public draw100DaysEMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema100DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema100DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema100Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema100Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "ema100Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -99,7 +99,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","ema100Days");
     }
     public draw200DaysEMAGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema200DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema200DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema200Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema200Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "ema200Days")
             .data<StockHistoryItem[]>([this.tradeData])
@@ -110,7 +110,7 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","ema200Days");
     }
     public draw14DaysRSIGraph(): void {
-        const line = d3.line<StockHistoryItem>().defined(d => null !== d.rsi14DaysOpen).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.rsi14DaysOpen); }).curve(d3.curveBasis);
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.rsi14Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.rsi14Days); }).curve(d3.curveBasis);
         this.svg.append("path")
             .attr("id", "rsi14Days")
             .data<StockHistoryItem[]>([this.tradeData])

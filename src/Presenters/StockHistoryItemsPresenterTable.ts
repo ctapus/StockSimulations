@@ -23,6 +23,9 @@ export default class StockHistoryItemsPresenterTable {
                     <td style="width: 80px; text-align: right;">14 days RSI</td>
                     <td style="width: 80px; text-align: right;">open variation</td>
                     <td style="width: 10px"></td>
+                    <td style="width: 80px; text-align: right;">1 day variation</td>
+                    <td style="width: 80px; text-align: right;">2 days variation</td>
+                    <td style="width: 80px; text-align: right;">3 days variation</td>
                     <td>trade</td>
                 </tr>
             </thead>
@@ -46,19 +49,22 @@ export default class StockHistoryItemsPresenterTable {
                     <td>${item.volume}</td>
                     <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
                     <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
-                    <td>${item.sma50DaysOpen === null || item.sma50DaysOpen == undefined ? "" : item.sma50DaysOpen.toFixed(4)}</td>
-                    <td>${item.sma100DaysOpen === null || item.sma100DaysOpen == undefined ? "" : item.sma100DaysOpen.toFixed(4)}</td>
-                    <td>${item.sma200DaysOpen === null || item.sma200DaysOpen == undefined ? "" : item.sma200DaysOpen.toFixed(4)}</td>
-                    <td>${item.ema50DaysOpen === null || item.ema50DaysOpen == undefined ? "" : item.ema50DaysOpen.toFixed(4)}</td>
-                    <td>${item.ema100DaysOpen === null || item.ema100DaysOpen == undefined ? "" : item.ema100DaysOpen.toFixed(4)}</td>
-                    <td>${item.ema200DaysOpen === null || item.ema200DaysOpen == undefined ? "" : item.ema200DaysOpen.toFixed(4)}</td>
+                    <td>${item.sma50Days === null || item.sma50Days == undefined ? "" : item.sma50Days.toFixed(4)}</td>
+                    <td>${item.sma100Days === null || item.sma100Days == undefined ? "" : item.sma100Days.toFixed(4)}</td>
+                    <td>${item.sma200Days === null || item.sma200Days == undefined ? "" : item.sma200Days.toFixed(4)}</td>
+                    <td>${item.ema50Days === null || item.ema50Days == undefined ? "" : item.ema50Days.toFixed(4)}</td>
+                    <td>${item.ema100Days === null || item.ema100Days == undefined ? "" : item.ema100Days.toFixed(4)}</td>
+                    <td>${item.ema200Days === null || item.ema200Days == undefined ? "" : item.ema200Days.toFixed(4)}</td>
                     <td>
                         ${item.averageGains14Days === null || item.averageGains14Days == undefined || item.averageGains14Days == 0 ? "" : "+" + item.averageGains14Days.toFixed(4)}
                         ${item.averageLosses14Days === null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}
                     </td>
-                    <td>${item.rsi14DaysOpen === null || item.rsi14DaysOpen == undefined ? "" : item.rsi14DaysOpen.toFixed(4)}</td>
+                    <td>${item.rsi14Days === null || item.rsi14Days == undefined ? "" : item.rsi14Days.toFixed(4)}</td>
                     <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                     <td>${variationIcon}</td>
+                    <td>${item.oneDayVariation ? item.oneDayVariation.toFixed(4) + "%" : ""}</td>
+                    <td>${item.twoDaysVariation ? item.twoDaysVariation.toFixed(4) + "%" : ""}</td>
+                    <td>${item.threeDaysVariation ? item.threeDaysVariation.toFixed(4) + "%" : ""}</td>
                     <td style="text-align: left;">${item.trade ? item.trade : ""}</td>
                 </tr>`);
             });

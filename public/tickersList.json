@@ -17,6 +17,10 @@
             "name": "Bitcoin"
         },
         {
+            "symbol": "CVX",
+            "name": "Chevron"
+        },
+        {
             "symbol": "F",
             "name": "Ford"
         },
@@ -27,6 +31,10 @@
         {
             "symbol": "GOOG",
             "name": "Google"
+        },
+        {
+            "symbol": "HD",
+            "name": "Home Depot"
         },
         {
             "symbol": "IBM",
@@ -45,8 +53,16 @@
             "name": "Coca Cola"
         },
         {
+            "symbol": "MA",
+            "name": "Mastercard"
+        },
+        {
             "symbol": "MCD",
             "name": "McDonald's Corporation"
+        },
+        {
+            "symbol": "MMM",
+            "name": "3M"
         },
         {
             "symbol": "MSFT",
@@ -57,16 +73,52 @@
             "name": "NVIDIA"
         },
         {
+            "symbol": "PEP",
+            "name": "PepsiCo"
+        },
+        {
             "symbol": "PFE",
             "name": "Pfizer Inc"
+        },
+        {
+            "symbol": "PYPL",
+            "name": "Paypal"
+        },
+        {
+            "symbol": "RCL",
+            "name": "Royal Caribbean Group"
+        },
+        {
+            "symbol": "SHEL",
+            "name": "Shell"
         },
         {
             "symbol": "T",
             "name": "AT&T"
         },
         {
+            "symbol": "TGT",
+            "name": "Target Corporation"
+        },
+        {
             "symbol": "TSLA",
             "name": "Tesla"
+        },
+        {
+            "symbol": "UBER",
+            "name": "Uber"
+        },
+        {
+            "symbol": "VGK",
+            "name": "Vanguard FTSE Europe ETF"
+        },
+        {
+            "symbol": "V",
+            "name": "Visa"
+        },
+        {
+            "symbol": "VNQ",
+            "name": "Vanguard Real Estate Index Fund ETF"
         },
         {
             "symbol": "VOO",
@@ -75,6 +127,14 @@
         {
             "symbol": "VTI",
             "name": "Vanguard Total Stock Market ETF"
+        },
+        {
+            "symbol": "VWO",
+            "name": "Vanguard Emerging Markets Stock Index Fund"
+        },
+        {
+            "symbol": "XOM",
+            "name": "Exxon Mobil"
         }
     ]
 }
