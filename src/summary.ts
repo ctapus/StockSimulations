@@ -25,6 +25,14 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     height = window.innerHeight - margin.top - margin.bottom;
 
 $(() => {
+    $.getJSON(`.\\tickersList.json`, (data) => {
+        $.each(data['tickers'], (index, value) => {
+            $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
+        });
+    }).fail(() => {
+        console.log("Error while reading json");
+    }).always(() => {
+    });
     $(document)
     .ajaxStart(function () {
         $('#overlay').fadeIn();

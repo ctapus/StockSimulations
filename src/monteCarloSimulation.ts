@@ -80,6 +80,14 @@ function addStrategy(strategy: Strategy): void {
 }
 
 $(() => {
+    $.getJSON(`.\\tickersList.json`, (data) => {
+        $.each(data['tickers'], (index, value) => {
+            $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
+        });
+    }).fail(() => {
+        console.log("Error while reading json");
+    }).always(() => {
+    });
     $(document)
     .ajaxStart(function () {
         $("#overlay").fadeIn();
