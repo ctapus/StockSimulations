@@ -1,15 +1,12 @@
 import * as $ from "jquery";
 import Portofolio from "./entities/Portofolio";
 import StockHistoryItem from "./entities/StockHistoryItem";
-import StrategyBranch from "./entities/StrategyBranch";
 import Strategy from "./entities/Strategy";
 import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";
 import StockHistoryItemsPresenterTable from "./Presenters/StockHistoryItemsPresenterTable";
 import StockHistoryItemsPresenterGraph from "./Presenters/StockHistoryItemsPresenterGraph";
 import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
 import ActionPresenter from "./Presenters/ActionPresenter";
-import BinaryCondition from "./entities/BinaryCondition";
-import Action from "./entities/Action";
 import * as d3 from "d3";
 
 interface TimeSelector {

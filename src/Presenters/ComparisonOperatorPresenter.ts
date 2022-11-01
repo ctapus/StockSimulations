@@ -22,6 +22,9 @@ export default class ComparisonOperatorPresenter extends Presenter<ComparisonOpe
     }
     public read(): ComparisonOperator {
         const x: string = (<HTMLInputElement>document.getElementById(this.controlId))?.value.toString();
+        if(!x) {
+            return null;
+        }
         return new ComparisonOperator(x);
     }
 }

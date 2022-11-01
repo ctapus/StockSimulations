@@ -39,7 +39,7 @@ module.exports = {
       compress: true,
       host: process.env.HOST,
       port: process.env.PORT,
-      open: ['/index.html'],
+      open: ['/monteCarloSimulation.html'],
       client: {
         overlay: true,
       },

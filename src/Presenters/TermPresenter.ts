@@ -1,3 +1,5 @@
+import { ArithmeticOperator } from "../entities/ArithmeticOperator";
+import { Indicator } from "../entities/Indicator";
 import Term from "../entities/Term";
 import ArithmeticOperatorPresenter from "./ArithmeticOperatorPresenter";
 import { CoeficientPresenter } from "./CoeficientPresenter";
@@ -12,6 +14,12 @@ export default class TermPresenter extends Presenter<Term> {
         return `${this.coeficientPresenter.render()} ${this.arithmeticOperatorPresenter.render()} ${this.indicatorPresenter.render()}`;
     }
     public read(): Term {
-        return new Term(this.indicatorPresenter.read(), this.coeficientPresenter.read(), this.arithmeticOperatorPresenter.read());
+        const indicator: Indicator = this.indicatorPresenter.read();
+        const coeficient: number = this.coeficientPresenter.read();
+        const arithmeticOperator: ArithmeticOperator = this.arithmeticOperatorPresenter.read();
+        if(!indicator) {
+            return null;
+        }
+        return new Term(indicator, coeficient, arithmeticOperator);
     }
 }

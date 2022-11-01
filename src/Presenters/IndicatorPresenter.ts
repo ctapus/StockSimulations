@@ -22,6 +22,9 @@ export class IndicatorPresenter extends Presenter<Indicator> {
     }
     public read(): Indicator {
         const x: string = (<HTMLInputElement>document.getElementById(this.controlId))?.value.toString();
+        if(!x) {
+            return null;
+        }
         return new Indicator(x);
     }
 }

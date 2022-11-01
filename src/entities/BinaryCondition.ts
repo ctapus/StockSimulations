@@ -27,9 +27,9 @@ export default class BinaryCondition {
         this.term2.simplify();
     }
     public toString(): string {
-        return `${this.term1.toString()} ${this.comparisonOperator.toString()} ${this.term2.toString()}`;
+        return `${this.term1?.toString()} ${this.comparisonOperator?.toString()} ${this.term2?.toString()}`;
     }
     public toCode(): string {
-        return `${this.term1.toCode()} ${this.comparisonOperator.toCode()} ${this.term2.toCode()}`;
+        return `${this.term1?.toCode()} ${this.comparisonOperator?.toCode()} ${this.term2?.toCode()}`;
     }
 }

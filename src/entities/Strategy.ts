@@ -8,7 +8,7 @@ export default class Strategy {
     public toString(): string {
         let ret: string = "";
         for(var strategyBranchKey in this.strategyBranches) {
-            ret += `${this.strategyBranches[strategyBranchKey].toString()}<br/>`;
+            ret += `${this.strategyBranches[strategyBranchKey]?.toString()}<br/>`;
         }
         return ret;
     }
@@ -27,7 +27,8 @@ export default class Strategy {
     public run(tradeData: Array<StockAndTradeHistoryItem> | Array<StockHistoryItem>, portofolio: Portofolio): void {
         tradeData.forEach(item => {
             this.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
-                if(strategyBranch.binaryCondition.evaluate(item, portofolio)) {
+                // ASSUMPTION: no condition present means the action executes always!
+                if(!strategyBranch.binaryCondition || strategyBranch.binaryCondition.evaluate(item, portofolio)) {
                     strategyBranch.action.trade(item, portofolio);
                     if(portofolio.lastHistoryItem) {
                         portofolio.lastHistoryItem.executionDescription = strategyBranch.toString();

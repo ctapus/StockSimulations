@@ -65,19 +65,6 @@ function runSimulations(tradeData: Array<StockAndTradeHistoryItem>, strategy: St
     }
     PortofolioPresenter.printSummary2($("#home"), tradeData, portofolios);
 }
-function addStrategy(strategy: Strategy): void {
-    $("#run").prop("disabled", false);
-    let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
-    let action: Action = actionPresenter.read();
-    const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
-    strategy.strategyBranches.push(strategyBranch);
-    $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
-    // REFACTORING
-    $("#actionRender").empty();
-    $("#actionRender").html(actionPresenter.render());
-    $("#conditionRender").empty();
-    $("#conditionRender").html(`${binaryConditionPresenter.render()}`);
-}
 
 $(() => {
     $.getJSON(`.\\tickersList.json`, (data) => {
@@ -89,14 +76,12 @@ $(() => {
     }).always(() => {
     });
     $(document)
-    .ajaxStart(function () {
+    .ajaxStart(() => {
         $("#overlay").fadeIn();
     })
-    .ajaxStop(function () {
+    .ajaxStop(() => {
         $("#overlay").fadeOut();
     });
-    let tradeData: Array<StockAndTradeHistoryItem>;
-    const strategy: Strategy = new Strategy();
     $("#ticker").on("change", () => {
         let ticker: string = $("#ticker").val().toString();
         $("#startingAmount").prop("disabled", true);
@@ -122,8 +107,33 @@ $(() => {
         }).always(() => {
         });
     });
-    $("#addStrategyBranch").on("click", () => addStrategy(strategy));
-    $("#run").on("click", () => runSimulations(tradeData, strategy));
+    let tradeData: Array<StockAndTradeHistoryItem>;
+    const strategies: Array<Strategy> = new Array<Strategy>();
+    let strategy: Strategy = new Strategy();
+    $("#addStrategyBranch").on("click", () => {
+        let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
+        let action: Action = actionPresenter.read();
+        const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
+        strategy.strategyBranches.push(strategyBranch);
+        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+        // REFACTORING
+        $("#actionRender").html(actionPresenter.render());
+        $("#conditionRender").html(`${binaryConditionPresenter.render()}`);
+    });
+    $("#addStrategy").on("click", () => {
+        strategies.push(strategy);
+        $("#run").attr("value", `Run ${strategies.length} strategies`);
+        $("#globalStrategies").append(`<p>${strategy.toString()}</p>`);
+        $("#globalStrategies").append(`<hr/>`);
+        strategy = new Strategy();
+        $("#globalStrategy").empty();
+    });
+    $("#run").on("click", () => {
+        strategies.pop();// HACK to remove the empty strategy
+        strategies.forEach((strategy:Strategy) => {
+            runSimulations(tradeData, strategy);
+        })
+    });
     initGraphs();
     $("#actionRender").html(actionPresenter.render());
     $("#conditionRender").html(binaryConditionPresenter.render());

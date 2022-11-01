@@ -13,9 +13,9 @@ export default class StrategyBranch {
         this.binaryCondition.simplify();
     }
     public toString(): string {
-        return `${this.action.toString()} when ${this.binaryCondition.toString()}`;
+        return `${this.action.toString()}${!this.binaryCondition ? "" : " when " + this.binaryCondition.toString()}`;
     }
     public toCode(): string {
-        return `${this.action.toCode()} WHEN ${this.binaryCondition.toCode()}`;
+        return `${this.action.toCode()}${!this.binaryCondition ? "" : " WHEN " + this.binaryCondition.toCode() }`;
     }
 }
