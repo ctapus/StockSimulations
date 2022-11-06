@@ -87,15 +87,19 @@ export class StrategyParser {
         } while (token.type !== StrategyTokenType.End);
         return strategy;
     }
-    // StrategyBranch = Action WHEN Condition
+    // StrategyBranch = Action | Action WHEN Condition
     private strategyBranch(): StrategyBranch {
         let action: Action;
         let binaryCondition: BinaryCondition;
         action = this.action();
         let token: StrategyToken = this.lex.getTokenAndAdvance();
+        if(token.type === StrategyTokenType.Semicolon) {
+            this.lex.revert();
+            return new StrategyBranch(action);
+        }
         if(token.type === StrategyTokenType.When) {
             binaryCondition = this.binaryCondition();
-            return new StrategyBranch(binaryCondition, action);
+            return new StrategyBranch(action, binaryCondition);
         }
         throw "Incorect syntax: Strategy";
     }

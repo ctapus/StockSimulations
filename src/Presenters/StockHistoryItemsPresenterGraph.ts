@@ -122,9 +122,9 @@ export default class StockHistoryItemsPresenterGraph {
     }
     public drawLegend() {
         const g: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = this.svgContainer.append("g");
-        const legendOffsetX: number = 50;
-        const legendOffsetY: number = 50;
-        const squareLength: number = 20;
+        const legendOffsetX = 50;
+        const legendOffsetY = 50;
+        const squareLength = 20;
         const dict =   [["Day open",                        this.openDayColor,      "dayOpen"],
                         ["50 simple moving average",        this.sma50DaysColor,    "sma50Days"],
                         ["100 simple moving average",       this.sma100DaysColor,   "sma100Days"],
@@ -133,12 +133,12 @@ export default class StockHistoryItemsPresenterGraph {
                         ["100 exponential moving average",  this.ema100DaysColor,   "ema100Days"],
                         ["200 exponential moving average",  this.ema200DaysColor,   "ema200Days"],
                         ["14 relative strength index",      this.rsi14DaysColor,    "rsi14Days"]]; // TODO: type this!
-        const legendBgColor: string = "lightsteelblue";
+        const legendBgColor = "lightsteelblue";
         g.append("rect").attr("x", legendOffsetX).attr("y", legendOffsetY)
                         .attr("width", 270).attr("height", dict.length * (squareLength + 10) + 20)
                         .style("fill", legendBgColor).style("stroke", legendBgColor).style("stroke-width", 2);
-        for(var i: number=0; i<dict.length; i++) {
-            const lineId: string = `#${dict[i][2]}`;
+        for(let i=0; i<dict.length; i++) {
+            const lineId = `#${dict[i][2]}`;
             const color: string = dict[i][1];
             g.append("rect").attr("x", legendOffsetX + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10)
                             .attr("width", squareLength).attr("height", squareLength)
@@ -146,7 +146,7 @@ export default class StockHistoryItemsPresenterGraph {
                             .attr("id", `icon${dict[i][2]}`)
             .on("click", (sender) => {
                 const d3Sender: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select(`#${sender.currentTarget.id}`);
-                const opacity: number = Number(d3.select(lineId).style("opacity"));
+                const opacity = Number(d3.select(lineId).style("opacity"));
                 if(0 === opacity) {
                     d3.select(lineId).style("opacity", 1);
                     d3Sender.style("fill", color);

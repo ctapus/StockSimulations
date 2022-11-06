@@ -89,7 +89,7 @@ function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
     let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
     let action: Action = actionPresenter.read();
-    const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
+    const strategyBranch: StrategyBranch = new StrategyBranch(action, binaryCondition);
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     // REFACTORING

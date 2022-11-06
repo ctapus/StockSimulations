@@ -6,25 +6,26 @@ import StrategyBranch from './StrategyBranch';
 export default class Strategy {
     public strategyBranches: Array<StrategyBranch> = new Array<StrategyBranch>();
     public toString(): string {
-        let ret: string = "";
-        for(var strategyBranchKey in this.strategyBranches) {
+        let ret = "";
+        for(const strategyBranchKey in this.strategyBranches) {
             ret += `${this.strategyBranches[strategyBranchKey]?.toString()}<br/>`;
         }
         return ret;
     }
     public simplify(): void {
-        for(var strategyBranchKey in this.strategyBranches) {
+        for(const strategyBranchKey in this.strategyBranches) {
             this.strategyBranches[strategyBranchKey].simplify();
         }
     }
     public toCode(): string {
-        let ret: string = "";
-        for(var strategyBranchKey in this.strategyBranches) {
+        let ret = "";
+        for(const strategyBranchKey in this.strategyBranches) {
             ret += `${this.strategyBranches[strategyBranchKey].toCode()}; `;
         }
         return ret;
     }
     public run(tradeData: Array<StockAndTradeHistoryItem> | Array<StockHistoryItem>, portofolio: Portofolio): void {
+        portofolio.strategy = this;
         tradeData.forEach(item => {
             this.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
                 // ASSUMPTION: no condition present means the action executes always!

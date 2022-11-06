@@ -68,9 +68,9 @@ function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: P
     [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(x => { return new bootstrap.Tooltip(x); })
 }
 function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
-    let startingAmount: number = Number($("#startingAmount").val());
-    let startDate: Date = new Date($("#startDate").val().toString());
-    let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
+    const startingAmount = Number($("#startingAmount").val());
+    const startDate: Date = new Date($("#startDate").val().toString());
+    const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
     PortofolioPresenter.printResults($("#menu1"), portofolio);
     PortofolioPresenter.printSummary($("#home"), tradeData, portofolio);
@@ -87,9 +87,9 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
 }
 function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
-    let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
-    let action: Action = actionPresenter.read();
-    const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
+    const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
+    const action: Action = actionPresenter.read();
+    const strategyBranch: StrategyBranch = new StrategyBranch(action, binaryCondition);
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     // REFACTORING
@@ -117,7 +117,7 @@ $(() => {
     let tradeData: Array<StockAndTradeHistoryItem>;
     let strategy: Strategy = new Strategy();
     $("#ticker").on("change", () => {
-        let ticker: string = $("#ticker").val().toString();
+        const ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
         $("#startingAmount").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
@@ -161,9 +161,9 @@ $(() => {
     $("#getLink").on("click", () => {
         $("#link").val(window.location.href + "?" + urlParamStrategy + "=" + encodeURIComponent(strategy.toCode()));
     });
-    let searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has(urlParamStrategy)) {
-        let strategiesString = searchParams.get(urlParamStrategy);
+        const strategiesString = searchParams.get(urlParamStrategy);
 		const parser: StrategyParser = new StrategyParser();
         strategy = parser.parse(decodeURIComponent(strategiesString));
         strategy.simplify();

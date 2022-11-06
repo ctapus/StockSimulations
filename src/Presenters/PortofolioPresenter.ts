@@ -20,9 +20,9 @@ export default class PortofolioPresenter {
             </thead>
             <tbody></tbody>
         </table>`);
-        let transactionNo: number = 1;
+        let transactionNo = 1;
         portofolio.history.forEach((item: TradeHistoryItem) => {
-            let styleColor: string = item.action.startsWith("BUY") ? "blue" : "red";
+            const styleColor: string = item.action.startsWith("BUY") ? "blue" : "red";
             table.children('tbody').append(`
                 <tr style='color:${styleColor}'>
                     <td>${transactionNo}</td>
@@ -63,27 +63,31 @@ export default class PortofolioPresenter {
             </tr>`);
         container.append(table);
     }
-    public static printSummary2(container: JQuery, tradeData: Array<StockHistoryItem>, portofolios: Array<Portofolio>): void {
-        const table: JQuery = $(`
-        <table class="table table-striped">
+    public static printSummary2(container: JQuery<HTMLElement>, tradeData: Array<StockHistoryItem>, portofolios: Array<Portofolio>, groupSize: number): void {
+        const table: JQuery<HTMLElement> = $(`
+        <table class="table">
             <thead>
+                <td>strategy</td>
                 <td>started on</td>
-                <td>ended on</td>
                 <td>number of transactions</td>
                 <td>number of shares</td>
                 <td>share price</td>
                 <td>available cash</td>
                 <td>total equity</td>
             </thead>
-            <tbody></tbody>
         </table>`);
+        let tbody: JQuery<HTMLElement>;
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
-        for(var i: number = 0; i < portofolios.length; i++) {
+        for(let i = 0; i < portofolios.length; i++) {
             const portofolio: Portofolio = portofolios[i];
-            table.children('tbody').append(`
+            if(i % groupSize === 0) {
+                const newTbody: JQuery<HTMLElement> = $("<tbody>", {"style": "border: 2px solid black; border-collapse: separate; border-spacing: 4px;"});
+                tbody = table.append(newTbody);
+            }
+            tbody.append(`
                 <tr>
+                    <td>${portofolio.strategy?.toString()}</td>
                     <td>${portofolio.startDate.toISOString().split('T')[0]}</td>
-                    <td>${lastTimeValue.date.toISOString().split('T')[0]}</td>
                     <td>${portofolio.numberOfTrades}</td>
                     <td>${portofolio.numberOfShares}</td>
                     <td>${lastTimeValue.close}</td>
@@ -92,10 +96,8 @@ export default class PortofolioPresenter {
                 </tr>`);
         }
         table.DataTable({
-            scrollY: "400px",
-            scrollCollapse: true,
             paging: false,
-            ordering: true
+            ordering: false
         });
         container.append(table);
     }

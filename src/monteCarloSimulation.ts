@@ -14,6 +14,7 @@ import ActionPresenter from "./Presenters/ActionPresenter";
 import BinaryCondition from "./entities/BinaryCondition";
 import Action from "./entities/Action";
 import StrategyBranch from "./entities/StrategyBranch";
+import { StrategyParser } from "./entities/StrategyEvaluator";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -44,27 +45,6 @@ function initGraphs(): void {
                 .extent([[0, 0], [width, height]])
                 .on("zoom", (event) => { svg.attr("transform", event.transform); }));
 }
-function runSimulations(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
-    let startingAmount: number = Number($("#startingAmount").val());
-    let numberOfSimulations: number = Number($("#numberOfSimulations").val());
-    let portofolios: Array<Portofolio> = new Array<Portofolio>();
-    let firstTradingDay: Date = tradeData[0].date;
-    let lastTradingDay: Date = tradeData[tradeData.length - 1].date;
-    let totalTradingDays = (lastTradingDay.getTime() - firstTradingDay.getTime())/(1000*3600*24);
-    let simulationDayOffsets: Set<number> = new Set<number>();
-    for(var i: number = 0; i < numberOfSimulations; i++) {
-        let simulationDayOffset: number;
-        do {
-            simulationDayOffset = Math.floor(Math.random()*totalTradingDays);
-        } while(simulationDayOffsets.has(simulationDayOffset));
-        simulationDayOffsets.add(simulationDayOffset);
-        const simulationDay: Date = new Date(firstTradingDay.getTime() + simulationDayOffset*1000*3600*24);
-        let portofolio: Portofolio = new Portofolio(startingAmount, 0, simulationDay);
-        strategy.run(tradeData.filter((item) => { return startingDateSelector(item, simulationDay); }), portofolio);
-        portofolios.push(portofolio);
-    }
-    PortofolioPresenter.printSummary2($("#home"), tradeData, portofolios);
-}
 
 $(() => {
     $.getJSON(`.\\tickersList.json`, (data) => {
@@ -83,7 +63,7 @@ $(() => {
         $("#overlay").fadeOut();
     });
     $("#ticker").on("change", () => {
-        let ticker: string = $("#ticker").val().toString();
+        const ticker: string = $("#ticker").val().toString();
         $("#startingAmount").prop("disabled", true);
         $("#numberOfSimulations").prop("disabled", true);
         $("#action").prop("disabled", true);
@@ -111,9 +91,9 @@ $(() => {
     const strategies: Array<Strategy> = new Array<Strategy>();
     let strategy: Strategy = new Strategy();
     $("#addStrategyBranch").on("click", () => {
-        let binaryCondition: BinaryCondition = binaryConditionPresenter.read();
-        let action: Action = actionPresenter.read();
-        const strategyBranch: StrategyBranch = new StrategyBranch(binaryCondition, action);
+        const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
+        const action: Action = actionPresenter.read();
+        const strategyBranch: StrategyBranch = new StrategyBranch(action, binaryCondition);
         strategy.strategyBranches.push(strategyBranch);
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
         // REFACTORING
@@ -129,12 +109,50 @@ $(() => {
         $("#globalStrategy").empty();
     });
     $("#run").on("click", () => {
-        strategies.pop();// HACK to remove the empty strategy
-        strategies.forEach((strategy:Strategy) => {
-            runSimulations(tradeData, strategy);
-        })
+        const startingAmount = Number($("#startingAmount").val());
+        const numberOfSimulations = Number($("#numberOfSimulations").val());
+        const portofolios: Array<Portofolio> = new Array<Portofolio>();
+        const firstTradingDay: Date = tradeData[0].date;
+        const lastTradingDay: Date = tradeData[tradeData.length - 1].date;
+        const totalTradingDays = (lastTradingDay.getTime() - firstTradingDay.getTime())/(1000*3600*24);
+        const simulationDayOffsets: Set<number> = new Set<number>();
+        for(let i = 0; i < numberOfSimulations; i++) {
+            let simulationDayOffset: number;
+            do {
+                simulationDayOffset = Math.floor(Math.random()*totalTradingDays);
+            } while(simulationDayOffsets.has(simulationDayOffset));
+            simulationDayOffsets.add(simulationDayOffset);
+            const simulationDay: Date = new Date(firstTradingDay.getTime() + simulationDayOffset*1000*3600*24);
+            strategies.forEach((strategy:Strategy) => {
+                const portofolio: Portofolio = new Portofolio(startingAmount, 0, simulationDay);
+                strategy.run(tradeData.filter((item) => { return startingDateSelector(item, simulationDay); }), portofolio);
+                portofolios.push(portofolio);
+            });
+        }
+        PortofolioPresenter.printSummary2($("#home"), tradeData, portofolios, strategies.length);
     });
     initGraphs();
     $("#actionRender").html(actionPresenter.render());
     $("#conditionRender").html(binaryConditionPresenter.render());
+    const urlParamStrategies = "strategies";
+    $("#getLink").on("click", () => {
+        let strategiesString = "";
+        strategies.forEach(x => { strategiesString += `{${x.toCode()}}`; });
+        $("#link").val(window.location.href + "?" + urlParamStrategies + "=" + encodeURIComponent(strategiesString));
+    });
+    const searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.has(urlParamStrategies)) {
+		const parser: StrategyParser = new StrategyParser();
+        $("#globalStrategies").empty();
+        (decodeURIComponent(searchParams.get(urlParamStrategies))).match(/\{(.*?)\}/g).forEach(strategyString => {
+            const strategy: Strategy = parser.parse(strategyString.replace("{", "").replace("}", ""));
+            strategy.simplify();
+            strategies.push(strategy);
+            $("#run").attr("value", `Run ${strategies.length} strategies`);
+            $("#globalStrategies").append(`<p>${strategy.toString()}</p>`);
+            $("#globalStrategies").append(`<hr/>`);
+        });
+        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+        $("#run").prop("disabled", false);
+    }
 });
