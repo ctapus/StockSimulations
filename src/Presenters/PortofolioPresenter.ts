@@ -65,7 +65,7 @@ export default class PortofolioPresenter {
     }
     public static printSummary2(container: JQuery<HTMLElement>, tradeData: Array<StockHistoryItem>, portofolios: Array<Portofolio>, groupSize: number): void {
         const table: JQuery<HTMLElement> = $(`
-        <table class="table">
+        <table style="width: 100%;">
             <thead>
                 <td>strategy</td>
                 <td>started on</td>
@@ -77,28 +77,26 @@ export default class PortofolioPresenter {
             </thead>
         </table>`);
         let tbody: JQuery<HTMLElement>;
+        let isAlternateRow = false;
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
         for(let i = 0; i < portofolios.length; i++) {
             const portofolio: Portofolio = portofolios[i];
             if(i % groupSize === 0) {
-                const newTbody: JQuery<HTMLElement> = $("<tbody>", {"style": "border: 2px solid black; border-collapse: separate; border-spacing: 4px;"});
-                tbody = table.append(newTbody);
+                tbody = $("<tbody>", {"style": isAlternateRow ? "background-color: lightsteelblue": "background-color: linen"});
+                isAlternateRow = !isAlternateRow;
+                table.append(tbody);
             }
             tbody.append(`
-                <tr>
+                <tr style="outline: thin solid">
                     <td>${portofolio.strategy?.toString()}</td>
                     <td>${portofolio.startDate.toISOString().split('T')[0]}</td>
-                    <td>${portofolio.numberOfTrades}</td>
-                    <td>${portofolio.numberOfShares}</td>
-                    <td>${lastTimeValue.close}</td>
-                    <td>${portofolio.amountOfMoney.toFixed(2)}</td>
-                    <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
+                    <td style="text-align: right;">${portofolio.numberOfTrades}</td>
+                    <td style="text-align: right;">${portofolio.numberOfShares}</td>
+                    <td style="text-align: right;">${lastTimeValue.close}</td>
+                    <td style="text-align: right;">${portofolio.amountOfMoney.toFixed(2)}</td>
+                    <td style="text-align: right;">${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
                 </tr>`);
         }
-        table.DataTable({
-            paging: false,
-            ordering: false
-        });
         container.append(table);
     }
     public static drawEquityGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, portofolio: Portofolio, margin): void {
