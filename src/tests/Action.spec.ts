@@ -19,7 +19,7 @@ describe("Action test suite", () => {
         const indicator: Indicators = new Indicators(tradeDataSet, (stockHistoryItem: StockHistoryItem) => { return stockHistoryItem.open; });
         // TODO: investigate running all in the same loop to improve performance
         indicator.populateOpenVariation();
-        const portofolio: Portofolio = new Portofolio(500, 0, new Date('2022-01-01'));
+        const portofolio: Portofolio = new Portofolio(500, 0, new Date('2022-01-01'), [tradeData]);
         action.trade(tradeData, portofolio);
 		expect(portofolio.numberOfShares).to.equal(5);
 		expect(portofolio.amountOfMoney).to.equal(0);

@@ -86,12 +86,12 @@ $(() => {
         $("#globalStrategies").html(strategiesDescription);*/
     });
     $("#run").on("click", function() {
-        let startingAmount: number = Number($("#startingAmount").val());
-        let startDate: Date = new Date($("#startDate").val().toString());
+        const startingAmount = Number($("#startingAmount").val());
+        const startDate: Date = new Date($("#startDate").val().toString());
         $("#globalStrategies").empty();
         strategies.forEach((strategy:Strategy) => {
             $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
-            let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
+            const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
             strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
             const firstTimeValue: StockHistoryItem = tradeData[0];
             const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];

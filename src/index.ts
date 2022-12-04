@@ -70,7 +70,7 @@ function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: P
 function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
     const startingAmount = Number($("#startingAmount").val());
     const startDate: Date = new Date($("#startDate").val().toString());
-    const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
+    const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
     PortofolioPresenter.printResults($("#menu1"), portofolio);
     PortofolioPresenter.printSummary($("#home"), tradeData, portofolio);

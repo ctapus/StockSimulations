@@ -15,6 +15,8 @@ import BinaryCondition from "./entities/BinaryCondition";
 import Action from "./entities/Action";
 import StrategyBranch from "./entities/StrategyBranch";
 import { StrategyParser } from "./entities/StrategyEvaluator";
+import MonteCarloSimulationGroup from "./entities/MonteCarloSimulationGroup";
+import MonteCarloSimulation from "./entities/MonteCarloSimulation";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -116,6 +118,7 @@ $(() => {
         const lastTradingDay: Date = tradeData[tradeData.length - 1].date;
         const totalTradingDays = (lastTradingDay.getTime() - firstTradingDay.getTime())/(1000*3600*24);
         const simulationDayOffsets: Set<number> = new Set<number>();
+        const monteCarloSimulation: MonteCarloSimulation = new MonteCarloSimulation();
         for(let i = 0; i < numberOfSimulations; i++) {
             let simulationDayOffset: number;
             do {
@@ -123,13 +126,19 @@ $(() => {
             } while(simulationDayOffsets.has(simulationDayOffset));
             simulationDayOffsets.add(simulationDayOffset);
             const simulationDay: Date = new Date(firstTradingDay.getTime() + simulationDayOffset*1000*3600*24);
+            const monteCarloSimulationGroup: MonteCarloSimulationGroup = new MonteCarloSimulationGroup();
+            monteCarloSimulation.monteCarloSimulationGroups.push(monteCarloSimulationGroup);
             strategies.forEach((strategy:Strategy) => {
-                const portofolio: Portofolio = new Portofolio(startingAmount, 0, simulationDay);
+                const portofolio: Portofolio = new Portofolio(startingAmount, 0, simulationDay, tradeData);
                 strategy.run(tradeData.filter((item) => { return startingDateSelector(item, simulationDay); }), portofolio);
                 portofolios.push(portofolio);
+                monteCarloSimulationGroup.portofolios.push(portofolio);
             });
         }
-        PortofolioPresenter.printSummary2($("#home"), tradeData, portofolios, strategies.length);
+        const divSummary: JQuery<HTMLElement> = $(`
+        <div style='font-weight: bold;'>Best performing strategy (${monteCarloSimulation.bestPerformer[1]} times):<br/>${monteCarloSimulation.bestPerformer[0].toString()}</div>`);
+        $("#home").append(divSummary);
+        PortofolioPresenter.printSummary2($("#home"), tradeData, monteCarloSimulation);
     });
     initGraphs();
     $("#actionRender").html(actionPresenter.render());

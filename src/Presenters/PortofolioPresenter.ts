@@ -3,6 +3,8 @@ import * as d3 from "d3";
 import Portofolio from "../entities/Portofolio";
 import TradeHistoryItem from "../entities/TradeHistoryItem";
 import "datatables.net"
+import MonteCarloSimulation from "../entities/MonteCarloSimulation";
+import MonteCarloSimulationGroup from "../entities/MonteCarloSimulationGroup";
 
 export default class PortofolioPresenter {
     public static printResults(container: JQuery, portofolio: Portofolio): void {
@@ -63,39 +65,42 @@ export default class PortofolioPresenter {
             </tr>`);
         container.append(table);
     }
-    public static printSummary2(container: JQuery<HTMLElement>, tradeData: Array<StockHistoryItem>, portofolios: Array<Portofolio>, groupSize: number): void {
+    public static printSummary2(container: JQuery<HTMLElement>, tradeData: Array<StockHistoryItem>, monteCarloSimulation: MonteCarloSimulation): void {
         const table: JQuery<HTMLElement> = $(`
         <table style="width: 100%;">
             <thead>
                 <td>strategy</td>
                 <td>started on</td>
+                <td>total equity</td>
                 <td>number of transactions</td>
                 <td>number of shares</td>
                 <td>share price</td>
                 <td>available cash</td>
-                <td>total equity</td>
             </thead>
         </table>`);
         let tbody: JQuery<HTMLElement>;
         let isAlternateRow = false;
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
-        for(let i = 0; i < portofolios.length; i++) {
-            const portofolio: Portofolio = portofolios[i];
-            if(i % groupSize === 0) {
-                tbody = $("<tbody>", {"style": isAlternateRow ? "background-color: lightsteelblue": "background-color: linen"});
-                isAlternateRow = !isAlternateRow;
-                table.append(tbody);
+        for(const monteCarloSimulationGroup of monteCarloSimulation.monteCarloSimulationGroups) {
+            tbody = $("<tbody>", {"style": isAlternateRow ? "background-color: lightsteelblue": "background-color: linen"});
+            isAlternateRow = !isAlternateRow;
+            table.append(tbody);
+            for(const portofolio of monteCarloSimulationGroup.portofolios) {
+                let style = "outline: thin solid;";
+                if(portofolio === monteCarloSimulationGroup.bestPerformer) {
+                    style += " font-weight: bold;";
+                }
+                tbody.append(`
+                    <tr style="${style}">
+                        <td>${portofolio.strategy?.toString()}</td>
+                        <td>${portofolio.startDate.toISOString().split('T')[0]}</td>
+                        <td style="text-align: right;">${(portofolio.currentValue).toFixed(2)}</td>
+                        <td style="text-align: right;">${portofolio.numberOfTrades}</td>
+                        <td style="text-align: right;">${portofolio.numberOfShares}</td>
+                        <td style="text-align: right;">${lastTimeValue.close}</td>
+                        <td style="text-align: right;">${portofolio.amountOfMoney.toFixed(2)}</td>
+                    </tr>`);
             }
-            tbody.append(`
-                <tr style="outline: thin solid">
-                    <td>${portofolio.strategy?.toString()}</td>
-                    <td>${portofolio.startDate.toISOString().split('T')[0]}</td>
-                    <td style="text-align: right;">${portofolio.numberOfTrades}</td>
-                    <td style="text-align: right;">${portofolio.numberOfShares}</td>
-                    <td style="text-align: right;">${lastTimeValue.close}</td>
-                    <td style="text-align: right;">${portofolio.amountOfMoney.toFixed(2)}</td>
-                    <td style="text-align: right;">${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
-                </tr>`);
         }
         container.append(table);
     }

@@ -2,15 +2,12 @@ import * as $ from "jquery";
 import TradeHistoryItem from "./entities/TradeHistoryItem";
 import Portofolio from "./entities/Portofolio";
 import StockHistoryItem from "./entities/StockHistoryItem";
-import StrategyBranch from "./entities/StrategyBranch";
 import Strategy from "./entities/Strategy";
 import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";
 import StockHistoryItemsPresenterTable from "./Presenters/StockHistoryItemsPresenterTable";
 import StockHistoryItemsPresenterGraph from "./Presenters/StockHistoryItemsPresenterGraph";
 import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
 import ActionPresenter from "./Presenters/ActionPresenter";
-import BinaryCondition from "./entities/BinaryCondition";
-import Action from "./entities/Action";
 import * as d3 from "d3";
 
 interface TimeSelector {
@@ -36,7 +33,7 @@ $(() => {
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategy: Strategy = new Strategy();
     $("#ticker").on("change", () => {
-        let ticker: string = $("#ticker").val().toString();
+        const ticker: string = $("#ticker").val().toString();
         $("#startDate").prop("disabled", true);
         $("#startingAmount").prop("disabled", true);
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
@@ -73,13 +70,13 @@ $(() => {
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);*/
     });
     $("#run").on("click", function() {
-        let startingAmount: number = Number($("#startingAmount").val());
-        let startDate: Date = new Date($("#startDate").val().toString());
-        let portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate);
+        const startingAmount = Number($("#startingAmount").val());
+        const startDate: Date = new Date($("#startDate").val().toString());
+        const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
         strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
-        let transactionNo: number = 1;
+        let transactionNo = 1;
         portofolio.history.forEach((item: TradeHistoryItem) => {
-            let styleColor: string = item.action === 'BUY' ? "blue" : "red";
+            const styleColor: string = item.action === 'BUY' ? "blue" : "red";
             $('#results > tbody').append(`
                 <tr style='color:${styleColor}'>
                     <td>${transactionNo}</td>
