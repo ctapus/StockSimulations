@@ -141,7 +141,6 @@ $(() => {
         }).always(() => {
         });
     });
-    $("#addStrategyBranch").on("click", () => addStrategy(strategy));
     $("#run").on("click", () => runStrategy(tradeData, strategy));
     initGraphs();
     // REFACTORING
@@ -200,7 +199,15 @@ $(() => {
             input.setAttribute("size", "6");
             input.setAttribute("step", ".01");
             input.setAttribute("class", "input-sm");
+            input.setAttribute('data-glyph-type', 'Value');
             e.target.appendChild(input);
         }
+    });
+    $("#addStrategyBranch").on("click", () => {
+        console.log('meh');
+        $("#conditionRender").children().each(() => {
+            console.log($(this).attr('data-glyph-type'));
+        });
+        //addStrategy(strategy)
     });
 });

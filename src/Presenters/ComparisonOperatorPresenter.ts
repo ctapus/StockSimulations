@@ -8,6 +8,7 @@ export default class ComparisonOperatorPresenter extends Presenter<ComparisonOpe
     }
     public renderHTML(): HTMLElement {
         const select: HTMLElement = document.createElement("select");
+        select.setAttribute('data-glyph-type', 'ComparisonOperator');
         const option = document.createElement("option");
         option.value = "";
         option.text = "";

@@ -8,6 +8,7 @@ export class IndicatorPresenter extends Presenter<Indicator> {
     }
     public renderHTML(): HTMLElement {
         const select: HTMLElement = document.createElement("select");
+        select.setAttribute('data-glyph-type', 'Indicator');
         const option = document.createElement("option");
         option.value = "";
         option.text = "";

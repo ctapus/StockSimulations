@@ -8,6 +8,7 @@ export default class ArithmeticOperatorPresenter extends Presenter<ArithmeticOpe
     }
     public renderHTML(): HTMLElement {
         const select: HTMLElement = document.createElement("select");
+        select.setAttribute('data-glyph-type', 'ArithmeticOperator');
         const option = document.createElement("option");
         option.value = "";
         option.text = "";
