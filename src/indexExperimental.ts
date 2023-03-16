@@ -204,10 +204,16 @@ $(() => {
         }
     });
     $("#addStrategyBranch").on("click", () => {
-        console.log('meh');
         $("#conditionRender").children().each(() => {
+            console.log($(this));
+            console.log($(this).data('data-glyph-type'));
             console.log($(this).attr('data-glyph-type'));
         });
+        const myElement: HTMLElement = document.getElementById("conditionRender");
+        for (const child of myElement.children) {
+            console.log(child.tagName);
+            console.log((child as HTMLElement).dataset.glyphType);
+        }
         //addStrategy(strategy)
     });
 });

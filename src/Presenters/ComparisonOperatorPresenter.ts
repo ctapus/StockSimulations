@@ -13,7 +13,7 @@ export default class ComparisonOperatorPresenter extends Presenter<ComparisonOpe
         option.value = "";
         option.text = "";
         select.appendChild(option);
-        for(let indicatorType of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
+        for(const indicatorType of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
             const option = document.createElement("option");
             option.value = indicatorType.code;
             option.text = indicatorType.classDescription;

@@ -3,7 +3,7 @@ import { Presenter } from "./Presenter";
 
 export default class ArithmeticOperatorPresenter extends Presenter<ArithmeticOperator> {
     public render(): string {
-        let options: string = ArithmeticOperatorTypes.AllArithmeticOperatorTypes.map(x => `<option value='${x.code}'>${x.classDescription}</option>`).reduce((p, c) => p + c);
+        const options: string = ArithmeticOperatorTypes.AllArithmeticOperatorTypes.map(x => `<option value='${x.code}'>${x.classDescription}</option>`).reduce((p, c) => p + c);
         return `<select id='${this.controlId}'><option></option>${options}</select>`;
     }
     public renderHTML(): HTMLElement {
@@ -13,7 +13,7 @@ export default class ArithmeticOperatorPresenter extends Presenter<ArithmeticOpe
         option.value = "";
         option.text = "";
         select.appendChild(option);
-        for(let indicatorType of ArithmeticOperatorTypes.AllArithmeticOperatorTypes) {
+        for(const indicatorType of ArithmeticOperatorTypes.AllArithmeticOperatorTypes) {
             const option = document.createElement("option");
             option.value = indicatorType.code;
             option.text = indicatorType.classDescription;

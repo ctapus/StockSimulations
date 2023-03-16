@@ -13,7 +13,7 @@ export class IndicatorPresenter extends Presenter<Indicator> {
         option.value = "";
         option.text = "";
         select.appendChild(option);
-        for(let indicatorType of IndicatorTypes.AllIndicatorTypes) {
+        for(const indicatorType of IndicatorTypes.AllIndicatorTypes) {
             const option = document.createElement("option");
             option.value = indicatorType.code;
             option.text = indicatorType.classDescription;
