@@ -47,7 +47,7 @@ export default class StockHistoryItem {
             tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
             tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
             tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
-            tradeData.volume = Number(data["Time Series (Daily)"][index]["5. volume"]);
+            tradeData.volume = Number(data["Time Series (Daily)"][index]["6. volume"]);
             ret.push(tradeData);
         });
         let previousDayTrade: StockHistoryItem = null;
