@@ -19,6 +19,7 @@ import { StrategyParser } from "./entities/StrategyEvaluator";
 import { IndicatorPresenter } from "./Presenters/IndicatorPresenter";
 import ArithmeticOperatorPresenter from "./Presenters/ArithmeticOperatorPresenter";
 import ComparisonOperatorPresenter from "./Presenters/ComparisonOperatorPresenter";
+import CompositeCondition from "./entities/CompositeCondition";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -89,7 +90,7 @@ function addStrategy(strategy: Strategy): void {
     $("#run").prop("disabled", false);
     const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
     const action: Action = actionPresenter.read();
-    const strategyBranch: StrategyBranch = new StrategyBranch(action, binaryCondition);
+    const strategyBranch: StrategyBranch = new StrategyBranch(action, new CompositeCondition(binaryCondition));
     strategy.strategyBranches.push(strategyBranch);
     $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
     // REFACTORING

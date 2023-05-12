@@ -26,12 +26,12 @@ describe("BooleanEvaluatorMath test suite", () => {
 	});
 	it("Can parse one branch", () => {
 		const parser: StrategyParser = new StrategyParser();
-        let strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < 0.97 * DAY_OPEN;");
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < 0.97 * DAY_OPEN;");
 		expect(strategy).to.be.not.null;
 	});
 	it("Can parse two branches", () => {
 		const parser: StrategyParser = new StrategyParser();
-        let strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * DAY_OPEN >= 1.03 * PREV_DAY_OPEN; BUY_PERCENTAGE 100 WHEN 1 * DAY_OPEN <= 0.97 * PREV_DAY_OPEN; ");
+        const strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * DAY_OPEN >= 1.03 * PREV_DAY_OPEN; BUY_PERCENTAGE 100 WHEN 1 * DAY_OPEN <= 0.97 * PREV_DAY_OPEN; ");
 		expect(strategy).to.be.not.null;
 	});
 });

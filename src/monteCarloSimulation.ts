@@ -17,6 +17,7 @@ import StrategyBranch from "./entities/StrategyBranch";
 import { StrategyParser } from "./entities/StrategyEvaluator";
 import MonteCarloSimulationGroup from "./entities/MonteCarloSimulationGroup";
 import MonteCarloSimulation from "./entities/MonteCarloSimulation";
+import CompositeCondition from "./entities/CompositeCondition";
 
 interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
@@ -95,7 +96,7 @@ $(() => {
     $("#addStrategyBranch").on("click", () => {
         const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
         const action: Action = actionPresenter.read();
-        const strategyBranch: StrategyBranch = new StrategyBranch(action, binaryCondition);
+        const strategyBranch: StrategyBranch = new StrategyBranch(action, new CompositeCondition(binaryCondition));
         strategy.strategyBranches.push(strategyBranch);
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
         // REFACTORING

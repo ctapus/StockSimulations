@@ -29,7 +29,7 @@ export default class Strategy {
         tradeData.forEach(item => {
             this.strategyBranches.forEach((strategyBranch: StrategyBranch) => {
                 // ASSUMPTION: no condition present means the action executes always!
-                if(!strategyBranch.binaryCondition || strategyBranch.binaryCondition.evaluate(item, portofolio)) {
+                if(!strategyBranch.compositeCondition || strategyBranch.compositeCondition.evaluate(item, portofolio)) {
                     strategyBranch.action.trade(item, portofolio);
                     if(portofolio.lastHistoryItem) {
                         portofolio.lastHistoryItem.executionDescription = strategyBranch.toString();

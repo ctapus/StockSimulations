@@ -39,7 +39,7 @@ export default class StockHistoryItem {
         return ret;
     }
     public static loadFromAlphavantage(data: any):Array<StockHistoryItem> {
-        let ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
+        const ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
         $.each(data["Time Series (Daily)"], (index, value) =>{
             const tradeData: StockHistoryItem = new StockHistoryItem();
             tradeData.date = new Date(index.toString());
