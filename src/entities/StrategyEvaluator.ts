@@ -54,7 +54,6 @@ export class StrategyLexer {
         if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
         if(/\)/.test(input)) { return new StrategyToken(StrategyTokenType.RParen); }
         if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
-		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
         if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
         for(let x of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
             if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, x, null, null); }
@@ -71,6 +70,7 @@ export class StrategyLexer {
         for(let x of ActionTypes.AllActionTypes) {
             if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Action, null, null, x, null, null, null); }
         }
+		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
         if(/;/.test(input)) { return new StrategyToken(StrategyTokenType.Semicolon); }
         throw "Unknown token";
     }
