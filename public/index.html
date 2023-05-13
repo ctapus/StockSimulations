@@ -136,6 +136,9 @@
         <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#menu6">Experimental Graph</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu7">Predefined</a>
+        </li>
     </ul>
     <div class="tab-content">
         <div id="home" class="tab-pane active">
@@ -162,6 +165,16 @@
             <div id="chartExperimental">
                 <svg></svg>
             </div>
+        </div>
+        <div id="menu7" class="tab-pane">
+            <br/>
+            <a href="/index.html?strategy=BUY_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3C%3D%200.97%20%2A%20PREV_DAY_OPEN%3B%20SELL_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3E%3D%201.03%20%2A%20PREV_DAY_OPEN%3B">Test 3%</a>
+            <br/>
+            <a href="/index.html?strategy=BUY_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3C%3D%200.98%20%2A%20PREV_DAY_OPEN%3B%20SELL_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3E%3D%201.02%20%2A%20PREV_DAY_OPEN%3B">Test 2%</a>
+            <br/>
+            <a href="/index.html?strategy=BUY_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3E%20SMA_200_DAYS%3B%20SELL_PERCENTAGE%20100%20WHEN%20DAY_OPEN%20%3C%20SMA_200_DAYS%3B">Test 200 SMA</a>
+            <br/>
+            <a href="/index.html?strategy=BUY_PERCENTAGE%20100%20WHEN%20PREV_DAY_OPEN%20%3C%20DAY_OPEN%20%26%26%20EMA_10_DAYS%20%3D%20EMA_20_DAYS%3B%20SELL_PERCENTAGE%20100%20WHEN%20PREV_DAY_OPEN%20%3E%20DAY_OPEN%20%26%26%20EMA_10_DAYS%20%3D%20EMA_20_DAYS%3B">Test 10/20 EMA Crossover</a>
         </div>
     </div>
 </body>

@@ -14,6 +14,8 @@ export default class StockHistoryItemsPresenterGraph {
     private readonly sma50DaysColor: string = "chocolate";
     private readonly sma100DaysColor: string = "brown";
     private readonly sma200DaysColor: string = "maroon";
+    private readonly ema10DaysColor: string = "darkolivegreen";
+    private readonly ema20DaysColor: string = "olivedrab";
     private readonly ema50DaysColor: string = "darkgreen";
     private readonly ema100DaysColor: string = "forestgreen";
     private readonly ema200DaysColor: string = "lightgreen";
@@ -76,6 +78,28 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("d", line)
             .attr("id","sma200Days");
     }
+    public draw10DaysEMAGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema10Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema10Days); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "ema10Days")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.ema10DaysColor)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","ema10Days");
+    }
+    public draw20DaysEMAGraph(): void {
+        const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema20Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema20Days); }).curve(d3.curveBasis);
+        this.svg.append("path")
+            .attr("id", "ema20Days")
+            .data<StockHistoryItem[]>([this.tradeData])
+            .style("fill", "none")
+            .attr("stroke", this.ema20DaysColor)
+            .attr("stroke-width", "1.5")
+            .attr("d", line)
+            .attr("id","ema20Days");
+    }
     public draw50DaysEMAGraph(): void {
         const line = d3.line<StockHistoryItem>().defined(d => null !== d.ema50Days).x(d => { return this.xScale(d.date); }).y(d => { return this.yScale(d.ema50Days); }).curve(d3.curveBasis);
         this.svg.append("path")
@@ -129,6 +153,8 @@ export default class StockHistoryItemsPresenterGraph {
                         ["50 simple moving average",        this.sma50DaysColor,    "sma50Days"],
                         ["100 simple moving average",       this.sma100DaysColor,   "sma100Days"],
                         ["200 simple moving average",       this.sma200DaysColor,   "sma200Days"],
+                        ["10 exponential moving average",   this.ema10DaysColor,    "ema10Days"],
+                        ["20 exponential moving average",   this.ema20DaysColor,    "ema20Days"],
                         ["50 exponential moving average",   this.ema50DaysColor,    "ema50Days"],
                         ["100 exponential moving average",  this.ema100DaysColor,   "ema100Days"],
                         ["200 exponential moving average",  this.ema200DaysColor,   "ema200Days"],

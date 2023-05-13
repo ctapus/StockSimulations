@@ -17,6 +17,8 @@ export default class StockHistoryItem {
     public sma50Days: number;
     public sma100Days: number;
     public sma200Days: number;
+    public ema10Days: number;
+    public ema20Days: number;
     public ema50Days: number;
     public ema100Days: number;
     public ema200Days: number;
@@ -64,6 +66,8 @@ export default class StockHistoryItem {
         indicator.populate50DaysOpenSMA();
         indicator.populate100DaysOpenSMA();
         indicator.populate200DaysOpenSMA();
+        indicator.populate10DaysOpenEMA();
+        indicator.populate20DaysOpenEMA();
         indicator.populate50DaysOpenEMA();
         indicator.populate100DaysOpenEMA();
         indicator.populate200DaysOpenEMA();

@@ -20,12 +20,12 @@ export default class Indicators {
         this.stockHistory.forEach((element, index, array) => {
             this.stockHistory[index].oneDayVariation = (this.stockHistory[index].high - this.stockHistory[index].low) / this.stockHistory[index].low * 100;
             if(null != this.stockHistory[index].previousDay) {
-                var high2days: number = Math.max(this.stockHistory[index].high, this.stockHistory[index].previousDay.high);
-                var low2Days: number = Math.min(this.stockHistory[index].low, this.stockHistory[index].previousDay.low);
+                const high2days: number = Math.max(this.stockHistory[index].high, this.stockHistory[index].previousDay.high);
+                const low2Days: number = Math.min(this.stockHistory[index].low, this.stockHistory[index].previousDay.low);
                 this.stockHistory[index].twoDaysVariation = (high2days - low2Days) / low2Days * 100;
                 if(null != this.stockHistory[index].previousDay.previousDay) {
-                    var high3Days: number = Math.max(high2days, this.stockHistory[index].previousDay.previousDay.high);
-                    var low3Days: number = Math.min(low2Days, this.stockHistory[index].previousDay.previousDay.low);
+                    const high3Days: number = Math.max(high2days, this.stockHistory[index].previousDay.previousDay.high);
+                    const low3Days: number = Math.min(low2Days, this.stockHistory[index].previousDay.previousDay.low);
                     this.stockHistory[index].threeDaysVariation = (high3Days - low3Days) / low3Days * 100;
                 }
             }
@@ -60,13 +60,19 @@ export default class Indicators {
     }
     private getSimpleMovingAverage(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
-            let sum: number = 0;
+            let sum = 0;
             for(let i: number = index-numberOfDays; i<=index; i++) {
                 sum += this.propertySelector(this.stockHistory[i]);
             }
             return sum/numberOfDays;
         }
         return null;
+    }
+    public populate10DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema10Days = this.getExponentialMovingAverage(10, index, index < 10 ? 0 : this.stockHistory[index - 1].ema10Days));
+    }
+    public populate20DaysOpenEMA(): void {
+        this.stockHistory.map((value, index) => value.ema20Days = this.getExponentialMovingAverage(20, index, index < 20 ? 0 : this.stockHistory[index - 1].ema20Days));
     }
     public populate50DaysOpenEMA(): void {
         this.stockHistory.map((value, index) => value.ema50Days = this.getExponentialMovingAverage(50, index, index < 50 ? 0 : this.stockHistory[index - 1].ema50Days));
@@ -78,7 +84,7 @@ export default class Indicators {
         this.stockHistory.map((value, index) => value.ema200Days = this.getExponentialMovingAverage(200, index, index < 200 ? 0 : this.stockHistory[index - 1].ema200Days));
     }
     private getExponentialMovingAverage(numberOfDays: number, index: number, previousEMA: number): number {
-        const smoothing: number = 2;
+        const smoothing = 2;
         const k: number = smoothing/(numberOfDays + 1);
         if(index === numberOfDays) {
             return this.getSimpleMovingAverage(numberOfDays, index);
@@ -89,10 +95,10 @@ export default class Indicators {
         return null;
     }
     public populate14DaysOpenAverages(): void {
-        const numberOfDays: number = 14;
-        let gains: number = 0;
-        let losses: number = 0;
-        for(let j: number = 1; j<numberOfDays; j++) {
+        const numberOfDays = 14;
+        let gains = 0;
+        let losses = 0;
+        for(let j = 1; j<numberOfDays; j++) {
             if(this.propertySelector(this.stockHistory[j-1]) < this.propertySelector(this.stockHistory[j])) {
                 gains += this.propertySelector(this.stockHistory[j]) - this.propertySelector(this.stockHistory[j-1]);
             }
@@ -103,8 +109,8 @@ export default class Indicators {
         this.stockHistory[numberOfDays].averageGains14Days = gains/numberOfDays;
         this.stockHistory[numberOfDays].averageLosses14Days = losses/numberOfDays;
         for(let i: number = numberOfDays + 1; i<this.stockHistory.length; i++) {
-            let gain: number = 0;
-            let loss: number = 0;
+            let gain = 0;
+            let loss = 0;
             if(this.propertySelector(this.stockHistory[i-1]) < this.propertySelector(this.stockHistory[i])) {
                 gain += this.propertySelector(this.stockHistory[i]) - this.propertySelector(this.stockHistory[i-1]);
             }
@@ -120,21 +126,21 @@ export default class Indicators {
     }
     private getRelativeStrengthIndex(numberOfDays: number, index: number): number {
         if (index >= numberOfDays) { // Ignore the first numberOfDays days
-            let rs: number = this.stockHistory[index].averageGains14Days/this.stockHistory[index].averageLosses14Days;
+            const rs: number = this.stockHistory[index].averageGains14Days/this.stockHistory[index].averageLosses14Days;
             return 100 - 100/(1+rs);
         }
         return null;
     }
     public populateDerivativeFirst(): void {
         this.stockHistory[0].derivativeFirst = 0;
-        for(var i=1; i<this.stockHistory.length; i++) {
+        for(let i=1; i<this.stockHistory.length; i++) {
             this.stockHistory[i].derivativeFirst = this.propertySelector(this.stockHistory[i].previousDay) - this.propertySelector(this.stockHistory[i]);
         }
     }
     public populateDerivativeSecond(): void {
         this.stockHistory[0].derivativeSecond = 0;
         this.stockHistory[1].derivativeSecond = 0;
-        for(var i=2; i<this.stockHistory.length; i++) {
+        for(let i=2; i<this.stockHistory.length; i++) {
             this.stockHistory[i].derivativeSecond = this.stockHistory[i].previousDay.derivativeFirst - this.stockHistory[i].derivativeFirst;
         }
     }
@@ -142,7 +148,7 @@ export default class Indicators {
         this.stockHistory[0].derivativeThird = 0;
         this.stockHistory[1].derivativeThird = 0;
         this.stockHistory[2].derivativeThird = 0;
-        for(var i=3; i<this.stockHistory.length; i++) {
+        for(let i=3; i<this.stockHistory.length; i++) {
             this.stockHistory[i].derivativeThird = this.stockHistory[i].previousDay.derivativeSecond - this.stockHistory[i].derivativeSecond;
         }
     }

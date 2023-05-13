@@ -131,12 +131,13 @@ $(() => {
             graph.draw50DaysSMAGraph();
             graph.draw100DaysSMAGraph();
             graph.draw200DaysSMAGraph();
+            graph.draw10DaysEMAGraph();
+            graph.draw20DaysEMAGraph();
             graph.draw50DaysEMAGraph();
             graph.draw100DaysEMAGraph();
             graph.draw200DaysEMAGraph();
             graph.draw14DaysRSIGraph();
             graph.drawLegend();
-            graph.drawDayOpenGraph();
             const svgContainerExperimental: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chartExperimental").select("svg");
             const graphExperimental: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainerExperimental, tradeData, margin);
             graphExperimental.drawDayOpenGraph();
