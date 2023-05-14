@@ -26,9 +26,9 @@ export default class CompositeCondition {
         this.right?.simplify();
     }
     public toString(): string {
-        return `${this.left?.toString()} ${this.node?.toString()} ${this.right?.toString()}`;
+        return `${!this.left ? "" : this.left.toString()} ${this.node?.toString()} ${!this.right ? "" : this.right.toString()}`;
     }
     public toCode(): string {
-        return `${this.left?.toCode()} ${this.node?.toCode()} ${this.right?.toCode()}`;
+        return `${!this.left ? "" : this.left.toCode()} ${this.node?.toCode()} ${!this.right ? "" : this.right.toCode()}`;
     }
 }
