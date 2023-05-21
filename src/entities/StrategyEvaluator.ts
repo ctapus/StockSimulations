@@ -35,7 +35,7 @@ export class StrategyLexer {
     private tokens: string[];
     private tokenIndex: number;
     constructor(input: string) {
-		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[\+\-\*\/]|[a-zA-Z]+[a-zA-Z0-9_]*|\s+|%|&&|\|\||BUY|SELL|WHEN|!=|=|<=|>=|<|>|;/g);
+		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[+\-*/]|[a-zA-Z]+[a-zA-Z0-9_.]*|\s+|%|&&|\|\||BUY|SELL|WHEN|!=|=|<=|>=|<|>|;/g);
 		this.tokenIndex = 0;
     }
     public getTokenAndAdvance(): StrategyToken {
@@ -72,7 +72,7 @@ export class StrategyLexer {
         }
 		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
         if(/;/.test(input)) { return new StrategyToken(StrategyTokenType.Semicolon); }
-        throw "Unknown token";
+        throw `Unknown token: ${input}`;
     }
 }
 

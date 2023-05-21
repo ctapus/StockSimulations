@@ -5,7 +5,7 @@ import { StrategyLexer, StrategyParser, StrategyToken, StrategyTokenType } from 
 
 describe("BooleanEvaluatorMath test suite", () => {
 	it("Can lex", () => {
-		const lexer: StrategyLexer = new StrategyLexer("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < DAY_OPEN;");
+		const lexer: StrategyLexer = new StrategyLexer("BUY_PERCENTAGE 100 WHEN YESTERDAY.OPEN < TODAY.OPEN;");
 		let token: StrategyToken = lexer.getTokenAndAdvance();
 		expect(token.type).to.be.equal(StrategyTokenType.Action);
 		expect(token.actionType).to.be.equal(ActionTypes.BUY_PERCENTAGE);
@@ -26,17 +26,17 @@ describe("BooleanEvaluatorMath test suite", () => {
 	});
 	it("Can parse one branch", () => {
 		const parser: StrategyParser = new StrategyParser();
-        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < 0.97 * DAY_OPEN;");
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY.OPEN < 0.97 * TODAY.OPEN;");
 		expect(strategy).to.be.not.null;
 	});
 	it("Can parse one branch with multiple conditions", () => {
 		const parser: StrategyParser = new StrategyParser();
-        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN PREV_DAY_OPEN < 0.97 * DAY_OPEN && DAY_OPEN >= SMA_200_DAYS;");
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY.OPEN < 0.97 * TODAY.OPEN && TODAY.OPEN >= TODAY.SMA_200_DAYS;");
 		expect(strategy).to.be.not.null;
 	});
 	it("Can parse two branches", () => {
 		const parser: StrategyParser = new StrategyParser();
-        const strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * DAY_OPEN >= 1.03 * PREV_DAY_OPEN; BUY_PERCENTAGE 100 WHEN 1 * DAY_OPEN <= 0.97 * PREV_DAY_OPEN; ");
+        const strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * TODAY.OPEN >= 1.03 * YESTERDAY.OPEN; BUY_PERCENTAGE 100 WHEN 1 * TODAY.OPEN <= 0.97 * YESTERDAY.OPEN; ");
 		expect(strategy).to.be.not.null;
 	});
 });
