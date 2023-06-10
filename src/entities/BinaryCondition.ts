@@ -13,13 +13,18 @@ export default class BinaryCondition {
         this.term2 = term2;
     }
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): boolean {
+        const term1Value = this.term1.evaluate(tradeTick, portofolio);
+        const term2Value = this.term2.evaluate(tradeTick, portofolio);
+        if(null === term1Value || null === term2Value) {
+            return false;
+        }
         switch(this.comparisonOperator.comparisonOperatorType) {
-            case ComparisonOperatorTypes.EQUAL: return this.term1.evaluate(tradeTick, portofolio) === this.term2.evaluate(tradeTick, portofolio);
-            case ComparisonOperatorTypes.NOT_EQUAL: return this.term1.evaluate(tradeTick, portofolio) !== this.term2.evaluate(tradeTick, portofolio);
-            case ComparisonOperatorTypes.GREATER_THAN_OR_EQUAL_TO: return this.term1.evaluate(tradeTick, portofolio) >= this.term2.evaluate(tradeTick, portofolio);
-            case ComparisonOperatorTypes.LESS_THAN_OR_EQUAL_TO: return this.term1.evaluate(tradeTick, portofolio) <= this.term2.evaluate(tradeTick, portofolio);
-            case ComparisonOperatorTypes.GREATER_THAN: return this.term1.evaluate(tradeTick, portofolio) > this.term2.evaluate(tradeTick, portofolio);
-            case ComparisonOperatorTypes.LESS_THAN: return this.term1.evaluate(tradeTick, portofolio) < this.term2.evaluate(tradeTick, portofolio);
+            case ComparisonOperatorTypes.EQUAL:                     return term1Value ===   term2Value;
+            case ComparisonOperatorTypes.NOT_EQUAL:                 return term1Value !==   term2Value;
+            case ComparisonOperatorTypes.GREATER_THAN_OR_EQUAL_TO:  return term1Value >=    term2Value;
+            case ComparisonOperatorTypes.LESS_THAN_OR_EQUAL_TO:     return term1Value <=    term2Value;
+            case ComparisonOperatorTypes.GREATER_THAN:              return term1Value >     term2Value;
+            case ComparisonOperatorTypes.LESS_THAN:                 return term1Value <     term2Value;
         }
     }
     public simplify(): void {

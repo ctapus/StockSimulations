@@ -172,4 +172,12 @@ $(() => {
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
         $("#run").prop("disabled", false);
     }
+    // Build predefined
+    const predefinedStrategies: [string, string] [] = [
+        ["BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.97 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.03 * YESTERDAY::OPEN;", "Test 3%"],
+        ["BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.98 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN;", "Test 2%"],
+        ["BUY_PERCENTAGE 100 WHEN TODAY::OPEN > TODAY::SMA_200_DAYS; SELL_PERCENTAGE 100 WHEN TODAY::OPEN < TODAY::SMA_200_DAYS;", "Test 200 SMA"],
+        ["BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN < TODAY::OPEN && EMA_10_DAYS = EMA_20_DAYS; SELL_PERCENTAGE 100 WHEN PREV_DAY_OPEN > DAY_OPEN && EMA_10_DAYS = EMA_20_DAYS;", "Test 10/20 EMA Crossover"]];
+        const links: string = predefinedStrategies.map(x => `<br/><a href='/index.html?strategy=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
+    $("#menu7").html(links);
 });

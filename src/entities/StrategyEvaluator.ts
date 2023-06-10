@@ -6,23 +6,26 @@ import { ComparisonOperator, ComparisonOperatorType, ComparisonOperatorTypes } f
 import CompositeCondition from "./CompositeCondition";
 import { Indicator, IndicatorType, IndicatorTypes } from "./Indicator";
 import { LogicalOperator, LogicalOperatorType, LogicalOperatorTypes } from "./LogicalOperator";
+import { Scope, ScopeType, ScopeTypes } from "./Scope";
 import Strategy from "./Strategy";
 import StrategyBranch from "./StrategyBranch";
 import Term from "./Term";
 
-export enum StrategyTokenType { Action, When, ArithmeticOperator, LogicalOperator, Number, Indicator, LParen, RParen, Percentage, ComparisonOperator, Semicolon, End }
+export enum StrategyTokenType { Action, When, ArithmeticOperator, LogicalOperator, Number, Scope, Indicator, LParen, RParen, Percentage, ComparisonOperator, Semicolon, ResolutionOperator, End }
 
 export class StrategyToken {
     public type: StrategyTokenType;
     public value: number;
+    public scope: ScopeType;
     public indicator: IndicatorType;
     public actionType: ActionType;
     public comparisonOperator: ComparisonOperatorType;
     public arithmeticOperator: ArithmeticOperatorType;
     public logicalOperator: LogicalOperatorType;
-    constructor(type: StrategyTokenType, value?: number, indicator?: IndicatorType, action?: ActionType, comparisonOperator?: ComparisonOperatorType, arithmeticOperator?: ArithmeticOperatorType, logicalOperator?: LogicalOperatorType) {
+    constructor(type: StrategyTokenType, value?: number, scope?: ScopeType, indicator?: IndicatorType, action?: ActionType, comparisonOperator?: ComparisonOperatorType, arithmeticOperator?: ArithmeticOperatorType, logicalOperator?: LogicalOperatorType) {
         this.type = type;
         this.value = value;
+        this.scope = scope;
         this.indicator = indicator;
         this.actionType = action;
         this.comparisonOperator = comparisonOperator;
@@ -35,7 +38,7 @@ export class StrategyLexer {
     private tokens: string[];
     private tokenIndex: number;
     constructor(input: string) {
-		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[+\-*/]|[a-zA-Z]+[a-zA-Z0-9_.]*|\s+|%|&&|\|\||BUY|SELL|WHEN|!=|=|<=|>=|<|>|;/g);
+		this.tokens = input.trim().match(/\(|\)|\d+(\.\d+)?|[+\-*/]|[a-zA-Z]+[a-zA-Z0-9_.]*|\s+|%|&&|\|\||BUY|SELL|WHEN|!=|=|<=|>=|<|>|;|::/g);
 		this.tokenIndex = 0;
     }
     public getTokenAndAdvance(): StrategyToken {
@@ -56,21 +59,25 @@ export class StrategyLexer {
         if(/%/.test(input)) { return new StrategyToken(StrategyTokenType.Percentage); }
         if(/WHEN/i.test(input)) { return new StrategyToken(StrategyTokenType.When); }
         for(let x of ComparisonOperatorTypes.AllComparisonOperatorTypes) {
-            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, x, null, null); }
+            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ComparisonOperator, null, null, null, null, x, null, null); }
         }
         for(let x of ArithmeticOperatorTypes.AllArithmeticOperatorTypes) {
-            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ArithmeticOperator, null, null, null, null, x, null); }
+            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.ArithmeticOperator, null, null, null, null, null, x, null); }
         }
         for(let x of LogicalOperatorTypes.AllLogicalOperatorTypes) {
-            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.LogicalOperator, null, null, null, null, null, x); }
+            if(x.classDescription.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.LogicalOperator, null, null, null, null, null, null, x); }
+        }
+        for(let x of ScopeTypes.AllScopeTypes) {
+            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Scope, null, x, null, null, null, null, null); }
         }
         for(let x of IndicatorTypes.AllIndicatorTypes) {
-            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, x, null, null, null, null); }
+            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Indicator, null, null, x, null, null, null, null); }
         }
         for(let x of ActionTypes.AllActionTypes) {
-            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Action, null, null, x, null, null, null); }
+            if(x.code.toUpperCase() === input.toUpperCase()) { return new StrategyToken(StrategyTokenType.Action, null, null, null, x, null, null, null); }
         }
 		if (/\d+(\.\d+)?/.test(input)) { return new StrategyToken(StrategyTokenType.Number, parseFloat(input)); }
+        if(/::/.test(input)) { return new StrategyToken(StrategyTokenType.ResolutionOperator); }
         if(/;/.test(input)) { return new StrategyToken(StrategyTokenType.Semicolon); }
         throw `Unknown token: ${input}`;
     }
@@ -154,10 +161,12 @@ export class StrategyParser {
         }
         throw "Incorect syntax: BinaryCondition";
     }
-    // Term = [number arithmeticOperator] indicator
+    // Term = [number arithmeticOperator] scope resolutionOperator indicator
+    // TODO: make    Term = [number arithmeticOperator] [scope resolutionOperator] indicator
     private term(): Term {
         let coeficient: number;
         let arithmeticOperator: ArithmeticOperator;
+        let scope: Scope;
         let indicator: Indicator;
         let token: StrategyToken = this.lex.getTokenAndAdvance();
         if(token.type === StrategyTokenType.Number) {
@@ -166,16 +175,30 @@ export class StrategyParser {
             if(token.type === StrategyTokenType.ArithmeticOperator) {
                 arithmeticOperator = new ArithmeticOperator(token.arithmeticOperator.code);
                 token = this.lex.getTokenAndAdvance();
-                if(token.type === StrategyTokenType.Indicator) {
-                    indicator = new Indicator(token.indicator.code);
-                    return new Term(indicator, coeficient, arithmeticOperator);
+                if(token.type === StrategyTokenType.Scope) {
+                    scope = new Scope(token.scope.code);
+                    token = this.lex.getTokenAndAdvance();
+                    if(token.type === StrategyTokenType.ResolutionOperator) {
+                        token = this.lex.getTokenAndAdvance();
+                        if(token.type === StrategyTokenType.Indicator) {
+                            indicator = new Indicator(token.indicator.code);
+                            return new Term(scope, indicator, coeficient, arithmeticOperator);
+                        }
+                    }
                 }
             }
         }
         else {
-            if(token.type === StrategyTokenType.Indicator) {
-                indicator = new Indicator(token.indicator.code);
-                return new Term(indicator);
+            if(token.type === StrategyTokenType.Scope) {
+                scope = new Scope(token.scope.code);
+                token = this.lex.getTokenAndAdvance();
+                if(token.type === StrategyTokenType.ResolutionOperator) {
+                    token = this.lex.getTokenAndAdvance();
+                    if(token.type === StrategyTokenType.Indicator) {
+                        indicator = new Indicator(token.indicator.code);
+                        return new Term(scope, indicator, coeficient, arithmeticOperator);
+                    }
+                }
             }
         }
         throw "Incorect syntax: Term";

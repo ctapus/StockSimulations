@@ -1,26 +1,33 @@
 import { ArithmeticOperator, ArithmeticOperatorType, ArithmeticOperatorTypes } from "./ArithmeticOperator";
 import { Indicator } from "./Indicator";
 import Portofolio from "./Portofolio";
+import { Scope } from "./Scope";
 import StockHistoryItem from "./StockHistoryItem";
 
 export default class Term {
     public coeficient: number;
     public arithmeticOperator: ArithmeticOperator;
+    public scope: Scope;
     public indicator: Indicator;
-    public constructor(indicator: Indicator, coeficient?: number, arithmeticOperator?: ArithmeticOperator) {
+    public constructor(scope: Scope, indicator: Indicator, coeficient?: number, arithmeticOperator?: ArithmeticOperator) {
         this.coeficient = coeficient;
         this.arithmeticOperator = arithmeticOperator;
+        this.scope = scope;
         this.indicator = indicator;
     }
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): number {
+        const targetTradeTick: StockHistoryItem = this.scope.evaluate(tradeTick, portofolio);
+        if(null === targetTradeTick) {
+            return null;
+        }
         if(!this.coeficient || !this.arithmeticOperator) {
-            return this.indicator.evaluate(tradeTick, portofolio);
+            return this.indicator.evaluate(targetTradeTick, portofolio);
         }
         switch(this.arithmeticOperator.arithmeticOperatorType) {
-            case ArithmeticOperatorTypes.ADDITION: return this.indicator.evaluate(tradeTick, portofolio) + this.coeficient;
-            case ArithmeticOperatorTypes.SUBSTRACTION: return this.indicator.evaluate(tradeTick, portofolio) - this.coeficient;
-            case ArithmeticOperatorTypes.MULTIPLICATION: return this.indicator.evaluate(tradeTick, portofolio) * this.coeficient;
-            case ArithmeticOperatorTypes.DIVISION: return this.indicator.evaluate(tradeTick, portofolio) / this.coeficient;
+            case ArithmeticOperatorTypes.ADDITION: return this.indicator.evaluate(targetTradeTick, portofolio) + this.coeficient;
+            case ArithmeticOperatorTypes.SUBSTRACTION: return this.indicator.evaluate(targetTradeTick, portofolio) - this.coeficient;
+            case ArithmeticOperatorTypes.MULTIPLICATION: return this.indicator.evaluate(targetTradeTick, portofolio) * this.coeficient;
+            case ArithmeticOperatorTypes.DIVISION: return this.indicator.evaluate(targetTradeTick, portofolio) / this.coeficient;
         }
     }
     public simplify(): void {
@@ -35,18 +42,18 @@ export default class Term {
     }
     public toString(): string {
         if(!this.coeficient || !this.arithmeticOperator) {
-            return `${this.indicator?.toString()}`;
+            return `${this.scope?.toString()} ${this.indicator?.toString()}`;
         }
         else {
-            return `${ this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.indicator?.toString()}`;
+            return `${ this.coeficient.toString()} ${this.arithmeticOperator?.toString()} ${this.scope?.toString()} ${this.indicator?.toString()}`;
         }
     }
     public toCode(): string {
         if(!this.coeficient || !this.arithmeticOperator) {
-            return `${this.indicator?.toCode()}`;
+            return `${this.scope?.toCode()}::${this.indicator?.toCode()}`;
         }
         else {
-            return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.indicator?.toCode()}`;
+            return `${this.coeficient.toString()} ${this.arithmeticOperator?.toCode()} ${this.scope?.toCode()}::${this.indicator?.toCode()}`;
         }
     }
 }
