@@ -165,4 +165,11 @@ $(() => {
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
         $("#run").prop("disabled", false);
     }
+    // Build predefined
+    const predefinedStrategies: [string, string] [] = [
+        ["{BUY_PERCENTAGE 100; }{BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.98 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN; }", "Test 2% vs B&H stategies"],
+        ["{BUY_PERCENTAGE 100; }{BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.98 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN; }{BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.97 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.03 * YESTERDAY::OPEN; }", "Test 2%, 3%, B&H strategies"],
+        ["{BUY_PERCENTAGE 100 WHEN TODAY::OPEN > TODAY::SMA_200_DAYS; SELL_PERCENTAGE 100 WHEN TODAY::OPEN < TODAY::SMA_200_DAYS; }{BUY_PERCENTAGE 100; }", "Test 200 SMA vs B&H stategies"]];
+        const links: string = predefinedStrategies.map(x => `<br/><a href='/monteCarloSimulation.html?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
+    $("#menu6").html(links);
 });
