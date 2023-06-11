@@ -17,7 +17,7 @@ export default class Term {
     }
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): number {
         const targetTradeTick: StockHistoryItem = this.scope.evaluate(tradeTick, portofolio);
-        if(null === targetTradeTick) {
+        if(null == targetTradeTick) {
             return null;
         }
         if(!this.coeficient || !this.arithmeticOperator) {

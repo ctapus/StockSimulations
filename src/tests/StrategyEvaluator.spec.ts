@@ -2,6 +2,9 @@ import { expect } from "chai";
 import { ActionTypes } from "../entities/Action";
 import Strategy from "../entities/Strategy";
 import { StrategyLexer, StrategyParser, StrategyToken, StrategyTokenType } from "../entities/StrategyEvaluator";
+import StockAndTradeHistoryItem from "../entities/StockAndTradeHistoryItem";
+import TestDataSet from "./testDataset";
+import Portofolio from "../entities/Portofolio";
 
 describe("BooleanEvaluatorMath test suite", () => {
 	it("Can lex", () => {
@@ -45,6 +48,14 @@ describe("BooleanEvaluatorMath test suite", () => {
 	it("Can parse two branches", () => {
 		const parser: StrategyParser = new StrategyParser();
         const strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * TODAY::OPEN >= 1.03 * YESTERDAY::OPEN; BUY_PERCENTAGE 100 WHEN 1 * TODAY::OPEN <= 0.97 * YESTERDAY::OPEN; ");
+		expect(strategy).to.be.not.null;
+	});
+	it("Can run 2% strategy", () => {
+        const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get2DaysDataset2PercentVariation();
+		const portofolio: Portofolio = new Portofolio(5000, 0, tradeDataSet[0].date, tradeDataSet);
+		const parser: StrategyParser = new StrategyParser();
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN < 0.98 * TODAY::OPEN;");
+		strategy.run(tradeDataSet, portofolio);
 		expect(strategy).to.be.not.null;
 	});
 });

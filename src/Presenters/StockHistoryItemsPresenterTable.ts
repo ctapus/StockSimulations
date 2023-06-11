@@ -47,19 +47,19 @@ export default class StockHistoryItemsPresenterTable {
                     <td>${item.low.toFixed(4)}</td>
                     <td>${item.close.toFixed(4)}</td>
                     <td>${item.volume}</td>
-                    <td>${item.low52Weeks === null || item.low52Weeks === undefined ? "" : item.low52Weeks}</td>
-                    <td>${item.high52Weeks === null || item.high52Weeks == undefined ? "" : item.high52Weeks}</td>
-                    <td>${item.sma50Days === null || item.sma50Days == undefined ? "" : item.sma50Days.toFixed(4)}</td>
-                    <td>${item.sma100Days === null || item.sma100Days == undefined ? "" : item.sma100Days.toFixed(4)}</td>
-                    <td>${item.sma200Days === null || item.sma200Days == undefined ? "" : item.sma200Days.toFixed(4)}</td>
-                    <td>${item.ema50Days === null || item.ema50Days == undefined ? "" : item.ema50Days.toFixed(4)}</td>
-                    <td>${item.ema100Days === null || item.ema100Days == undefined ? "" : item.ema100Days.toFixed(4)}</td>
-                    <td>${item.ema200Days === null || item.ema200Days == undefined ? "" : item.ema200Days.toFixed(4)}</td>
+                    <td>${item.low52Weeks == null ? "" : item.low52Weeks}</td>
+                    <td>${item.high52Weeks == null ? "" : item.high52Weeks}</td>
+                    <td>${item.sma50Days == null ? "" : item.sma50Days.toFixed(4)}</td>
+                    <td>${item.sma100Days == null ? "" : item.sma100Days.toFixed(4)}</td>
+                    <td>${item.sma200Days == null ? "" : item.sma200Days.toFixed(4)}</td>
+                    <td>${item.ema50Days == null ? "" : item.ema50Days.toFixed(4)}</td>
+                    <td>${item.ema100Days == null ? "" : item.ema100Days.toFixed(4)}</td>
+                    <td>${item.ema200Days == null ? "" : item.ema200Days.toFixed(4)}</td>
                     <td>
-                        ${item.averageGains14Days === null || item.averageGains14Days == undefined || item.averageGains14Days == 0 ? "" : "+" + item.averageGains14Days.toFixed(4)}
-                        ${item.averageLosses14Days === null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}
+                        ${item.averageGains14Days == null || item.averageGains14Days == undefined || item.averageGains14Days == 0 ? "" : "+" + item.averageGains14Days.toFixed(4)}
+                        ${item.averageLosses14Days == null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}
                     </td>
-                    <td>${item.rsi14Days === null || item.rsi14Days == undefined ? "" : item.rsi14Days.toFixed(4)}</td>
+                    <td>${item.rsi14Days == null ? "" : item.rsi14Days.toFixed(4)}</td>
                     <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
                     <td>${variationIcon}</td>
                     <td>${item.oneDayVariation ? item.oneDayVariation.toFixed(4) + "%" : ""}</td>

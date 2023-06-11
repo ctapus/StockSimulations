@@ -15,7 +15,7 @@ export default class BinaryCondition {
     public evaluate(tradeTick: StockHistoryItem, portofolio: Portofolio): boolean {
         const term1Value = this.term1.evaluate(tradeTick, portofolio);
         const term2Value = this.term2.evaluate(tradeTick, portofolio);
-        if(null === term1Value || null === term2Value) {
+        if(null == term1Value || null == term2Value) {
             return false;
         }
         switch(this.comparisonOperator.comparisonOperatorType) {
