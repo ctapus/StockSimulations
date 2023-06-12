@@ -20,14 +20,15 @@ export default class Term {
         if(null == targetTradeTick) {
             return null;
         }
+        const val: number = this.indicator.evaluate(targetTradeTick, portofolio);
         if(!this.coeficient || !this.arithmeticOperator) {
-            return this.indicator.evaluate(targetTradeTick, portofolio);
+            return val;
         }
         switch(this.arithmeticOperator.arithmeticOperatorType) {
-            case ArithmeticOperatorTypes.ADDITION: return this.indicator.evaluate(targetTradeTick, portofolio) + this.coeficient;
-            case ArithmeticOperatorTypes.SUBSTRACTION: return this.indicator.evaluate(targetTradeTick, portofolio) - this.coeficient;
-            case ArithmeticOperatorTypes.MULTIPLICATION: return this.indicator.evaluate(targetTradeTick, portofolio) * this.coeficient;
-            case ArithmeticOperatorTypes.DIVISION: return this.indicator.evaluate(targetTradeTick, portofolio) / this.coeficient;
+            case ArithmeticOperatorTypes.ADDITION:          return val + this.coeficient;
+            case ArithmeticOperatorTypes.SUBSTRACTION:      return val - this.coeficient;
+            case ArithmeticOperatorTypes.MULTIPLICATION:    return val * this.coeficient;
+            case ArithmeticOperatorTypes.DIVISION:          return val / this.coeficient;
         }
     }
     public simplify(): void {

@@ -14,15 +14,15 @@ export default class TestDataSet {
     public static get3DaysDataset2PercentVariation(): Array<StockAndTradeHistoryItem> {
         const day1: StockAndTradeHistoryItem = new StockAndTradeHistoryItem();
         day1.date = new Date('2022-01-01');
-        day1.open = 100;
+        day1.open = 98;
         const day2: StockAndTradeHistoryItem = new StockAndTradeHistoryItem();
         day2.date = new Date('2022-01-02');
         day2.previousDay = day1;
         day2.open = 100;
         const day3: StockAndTradeHistoryItem = new StockAndTradeHistoryItem();
-        day3.date = new Date('2022-01-02');
+        day3.date = new Date('2022-01-03');
         day3.previousDay = day2;
-        day3.open = 102;
+        day3.open = 103;
         return [ day1, day2, day3 ];
     }
 }

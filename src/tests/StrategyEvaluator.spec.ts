@@ -51,11 +51,13 @@ describe("BooleanEvaluatorMath test suite", () => {
 		expect(strategy).to.be.not.null;
 	});
 	it("Can run 2% strategy", () => {
-        const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get2DaysDataset2PercentVariation();
+        const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get3DaysDataset2PercentVariation();
 		const portofolio: Portofolio = new Portofolio(5000, 0, tradeDataSet[0].date, tradeDataSet);
 		const parser: StrategyParser = new StrategyParser();
-        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN < 0.98 * TODAY::OPEN;");
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN <= 0.98 * TODAY::OPEN;");
 		strategy.run(tradeDataSet, portofolio);
-		expect(strategy).to.be.not.null;
+		expect(portofolio.numberOfShares).to.be.equal(50, "portofolio should have 50 shares");
+		expect(portofolio.numberOfTrades).to.be.equal(1, "portofolio should have 1 trade");
+		expect(portofolio.history[0].date.toISOString()).to.be.equal("2022-01-02T00:00:00.000Z", "trade should have occured on 2022-01-02T00:00:00.000Z");
 	});
 });
