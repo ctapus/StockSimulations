@@ -50,11 +50,21 @@ describe("BooleanEvaluatorMath test suite", () => {
         const strategy: Strategy = parser.parse("SELL_PERCENTAGE 100 WHEN 1 * TODAY::OPEN >= 1.03 * YESTERDAY::OPEN; BUY_PERCENTAGE 100 WHEN 1 * TODAY::OPEN <= 0.97 * YESTERDAY::OPEN; ");
 		expect(strategy).to.be.not.null;
 	});
-	it("Can run 2% strategy", () => {
+	it("Can buy 100% on 2% downside", () => {
         const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get3DaysDataset2PercentVariation();
 		const portofolio: Portofolio = new Portofolio(5000, 0, tradeDataSet[0].date, tradeDataSet);
 		const parser: StrategyParser = new StrategyParser();
         const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN <= 0.98 * TODAY::OPEN;");
+		strategy.run(tradeDataSet, portofolio);
+		expect(portofolio.numberOfShares).to.be.equal(50, "portofolio should have 50 shares");
+		expect(portofolio.numberOfTrades).to.be.equal(1, "portofolio should have 1 trade");
+		expect(portofolio.history[0].date.toISOString()).to.be.equal("2022-01-02T00:00:00.000Z", "trade should have occured on 2022-01-02T00:00:00.000Z");
+	});
+	it("Can BUY 100% and sell 100% on 2% variation", () => {
+        const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get3DaysDataset2PercentVariation();
+		const portofolio: Portofolio = new Portofolio(5000, 0, tradeDataSet[0].date, tradeDataSet);
+		const parser: StrategyParser = new StrategyParser();
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN <= 0.98 * TODAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN;");
 		strategy.run(tradeDataSet, portofolio);
 		expect(portofolio.numberOfShares).to.be.equal(50, "portofolio should have 50 shares");
 		expect(portofolio.numberOfTrades).to.be.equal(1, "portofolio should have 1 trade");
