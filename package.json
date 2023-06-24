@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "npm": "^8.14.0"
+    "npm": "^9.7.2"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.1.8",

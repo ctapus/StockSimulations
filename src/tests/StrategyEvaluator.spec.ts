@@ -5,6 +5,7 @@ import { StrategyLexer, StrategyParser, StrategyToken, StrategyTokenType } from 
 import StockAndTradeHistoryItem from "../entities/StockAndTradeHistoryItem";
 import TestDataSet from "./testDataset";
 import Portofolio from "../entities/Portofolio";
+import PredefinedStrategies from "../predefinedStrategies";
 
 describe("BooleanEvaluatorMath test suite", () => {
 	it("Can lex", () => {
@@ -64,10 +65,18 @@ describe("BooleanEvaluatorMath test suite", () => {
         const tradeDataSet: Array<StockAndTradeHistoryItem> = TestDataSet.get3DaysDataset2PercentVariation();
 		const portofolio: Portofolio = new Portofolio(5000, 0, tradeDataSet[0].date, tradeDataSet);
 		const parser: StrategyParser = new StrategyParser();
-        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN <= 0.98 * TODAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN;");
+        const strategy: Strategy = parser.parse("BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.98 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN;");
 		strategy.run(tradeDataSet, portofolio);
 		expect(portofolio.numberOfShares).to.be.equal(50, "portofolio should have 50 shares");
 		expect(portofolio.numberOfTrades).to.be.equal(1, "portofolio should have 1 trade");
 		expect(portofolio.history[0].date.toISOString()).to.be.equal("2022-01-02T00:00:00.000Z", "trade should have occured on 2022-01-02T00:00:00.000Z");
+	});
+	it("Can parse all predefined strategies", () => {
+		const parser: StrategyParser = new StrategyParser();
+		for(var strategyTuple of PredefinedStrategies.SingleStragies) {
+			const strategyName = strategyTuple[1];
+			const strategy: Strategy = parser.parse(strategyTuple[0]);
+			expect(strategy).to.be.not.null;
+		}
 	});
 });

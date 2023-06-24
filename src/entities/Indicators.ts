@@ -49,6 +49,12 @@ export default class Indicators {
             }
         });
     }
+    public populate10DaysOpenSMA(): void {
+        this.stockHistory.map((value, index) => value.sma10Days = this.getSimpleMovingAverage(10, index));
+    }
+    public populate20DaysOpenSMA(): void {
+        this.stockHistory.map((value, index) => value.sma20Days = this.getSimpleMovingAverage(20, index));
+    }
     public populate50DaysOpenSMA(): void {
         this.stockHistory.map((value, index) => value.sma50Days = this.getSimpleMovingAverage(50, index));
     }

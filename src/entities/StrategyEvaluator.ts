@@ -32,6 +32,9 @@ export class StrategyToken {
         this.arithmeticOperator = arithmeticOperator;
         this.logicalOperator = logicalOperator;
     }
+    public toString(): String {
+        return StrategyTokenType[this.type];
+    }
 }
 
 export class StrategyLexer {
@@ -52,6 +55,9 @@ export class StrategyLexer {
     public revert(): void {
         if(this.tokenIndex <= 0) { throw Error("Index out of range"); }
         this.tokenIndex--;
+    }
+    public debug(): string {
+        return `Pos ${this.tokenIndex} of ${this.tokens.join(", ")}`;
     }
     private getToken(input: string): StrategyToken {
         if(/\(/.test(input)) { return new StrategyToken(StrategyTokenType.LParen); }
@@ -115,7 +121,7 @@ export class StrategyParser {
             compositeCondition = this.compositeCondition();
             return new StrategyBranch(action, compositeCondition);
         }
-        throw "Incorect syntax: Strategy";
+        throw `Incorect syntax strategyBranch(): ${token}`;
     }
     private action(): Action { // ACTION number %|
         let actionType: ActionType;
@@ -129,7 +135,7 @@ export class StrategyParser {
                 return new Action(actionType, param);
             }
         }
-        throw "Incorect syntax: Action";
+        throw `Incorect syntax action(): ${token}`;
     }
     //CompositeCondition = BinaryCondition logicalOperator BinaryCondition | BinaryCondition logicalOperator CompositeCondition
     private compositeCondition(): CompositeCondition {
@@ -146,7 +152,7 @@ export class StrategyParser {
             this.lex.revert();
             return new CompositeCondition(binaryCondition);
         }
-        throw "Incorect syntax: CompositeCondition";
+        throw `Incorect syntax compositeCondition(): ${token}`;
     }
     // BinaryCondition = Term ComparisonOperator Term
     private binaryCondition(): BinaryCondition {
@@ -159,7 +165,7 @@ export class StrategyParser {
             term2 = this.term();
             return new BinaryCondition(term1, new ComparisonOperator(comparisonOperator.code), term2);
         }
-        throw "Incorect syntax: BinaryCondition";
+        throw `Incorect syntax binaryCondition(): ${token}`;
     }
     // Term = [number arithmeticOperator] scope resolutionOperator indicator
     // TODO: make    Term = [number arithmeticOperator] [scope resolutionOperator] indicator
@@ -187,6 +193,7 @@ export class StrategyParser {
                     }
                 }
             }
+            throw `Incorect syntax term(): number arithmeticOperator scope resolutionOperator indicator. ${token}`;
         }
         else {
             if(token.type === StrategyTokenType.Scope) {
@@ -200,7 +207,8 @@ export class StrategyParser {
                     }
                 }
             }
+            throw `Incorect syntax term(): scope resolutionOperator indicator. ${token}.
+${this.lex.debug()}`;
         }
-        throw "Incorect syntax: Term";
     }
 }

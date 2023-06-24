@@ -14,6 +14,8 @@ export default class StockHistoryItem {
     public threeDaysVariation: number;
     public high52Weeks: number;
     public low52Weeks: number;
+    public sma10Days: number;
+    public sma20Days: number;
     public sma50Days: number;
     public sma100Days: number;
     public sma200Days: number;
@@ -63,6 +65,8 @@ export default class StockHistoryItem {
         indicator.populateOpenVariation();
         indicator.populateDayVariation();
         indicator.populate52WeeksRange();
+        indicator.populate10DaysOpenSMA();
+        indicator.populate20DaysOpenSMA();
         indicator.populate50DaysOpenSMA();
         indicator.populate100DaysOpenSMA();
         indicator.populate200DaysOpenSMA();
