@@ -4,7 +4,7 @@ export default class StockHistoryItemsPresenterTable {
     public static printHistoricData(container: JQuery, tradeData: Array<StockAndTradeHistoryItem>): void {
         const table: JQuery = $(`
         <table class="table table-striped" style="width: 100%">
-            <thead>
+            <thead style="position: sticky; inset-block-start: 0; background: #eee; border-bottom: 2px solid #ccc;">
                 <tr><td style="width: 110px">date</td>
                     <td style="width: 80px; text-align: right;">open</td>
                     <td style="width: 80px; text-align: right;">high</td>
