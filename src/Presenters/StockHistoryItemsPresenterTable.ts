@@ -13,9 +13,13 @@ export default class StockHistoryItemsPresenterTable {
                     <td style="width: 80px; text-align: right;">volume</td>
                     <td style="width: 80px; text-align: right;">52 weeks low</td>
                     <td style="width: 80px; text-align: right;">52 weeks high</td>
+                    <td style="width: 80px; text-align: right;">10 days SMA</td>
+                    <td style="width: 80px; text-align: right;">20 days SMA</td>
                     <td style="width: 80px; text-align: right;">50 days SMA</td>
                     <td style="width: 80px; text-align: right;">100 days SMA</td>
                     <td style="width: 80px; text-align: right;">200 days SMA</td>
+                    <td style="width: 80px; text-align: right;">10 days EMA</td>
+                    <td style="width: 80px; text-align: right;">20 days EMA</td>
                     <td style="width: 80px; text-align: right;">50 days EMA</td>
                     <td style="width: 80px; text-align: right;">100 days EMA</td>
                     <td style="width: 80px; text-align: right;">200 days EMA</td>
@@ -49,9 +53,13 @@ export default class StockHistoryItemsPresenterTable {
                     <td>${item.volume}</td>
                     <td>${item.low52Weeks == null ? "" : item.low52Weeks}</td>
                     <td>${item.high52Weeks == null ? "" : item.high52Weeks}</td>
+                    <td>${item.sma10Days == null ? "" : item.sma10Days.toFixed(4)}</td>
+                    <td>${item.sma20Days == null ? "" : item.sma20Days.toFixed(4)}</td>
                     <td>${item.sma50Days == null ? "" : item.sma50Days.toFixed(4)}</td>
                     <td>${item.sma100Days == null ? "" : item.sma100Days.toFixed(4)}</td>
                     <td>${item.sma200Days == null ? "" : item.sma200Days.toFixed(4)}</td>
+                    <td>${item.ema10Days == null ? "" : item.ema10Days.toFixed(4)}</td>
+                    <td>${item.ema20Days == null ? "" : item.ema20Days.toFixed(4)}</td>
                     <td>${item.ema50Days == null ? "" : item.ema50Days.toFixed(4)}</td>
                     <td>${item.ema100Days == null ? "" : item.ema100Days.toFixed(4)}</td>
                     <td>${item.ema200Days == null ? "" : item.ema200Days.toFixed(4)}</td>
