@@ -4,6 +4,7 @@ export default class PredefinedStrategies {
     private static strategy2PercentVariation: string = "BUY_PERCENTAGE 100 WHEN TODAY::OPEN <= 0.98 * YESTERDAY::OPEN; SELL_PERCENTAGE 100 WHEN TODAY::OPEN >= 1.02 * YESTERDAY::OPEN;";
     private static strategy200SMA: string = "BUY_PERCENTAGE 100 WHEN TODAY::OPEN > TODAY::SMA_200_DAYS; SELL_PERCENTAGE 100 WHEN TODAY::OPEN < TODAY::SMA_200_DAYS;";
     private static strategy10cross20: string = "BUY_PERCENTAGE 100 WHEN YESTERDAY::OPEN < TODAY::OPEN && YESTERDAY::EMA_10_DAYS <= TODAY::EMA_20_DAYS && TODAY::EMA_10_DAYS >= YESTERDAY::EMA_20_DAYS; SELL_PERCENTAGE 100 WHEN YESTERDAY::OPEN > TODAY::OPEN && YESTERDAY::EMA_10_DAYS <= TODAY::EMA_20_DAYS && TODAY::EMA_10_DAYS >= YESTERDAY::EMA_20_DAYS;";
+    //intersects: (YESTERDAY::EMA_10_DAYS-YESTERDAY::EMA_20_DAYS)*(TODAY::EMA_10_DAYS-TODAY::EMA_20_DAYS)<0
     public static SingleStragies: [string, string] [] = [
         [ this.strategy3PercentVariation, "Test 3%"],
         [ this.strategy2PercentVariation, "Test 2%"],

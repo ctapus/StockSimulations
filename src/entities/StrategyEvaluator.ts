@@ -167,7 +167,16 @@ export class StrategyParser {
         }
         throw `Incorect syntax binaryCondition(): ${token}`;
     }
-    // Term = [number arithmeticOperator] scope resolutionOperator indicator
+
+    // Condition           = Expression ComparisonOperator Expression
+    // Expression          = 1stOrderOperation [ArithmeticOperator 1stOrderOperation]*
+    // 1stOrderOperation   = LPAREN 2ndOrderOperation LPAREN | 2ndOrderOperation
+    // 2ndOrderOperation   = 3rdOrderOperation (PLUS | MINUS ) 3rdOrderOperation | 3rdOrderOperation
+    // 3rdOrderOperation   = Term (MULTIPLY | DIVIDE) Term | Term
+    // Term                = number | scope resolutionOperator indicator
+
+
+    // Term = number arithmeticOperator scope resolutionOperator indicator | scope resolutionOperator indicator
     // TODO: make    Term = [number arithmeticOperator] [scope resolutionOperator] indicator
     private term(): Term {
         let coeficient: number;
