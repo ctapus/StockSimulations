@@ -167,6 +167,6 @@ $(() => {
         $("#run").prop("disabled", false);
     }
     // Build predefined
-    const links: string = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='/monteCarloSimulation.html?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
+    const links: string = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='#?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
     $("#menu6").html(links);
 });

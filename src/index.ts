@@ -174,6 +174,6 @@ $(() => {
         $("#run").prop("disabled", false);
     }
     // Build predefined
-    const links: string = PredefinedStrategies.SingleStragies.map(x => `<br/><a href='/index.html?strategy=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
+    const links: string = PredefinedStrategies.SingleStragies.map(x => `<br/><a href='#?strategy=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
     $("#menu7").html(links);
 });
