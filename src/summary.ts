@@ -1,4 +1,3 @@
-import * as $ from "jquery";
 import Portofolio from "./entities/Portofolio";
 import StockHistoryItem from "./entities/StockHistoryItem";
 import Strategy from "./entities/Strategy";
@@ -21,55 +20,59 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
-$(() => {
-    $.getJSON(`.\\tickersList.json`, (data) => {
-        $.each(data['tickers'], (index, value) => {
-            $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
+document.addEventListener("DOMContentLoaded", () => {
+    fetch(`.\\tickersList.json`)
+        .then(res => res.json())
+        .then(data => {
+            Array.prototype.forEach.call(data['tickers'], (currentValue, index, arr) => {
+                document.getElementById('ticker').append(new Option(data['tickers'][index].name, data['tickers'][index].symbol));
+            });
+        })
+        .catch(error => {
+            console.log(error.message);
         });
-    }).fail(() => {
-        console.log("Error while reading json");
-    }).always(() => {
-    });
-    $(document)
+    /*$(document)
     .ajaxStart(function () {
         $('#overlay').fadeIn();
     })
     .ajaxStop(function () {
         $('#overlay').fadeOut();
-    });
+    });*/
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     strategies.push(new Strategy());
-    $("#ticker").on("change", () => {
-        let ticker: string = $("#ticker").val().toString();
-        $("#startDate").prop("disabled", true);
-        $("#startingAmount").prop("disabled", true);
-        $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-            $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
-            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawDayOpenGraph();
-            graph.draw50DaysSMAGraph();
-            graph.draw100DaysSMAGraph();
-            graph.draw200DaysSMAGraph();
-            graph.draw50DaysEMAGraph();
-            graph.draw100DaysEMAGraph();
-            graph.draw200DaysEMAGraph();
-            graph.drawLegend();
-            $("#startDate").prop("disabled", false);
-            $("#startingAmount").prop("disabled", false);
-        }).fail(() => {
-            console.log("Error while reading json");
-        }).always(() => {
-        });
+    document.getElementById("ticker").addEventListener("change", () => {
+        let ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
+        document.getElementById("startDate").setAttribute("disabled", "disabled");
+        document.getElementById("startingAmount").setAttribute("disabled", "disabled");
+        fetch(`.\\alphavantage\\${ticker}.json`)
+            .then(res => res.json())
+            .then(data => {
+                tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
+                (<HTMLInputElement>document.getElementById("startDate")).value = tradeData[0].date.toISOString().split('T')[0];
+                StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
+                const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+                const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+                graph.drawDayOpenGraph();
+                graph.draw50DaysSMAGraph();
+                graph.draw100DaysSMAGraph();
+                graph.draw200DaysSMAGraph();
+                graph.draw50DaysEMAGraph();
+                graph.draw100DaysEMAGraph();
+                graph.draw200DaysEMAGraph();
+                graph.drawLegend();
+                $("#startDate").prop("disabled", false);
+                $("#startingAmount").prop("disabled", false);
+            })
+            .catch(error => {
+                console.log(error.message);
+            });
     });
-    $("#newStrategy").on("click", function() {
+    document.getElementById("newStrategy").addEventListener("click", function() {
         strategies.push(new Strategy());
-        $("#globalStrategies").append(`<hr/>`);
+        document.getElementById("globalStrategies").append(`<hr/>`);
     });
-    $("#addStrategyBranch").on("click", function() {
+    document.getElementById("addStrategyBranch").addEventListener("click", function() {
         /*$("#run").prop("disabled", false);
         let action: string = $("#action option:selected").val().toString();
         let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
@@ -85,17 +88,17 @@ $(() => {
         });
         $("#globalStrategies").html(strategiesDescription);*/
     });
-    $("#run").on("click", function() {
+    document.getElementById("run").addEventListener("click", function() {
         const startingAmount = Number($("#startingAmount").val());
         const startDate: Date = new Date($("#startDate").val().toString());
-        $("#globalStrategies").empty();
+        document.getElementById("globalStrategies").innerHTML = "";
         strategies.forEach((strategy:Strategy) => {
             $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
             const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
             strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
             const firstTimeValue: StockHistoryItem = tradeData[0];
             const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
-            $("#globalStrategies").append(`
+            document.getElementById("globalStrategies").append(`
             <table class="table table-striped">
                 <thead>
                     <td>number of transactions</td>
@@ -120,6 +123,6 @@ $(() => {
             </table>`);
         });
     });
-    $("#actionRender").html(actionPresenter.render());
-    $("#conditionRender").html(binaryConditionPresenter.render());
+    document.getElementById("actionRender").innerHTML = actionPresenter.render();
+    document.getElementById("conditionRender").innerHTML = binaryConditionPresenter.render();
 });

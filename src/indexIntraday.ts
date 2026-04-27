@@ -1,4 +1,3 @@
-import * as $ from "jquery";
 import TradeHistoryItem from "./entities/TradeHistoryItem";
 import Portofolio from "./entities/Portofolio";
 import StockHistoryItem from "./entities/StockHistoryItem";
@@ -22,42 +21,44 @@ const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
         height = window.innerHeight - margin.top - margin.bottom;
 
-$(() => {
-    $(document)
+document.addEventListener("DOMContentLoaded", () => {
+    /*$(document)
     .ajaxStart(function () {
         $('#overlay').fadeIn();
     })
     .ajaxStop(function () {
         $('#overlay').fadeOut();
-    });
+    });*/
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategy: Strategy = new Strategy();
-    $("#ticker").on("change", () => {
+    document.getElementById("ticker").addEventListener("change", () => {
         const ticker: string = $("#ticker").val().toString();
-        $("#startDate").prop("disabled", true);
-        $("#startingAmount").prop("disabled", true);
-        $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-            $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
-            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawDayOpenGraph();
-            graph.draw50DaysSMAGraph();
-            graph.draw100DaysSMAGraph();
-            graph.draw200DaysSMAGraph();
-            graph.draw50DaysEMAGraph();
-            graph.draw100DaysEMAGraph();
-            graph.draw200DaysEMAGraph();
-            graph.drawLegend();
-            $("#startDate").prop("disabled", false);
-            $("#startingAmount").prop("disabled", false);
-        }).fail(() => {
-            console.log("Error while reading json");
-        }).always(() => {
-        });
+        document.getElementById("startDate").setAttribute("disabled", "disabled")
+        document.getElementById("startingAmount").setAttribute("disabled", "disabled")
+        fetch(`.\\alphavantage\\${ticker}.json`)
+            .then(res => res.json())
+            .then(data => {
+                tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
+                $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
+                StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
+                const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+                const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+                graph.drawDayOpenGraph();
+                graph.draw50DaysSMAGraph();
+                graph.draw100DaysSMAGraph();
+                graph.draw200DaysSMAGraph();
+                graph.draw50DaysEMAGraph();
+                graph.draw100DaysEMAGraph();
+                graph.draw200DaysEMAGraph();
+                graph.drawLegend();
+                document.getElementById("startDate").removeAttribute("disabled");
+                document.getElementById("startingAmount").removeAttribute("disabled");
+            })
+            .catch(error => {
+                console.log(error.message);
+            });
     });
-    $("#addStrategyBranch").on("click", function() {
+    document.getElementById("addStrategyBranch").addEventListener("click", function() {
         /*$("#run").prop("disabled", false);
         let action: string = $("#action option:selected").val().toString();
         let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
@@ -69,15 +70,15 @@ $(() => {
         strategy.strategyBranches.push(strategyBranch);
         $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);*/
     });
-    $("#run").on("click", function() {
-        const startingAmount = Number($("#startingAmount").val());
-        const startDate: Date = new Date($("#startDate").val().toString());
+    document.getElementById("run").addEventListener("click", function() {
+        const startingAmount = Number((<HTMLInputElement>document.getElementById("startingAmount")).value);
+        const startDate: Date = new Date((<HTMLInputElement>document.getElementById("startDate")).value);
         const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
         strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
         let transactionNo = 1;
         portofolio.history.forEach((item: TradeHistoryItem) => {
             const styleColor: string = item.action === 'BUY' ? "blue" : "red";
-            $('#results > tbody').append(`
+            document.getElementById('results > tbody').append(`
                 <tr style='color:${styleColor}'>
                     <td>${transactionNo}</td>
                     <td>${item.date.toISOString()}</td>
@@ -91,7 +92,7 @@ $(() => {
               transactionNo++;
         });
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
-        $('#summary > tbody').append(`
+        document.getElementById('summary > tbody').append(`
             <tr>
                 <td>${portofolio.history.length}</td>
                 <td>${lastTimeValue.date.toISOString()}</td>
@@ -101,6 +102,6 @@ $(() => {
                 <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
             </tr>`);
     });
-    $("#actionRender").html(actionPresenter.render());
-    $("#conditionRender").html(binaryConditionPresenter.render());
+    document.getElementById("actionRender").innerHTML = actionPresenter.render();
+    document.getElementById("conditionRender").innerHTML = binaryConditionPresenter.render();
 });

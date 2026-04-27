@@ -2,7 +2,6 @@ import StockHistoryItem from "../entities/StockHistoryItem";
 import * as d3 from "d3";
 
 export default class StockHistoryItemsPresenterGraph {
-    private svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
     private tradeData: Array<StockHistoryItem>;
     private margin: any;
     private readonly width: number;
@@ -23,15 +22,15 @@ export default class StockHistoryItemsPresenterGraph {
     private readonly derivativeFirst: string = "mediumslateblue";
     private readonly derivativeSecond: string = "mediumturquoise";
     private readonly derivativeThird: string = "midnightblue";
-    public constructor(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin) {
-        this.svgContainer = svgContainer;
+    public constructor(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tradeData: Array<StockHistoryItem>, margin: { top: any; right: any; bottom: any; left: any; }) {
+        this.svg = svgContainer;
         this.tradeData = tradeData;
         this.margin = margin;
         this.width = window.innerWidth - margin.left - margin.right;
         this.height = window.innerHeight - margin.top - margin.bottom;
         this.xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, this.width]);
         this.yScale = d3.scaleLinear().domain([0, d3.max<StockHistoryItem, number>(tradeData, d => { return d.open; })]).range([this.height, 0]);
-        this.svg = this.svgContainer.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        this.svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
     }
     public drawDayOpenGraph(): void {
         this.svg.append("g").attr("id", "xAxis").attr("transform", `translate(0, ${this.height})`).call(d3.axisBottom(this.xScale));
@@ -145,7 +144,6 @@ export default class StockHistoryItemsPresenterGraph {
             .attr("id","rsi14Days");
     }
     public drawLegend() {
-        const g: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = this.svgContainer.append("g");
         const legendOffsetX = 50;
         const legendOffsetY = 50;
         const squareLength = 20;
@@ -160,13 +158,13 @@ export default class StockHistoryItemsPresenterGraph {
                         ["200 exponential moving average",  this.ema200DaysColor,   "ema200Days"],
                         ["14 relative strength index",      this.rsi14DaysColor,    "rsi14Days"]]; // TODO: type this!
         const legendBgColor = "lightsteelblue";
-        g.append("rect").attr("x", legendOffsetX).attr("y", legendOffsetY)
+        this.svg.append("rect").attr("x", legendOffsetX).attr("y", legendOffsetY)
                         .attr("width", 270).attr("height", dict.length * (squareLength + 10) + 20)
                         .style("fill", legendBgColor).style("stroke", legendBgColor).style("stroke-width", 2);
         for(let i=0; i<dict.length; i++) {
             const lineId = `#${dict[i][2]}`;
             const color: string = dict[i][1];
-            g.append("rect").attr("x", legendOffsetX + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10)
+            this.svg.append("rect").attr("x", legendOffsetX + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10)
                             .attr("width", squareLength).attr("height", squareLength)
                             .style("fill", color).style("stroke", color).style("stroke-width", 2)
                             .attr("id", `icon${dict[i][2]}`)
@@ -182,7 +180,7 @@ export default class StockHistoryItemsPresenterGraph {
                     d3Sender.style("fill", legendBgColor);
                 }
             });
-            g.append("text").attr("x", legendOffsetX + squareLength + 10 + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10 + 10)
+            this.svg.append("text").attr("x", legendOffsetX + squareLength + 10 + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10 + 10)
                             .style("fill", "black").text(dict[i][0]).attr("text-anchor", "left").style("alignment-baseline", "middle");
         }
     }

@@ -4,11 +4,11 @@ import Portofolio from "../entities/Portofolio";
 import TradeHistoryItem from "../entities/TradeHistoryItem";
 import "datatables.net"
 import MonteCarloSimulation from "../entities/MonteCarloSimulation";
-import MonteCarloSimulationGroup from "../entities/MonteCarloSimulationGroup";
 
 export default class PortofolioPresenter {
-    public static printResults(container: JQuery, portofolio: Portofolio): void {
-        const table: JQuery = $(`
+    public static printResults(container: HTMLDivElement, portofolio: Portofolio): void {
+        const table: HTMLTableElement = document.createElement("table");
+        /*`
         <table class="table table-striped">
             <thead>
                 <td>transaction no.</td>
@@ -21,7 +21,7 @@ export default class PortofolioPresenter {
                 <td>total equity</td>
             </thead>
             <tbody></tbody>
-        </table>`);
+        </table>`;
         let transactionNo = 1;
         portofolio.history.forEach((item: TradeHistoryItem) => {
             const styleColor: string = item.action.startsWith("BUY") ? "blue" : "red";
@@ -38,10 +38,11 @@ export default class PortofolioPresenter {
                 </tr>`);
               transactionNo++;
         });
-        container.append(table);
+        container.append(table);*/
     }
-    public static printSummary(container: JQuery, tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
-        const table: JQuery = $(`
+    public static printSummary(container: HTMLDivElement, tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
+        const table: HTMLTableElement = document.createElement("table");
+        /*`
         <table class="table table-striped">
             <thead>
                 <td>number of transactions</td>
@@ -52,7 +53,7 @@ export default class PortofolioPresenter {
                 <td>total equity</td>
             </thead>
             <tbody></tbody>
-        </table>`);
+        </table>`;
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
         table.children('tbody').append(`
             <tr>
@@ -63,10 +64,11 @@ export default class PortofolioPresenter {
                 <td>${portofolio.amountOfMoney.toFixed(2)}</td>
                 <td>${(portofolio.amountOfMoney + portofolio.numberOfShares * lastTimeValue.close).toFixed(2)}</td>
             </tr>`);
-        container.append(table);
+        container.append(table);*/
     }
-    public static printSummary2(container: JQuery<HTMLElement>, tradeData: Array<StockHistoryItem>, monteCarloSimulation: MonteCarloSimulation): void {
-        const table: JQuery<HTMLElement> = $(`
+    public static printSummary2(container: HTMLDivElement, tradeData: Array<StockHistoryItem>, monteCarloSimulation: MonteCarloSimulation): void {
+        const table: HTMLTableElement = document.createElement("table");
+        /*`
         <table style="width: 100%;">
             <thead>
                 <td>strategy</td>
@@ -77,7 +79,7 @@ export default class PortofolioPresenter {
                 <td>share price</td>
                 <td>available cash</td>
             </thead>
-        </table>`);
+        </table>`;
         let tbody: JQuery<HTMLElement>;
         let isAlternateRow = false;
         const lastTimeValue: StockHistoryItem = tradeData[tradeData.length - 1];
@@ -102,7 +104,7 @@ export default class PortofolioPresenter {
                     </tr>`);
             }
         }
-        container.append(table);
+        container.append(table);*/
     }
     public static drawEquityGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, portofolio: Portofolio, margin): void {
         const width: number = window.innerWidth - margin.left - margin.right;

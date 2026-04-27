@@ -1,4 +1,3 @@
-import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
 import "datatables.net"
 import * as d3 from "d3";
@@ -32,7 +31,7 @@ const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
         height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    const svg = d3.select("#chart").select("svg")
+    /*const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .call(d3.zoom()
@@ -47,72 +46,74 @@ function initGraphs(): void {
                 .scaleExtent([1, 5])
                 .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
                 .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+                .on("zoom", (event) => { svg.attr("transform", event.transform); }));*/
 }
 
-$(() => {
-    $.getJSON(`.\\tickersList.json`, (data) => {
-        $.each(data['tickers'], (index, value) => {
-            $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
+document.addEventListener("DOMContentLoaded", () => {
+    fetch(`.\\tickersList.json`)
+        .then(res => res.json())
+        .then(data => {
+            Array.prototype.forEach.call(data['tickers'], (currentValue, index, arr) => {
+                document.getElementById('ticker').append(new Option(data['tickers'][index].name, data['tickers'][index].symbol));
+            });
+        })
+        .catch(error => {
+            console.log(error.message);
         });
-    }).fail(() => {
-        console.log("Error while reading json");
-    }).always(() => {
-    });
-    $(document)
+    /*$(document)
     .ajaxStart(() => {
         $("#overlay").fadeIn();
     })
     .ajaxStop(() => {
         $("#overlay").fadeOut();
-    });
-    $("#ticker").on("change", () => {
-        const ticker: string = $("#ticker").val().toString();
-        $("#startingAmount").prop("disabled", true);
-        $("#numberOfSimulations").prop("disabled", true);
-        $("#action").prop("disabled", true);
-        $("#numberOfShares").prop("disabled", true);
-        $("#condition").prop("disabled", true);
-        $("#addStrategyBranch").prop("disabled", true);
-        $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
-            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawDayOpenGraph();
-            $("#startingAmount").prop("disabled", false);
-            $("#numberOfSimulations").prop("disabled", false);
-            $("#action").prop("disabled", false);
-            $("#numberOfShares").prop("disabled", false);
-            $("#condition").prop("disabled", false);
-            $("#addStrategyBranch").prop("disabled", false);
-        }).fail(() => {
-            console.log("Error while reading json");
-        }).always(() => {
-        });
+    });*/
+    document.getElementById("ticker").addEventListener("change", () => {
+        const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
+        document.getElementById("startingAmount").setAttribute("disabled", "disabled");
+        document.getElementById("numberOfSimulations").setAttribute("disabled", "disabled");
+        document.querySelector('[id^="action"]').setAttribute("disabled", "disabled");
+        document.querySelector('[id^="condition"]').setAttribute("disabled", "disabled");
+        document.getElementById("addStrategyBranch").setAttribute("disabled", "disabled");
+        fetch(`.\\alphavantage\\${ticker}.json`)
+            .then(res => res.json())
+            .then(data => {
+                tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
+                StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
+                const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+                const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+                graph.drawDayOpenGraph();
+                document.getElementById("startingAmount").removeAttribute("disabled");
+                document.getElementById("numberOfSimulations").removeAttribute("disabled");
+                document.querySelector('[id^="action"]').removeAttribute("disabled");
+                document.querySelector('[id^="condition"]').removeAttribute("disabled");
+                document.getElementById("addStrategyBranch").removeAttribute("disabled");
+            })
+            .catch(error => {
+                console.log(error.message);
+            });
     });
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     let strategy: Strategy = new Strategy();
-    $("#addStrategyBranch").on("click", () => {
+    document.getElementById("addStrategyBranch").addEventListener("click", () => {
         const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
         const action: Action = actionPresenter.read();
         const strategyBranch: StrategyBranch = new StrategyBranch(action, new CompositeCondition(binaryCondition));
         strategy.strategyBranches.push(strategyBranch);
-        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+        document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
         // REFACTORING
-        $("#actionRender").html(actionPresenter.render());
-        $("#conditionRender").html(`${binaryConditionPresenter.render()}`);
+        document.getElementById("actionRender").innerHTML = actionPresenter.render();
+        document.getElementById("conditionRender").innerHTML = `${binaryConditionPresenter.render()}`;
     });
-    $("#addStrategy").on("click", () => {
+    document.getElementById("addStrategy").addEventListener("click", () => {
         strategies.push(strategy);
-        $("#run").attr("value", `Run ${strategies.length} strategies`);
-        $("#globalStrategies").append(`<p>${strategy.toString()}</p>`);
-        $("#globalStrategies").append(`<hr/>`);
+        document.getElementById("run").setAttribute("value", `Run ${strategies.length} strategies`);
+        document.getElementById("globalStrategies").append(`<p>${strategy.toString()}</p>`);
+        document.getElementById("globalStrategies").append(`<hr/>`);
         strategy = new Strategy();
-        $("#globalStrategy").empty();
+        document.getElementById("globalStrategy").innerHTML = "";
     });
-    $("#run").on("click", () => {
+    document.getElementById("run").addEventListener("click", () => {
         const startingAmount = Number($("#startingAmount").val());
         const numberOfSimulations = Number($("#numberOfSimulations").val());
         const portofolios: Array<Portofolio> = new Array<Portofolio>();
@@ -137,36 +138,36 @@ $(() => {
                 monteCarloSimulationGroup.portofolios.push(portofolio);
             });
         }
-        const divSummary: JQuery<HTMLElement> = $(`
-        <div style='font-weight: bold;'>Best performing strategy (${monteCarloSimulation.bestPerformer[1]} times):<br/>${monteCarloSimulation.bestPerformer[0].toString()}</div>`);
-        $("#home").append(divSummary);
-        PortofolioPresenter.printSummary2($("#home"), tradeData, monteCarloSimulation);
+        const divSummary: HTMLDivElement = document.createElement("div");
+        divSummary.style.fontWeight = "bold";
+        divSummary.innerHTML = `Best performing strategy (${monteCarloSimulation.bestPerformer[1]} times):<br/>${monteCarloSimulation.bestPerformer[0].toString()}`;
+        document.getElementById("home").append(divSummary);
+        PortofolioPresenter.printSummary2((<HTMLDivElement>document.getElementById("home")), tradeData, monteCarloSimulation);
     });
     initGraphs();
-    $("#actionRender").html(actionPresenter.render());
-    $("#conditionRender").html(binaryConditionPresenter.render());
+    document.getElementById("actionRender").innerHTML = actionPresenter.render();
+    document.getElementById("conditionRender").innerHTML = binaryConditionPresenter.render();
     const urlParamStrategies = "strategies";
-    $("#getLink").on("click", () => {
+    document.getElementById("getLink").addEventListener("click", () => {
         let strategiesString = "";
         strategies.forEach(x => { strategiesString += `{${x.toCode()}}`; });
-        $("#link").val(window.location.href + "?" + urlParamStrategies + "=" + encodeURIComponent(strategiesString));
+        (<HTMLInputElement>document.getElementById("link")).setAttribute("value", window.location.href + "?" + urlParamStrategies + "=" + encodeURIComponent(strategiesString));
     });
     const searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has(urlParamStrategies)) {
 		const parser: StrategyParser = new StrategyParser();
-        $("#globalStrategies").empty();
+        document.getElementById("globalStrategies").innerHTML = "";
         (decodeURIComponent(searchParams.get(urlParamStrategies))).match(/\{(.*?)\}/g).forEach(strategyString => {
             const strategy: Strategy = parser.parse(strategyString.replace("{", "").replace("}", ""));
             strategy.simplify();
             strategies.push(strategy);
-            $("#run").attr("value", `Run ${strategies.length} strategies`);
-            $("#globalStrategies").append(`<p>${strategy.toString()}</p>`);
-            $("#globalStrategies").append(`<hr/>`);
+            document.getElementById("run").setAttribute("value", `Run ${strategies.length} strategies`);
+            document.getElementById("globalStrategies").append(`<p>${strategy.toString()}</p>`);
+            document.getElementById("globalStrategies").append(`<hr/>`);
         });
-        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
-        $("#run").prop("disabled", false);
+        document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
+        document.getElementById("run").removeAttribute("disabled");
     }
     // Build predefined
-    const links: string = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='#?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
-    $("#menu6").html(links);
+    document.getElementById("menu6").innerHTML = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='#?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
 });

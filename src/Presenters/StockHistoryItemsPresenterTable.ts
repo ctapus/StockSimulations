@@ -1,40 +1,109 @@
 import StockAndTradeHistoryItem from "../entities/StockAndTradeHistoryItem";
 
 export default class StockHistoryItemsPresenterTable {
-    public static printHistoricData(container: JQuery, tradeData: Array<StockAndTradeHistoryItem>): void {
-        const table: JQuery = $(`
-        <table class="table table-striped" style="width: 100%">
-            <thead style="position: sticky; inset-block-start: 0; background: #eee; border-bottom: 2px solid #ccc;">
-                <tr><td style="width: 110px">date</td>
-                    <td style="width: 80px; text-align: right;">open</td>
-                    <td style="width: 80px; text-align: right;">high</td>
-                    <td style="width: 80px; text-align: right;">low</td>
-                    <td style="width: 80px; text-align: right;">close</td>
-                    <td style="width: 80px; text-align: right;">volume</td>
-                    <td style="width: 80px; text-align: right;">52 weeks low</td>
-                    <td style="width: 80px; text-align: right;">52 weeks high</td>
-                    <td style="width: 80px; text-align: right;">10 days SMA</td>
-                    <td style="width: 80px; text-align: right;">20 days SMA</td>
-                    <td style="width: 80px; text-align: right;">50 days SMA</td>
-                    <td style="width: 80px; text-align: right;">100 days SMA</td>
-                    <td style="width: 80px; text-align: right;">200 days SMA</td>
-                    <td style="width: 80px; text-align: right;">10 days EMA</td>
-                    <td style="width: 80px; text-align: right;">20 days EMA</td>
-                    <td style="width: 80px; text-align: right;">50 days EMA</td>
-                    <td style="width: 80px; text-align: right;">100 days EMA</td>
-                    <td style="width: 80px; text-align: right;">200 days EMA</td>
-                    <td style="width: 80px; text-align: right;">14 days average gains/losses</td>
-                    <td style="width: 80px; text-align: right;">14 days RSI</td>
-                    <td style="width: 80px; text-align: right;">open variation</td>
-                    <td style="width: 10px"></td>
-                    <td style="width: 80px; text-align: right;">1 day variation</td>
-                    <td style="width: 80px; text-align: right;">2 days variation</td>
-                    <td style="width: 80px; text-align: right;">3 days variation</td>
-                    <td>trade</td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>`);
+    public static printHistoricData(container: HTMLElement, tradeData: Array<StockAndTradeHistoryItem>): void {
+        const table: HTMLTableElement = document.createElement("table");
+        table.classList.add("table", "table-striped");
+        table.style.width = "100%";
+        table.tHead.style = "position: sticky; inset-block-start: 0; background: #eee; border-bottom: 2px solid #ccc;";
+        const theadRow: HTMLTableRowElement = table.tHead.insertRow(-1);
+        const theadCell0: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell0.style.width = "110px";
+        theadCell0.innerHTML = "date";
+        const theadCell1: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell1.style.width = "80px";
+        theadCell1.style.textAlign = "right";
+        theadCell1.innerHTML = "open";
+        const theadCell2: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell2.style.width = "80px";
+        theadCell2.style.textAlign = "right";
+        theadCell2.innerHTML = "high";
+        const theadCell3: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell3.style.width = "80px";
+        theadCell3.style.textAlign = "right";
+        theadCell3.innerHTML = "low";
+        const theadCell4: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell4.style.width = "80px";
+        theadCell4.style.textAlign = "right";
+        theadCell4.innerHTML = "close";
+        const theadCell5: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell5.style.width = "80px";
+        theadCell5.style.textAlign = "right";
+        theadCell5.innerHTML = "volume";
+        const theadCell6: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell6.style.width = "80px";
+        theadCell6.style.textAlign = "right";
+        theadCell6.innerHTML = "52 weeks low";
+        const theadCell7: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell7.style.width = "80px";
+        theadCell7.style.textAlign = "right";
+        theadCell7.innerHTML = "52 weeks high";
+        const theadCell8: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell8.style.width = "80px";
+        theadCell8.style.textAlign = "right";
+        theadCell8.innerHTML = "10 days SMA";
+        const theadCell9: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell9.style.width = "80px";
+        theadCell9.style.textAlign = "right";
+        theadCell9.innerHTML = "20 days SMA";
+        const theadCell10: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell10.style.width = "80px";
+        theadCell10.style.textAlign = "right";
+        theadCell10.innerHTML = "50 days SMA";
+        const theadCell11: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell11.style.width = "80px";
+        theadCell11.style.textAlign = "right";
+        theadCell11.innerHTML = "100 days SMA";
+        const theadCell12: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell12.style.width = "80px";
+        theadCell12.style.textAlign = "right";
+        theadCell12.innerHTML = "200 days SMA";
+        const theadCell13: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell13.style.width = "80px";
+        theadCell13.style.textAlign = "right";
+        theadCell13.innerHTML = "10 days EMA";
+        const theadCell14: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell14.style.width = "80px";
+        theadCell14.style.textAlign = "right";
+        theadCell14.innerHTML = "20 days EMA";
+        const theadCell15: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell15.style.width = "80px";
+        theadCell15.style.textAlign = "right";
+        theadCell15.innerHTML = "50 days EMA";
+        const theadCell16: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell16.style.width = "80px";
+        theadCell16.style.textAlign = "right";
+        theadCell16.innerHTML = "100 days EMA";
+        const theadCell17: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell17.style.width = "80px";
+        theadCell17.style.textAlign = "right";
+        theadCell17.innerHTML = "200 days EMA";
+        const theadCell18: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell18.style.width = "80px";
+        theadCell18.style.textAlign = "right";
+        theadCell18.innerHTML = "14 days average gains/losses";
+        const theadCell19: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell19.style.width = "80px";
+        theadCell19.style.textAlign = "right";
+        theadCell19.innerHTML = "14 days RSI";
+        const theadCell20: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell20.style.width = "10px";
+        const theadCell21: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell21.style.width = "80px";
+        theadCell21.style.textAlign = "right";
+        theadCell21.innerHTML = "1 day variation";
+        const theadCell22: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell22.style.width = "80px";
+        theadCell22.style.textAlign = "right";
+        theadCell22.innerHTML = "2 days variation";
+        const theadCell23: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell23.style.width = "80px";
+        theadCell23.style.textAlign = "right";
+        theadCell23.innerHTML = "date";
+        const theadCell24: HTMLTableCellElement = theadRow.insertCell(-1);
+        theadCell24.style.width = "80px";
+        theadCell24.style.textAlign = "right";
+        theadCell24.innerHTML = "3 days variation";
         tradeData.forEach(item => {
             let variationIcon: string = "";
             if(item.openVariation > 100) {
@@ -43,39 +112,63 @@ export default class StockHistoryItemsPresenterTable {
             if(item.openVariation < 100) {
                 variationIcon = "<i style='color: red;' class='fas fa-arrow-down'></i>";
             }
-            table.children('tbody').append(`
-                <tr>
-                    <td>${item.date.toISOString().split('T')[0]}</td>
-                    <td>${item.open.toFixed(4)}</td>
-                    <td>${item.high.toFixed(4)}</td>
-                    <td>${item.low.toFixed(4)}</td>
-                    <td>${item.close.toFixed(4)}</td>
-                    <td>${item.volume}</td>
-                    <td>${item.low52Weeks == null ? "" : item.low52Weeks}</td>
-                    <td>${item.high52Weeks == null ? "" : item.high52Weeks}</td>
-                    <td>${item.sma10Days == null ? "" : item.sma10Days.toFixed(4)}</td>
-                    <td>${item.sma20Days == null ? "" : item.sma20Days.toFixed(4)}</td>
-                    <td>${item.sma50Days == null ? "" : item.sma50Days.toFixed(4)}</td>
-                    <td>${item.sma100Days == null ? "" : item.sma100Days.toFixed(4)}</td>
-                    <td>${item.sma200Days == null ? "" : item.sma200Days.toFixed(4)}</td>
-                    <td>${item.ema10Days == null ? "" : item.ema10Days.toFixed(4)}</td>
-                    <td>${item.ema20Days == null ? "" : item.ema20Days.toFixed(4)}</td>
-                    <td>${item.ema50Days == null ? "" : item.ema50Days.toFixed(4)}</td>
-                    <td>${item.ema100Days == null ? "" : item.ema100Days.toFixed(4)}</td>
-                    <td>${item.ema200Days == null ? "" : item.ema200Days.toFixed(4)}</td>
-                    <td>
+            const row: HTMLTableRowElement = table.insertRow(-1);
+            const cel0: HTMLTableCellElement = row.insertCell(-1);
+            cel0.innerHTML = `${item.date.toISOString().split('T')[0]}`;
+            const cel1: HTMLTableCellElement = row.insertCell(-1);
+            cel1.innerHTML = `${item.open.toFixed(4)}`;
+            const cel2: HTMLTableCellElement = row.insertCell(-1);
+            cel2.innerHTML = `${item.high.toFixed(4)}`;
+            const cel3: HTMLTableCellElement = row.insertCell(-1);
+            cel3.innerHTML = `${item.low.toFixed(4)}`;
+            const cel4: HTMLTableCellElement = row.insertCell(-1);
+            cel4.innerHTML = `${item.close.toFixed(4)}`;
+            const cel5: HTMLTableCellElement = row.insertCell(-1);
+            cel5.innerHTML = `${item.volume}`;
+            const cel6: HTMLTableCellElement = row.insertCell(-1);
+            cel6.innerHTML = `${item.low52Weeks == null ? "" : item.low52Weeks}`;
+            const cel7: HTMLTableCellElement = row.insertCell(-1);
+            cel7.innerHTML = `${item.high52Weeks == null ? "" : item.high52Weeks}`;
+            const cel8: HTMLTableCellElement = row.insertCell(-1);
+            cel8.innerHTML = `${item.sma10Days == null ? "" : item.sma10Days.toFixed(4)}`;
+            const cel9: HTMLTableCellElement = row.insertCell(-1);
+            cel9.innerHTML = `${item.sma20Days == null ? "" : item.sma20Days.toFixed(4)}`;
+            const cel10: HTMLTableCellElement = row.insertCell(-1);
+            cel10.innerHTML = `${item.sma50Days == null ? "" : item.sma50Days.toFixed(4)}`;
+            const cel11: HTMLTableCellElement = row.insertCell(-1);
+            cel11.innerHTML = `${item.sma100Days == null ? "" : item.sma100Days.toFixed(4)}`;
+            const cel12: HTMLTableCellElement = row.insertCell(-1);
+            cel12.innerHTML = `${item.sma200Days == null ? "" : item.sma200Days.toFixed(4)}`;
+            const cel13: HTMLTableCellElement = row.insertCell(-1);
+            cel13.innerHTML = `${item.ema10Days == null ? "" : item.ema10Days.toFixed(4)}`;
+            const cel14: HTMLTableCellElement = row.insertCell(-1);
+            cel14.innerHTML = `${item.ema20Days == null ? "" : item.ema20Days.toFixed(4)}`;
+            const cel15: HTMLTableCellElement = row.insertCell(-1);
+            cel15.innerHTML = `${item.ema50Days == null ? "" : item.ema50Days.toFixed(4)}`;
+            const cel16: HTMLTableCellElement = row.insertCell(-1);
+            cel16.innerHTML = `${item.ema100Days == null ? "" : item.ema100Days.toFixed(4)}`;
+            const cel17: HTMLTableCellElement = row.insertCell(-1);
+            cel17.innerHTML = `${item.ema200Days == null ? "" : item.ema200Days.toFixed(4)}`;
+            const cel18: HTMLTableCellElement = row.insertCell(-1);
+            cel18.innerHTML = `
                         ${item.averageGains14Days == null || item.averageGains14Days == undefined || item.averageGains14Days == 0 ? "" : "+" + item.averageGains14Days.toFixed(4)}
-                        ${item.averageLosses14Days == null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}
-                    </td>
-                    <td>${item.rsi14Days == null ? "" : item.rsi14Days.toFixed(4)}</td>
-                    <td>${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}</td>
-                    <td>${variationIcon}</td>
-                    <td>${item.oneDayVariation ? item.oneDayVariation.toFixed(4) + "%" : ""}</td>
-                    <td>${item.twoDaysVariation ? item.twoDaysVariation.toFixed(4) + "%" : ""}</td>
-                    <td>${item.threeDaysVariation ? item.threeDaysVariation.toFixed(4) + "%" : ""}</td>
-                    <td style="text-align: left;">${item.trade ? item.trade : ""}</td>
-                </tr>`);
-            });
-            container.append(table);
+                        ${item.averageLosses14Days == null || item.averageLosses14Days == undefined || item.averageLosses14Days == 0 ? "" : "-" + item.averageLosses14Days.toFixed(4)}`;
+            const cel19: HTMLTableCellElement = row.insertCell(-1);
+            cel19.innerHTML = `${item.rsi14Days == null ? "" : item.rsi14Days.toFixed(4)}`;
+            const cel20: HTMLTableCellElement = row.insertCell(-1);
+            cel20.innerHTML = `${item.openVariation ? item.openVariation.toFixed(4) + "%" : ""}`;
+            const cel22: HTMLTableCellElement = row.insertCell(-1);
+            cel22.innerHTML = `${variationIcon}`;
+            const cel23: HTMLTableCellElement = row.insertCell(-1);
+            cel23.innerHTML = `${item.oneDayVariation ? item.oneDayVariation.toFixed(4) + "%" : ""}`;
+            const cel24: HTMLTableCellElement = row.insertCell(-1);
+            cel24.innerHTML = `${item.twoDaysVariation ? item.twoDaysVariation.toFixed(4) + "%" : ""}`;
+            const cel25: HTMLTableCellElement = row.insertCell(-1);
+            cel25.innerHTML = `${item.threeDaysVariation ? item.threeDaysVariation.toFixed(4) + "%" : ""}`;
+            const cel26: HTMLTableCellElement = row.insertCell(-1);
+            cel26.innerHTML = `${item.trade ? item.trade : ""}`;
+            cel26.style.textAlign = "left";
+        });
+        container.append(table);
     }
 }

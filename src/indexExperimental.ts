@@ -1,4 +1,3 @@
-import * as $ from "jquery";
 import "jquery-ui/ui/widgets/tooltip";
 import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
@@ -33,7 +32,7 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    const svg = d3.select("#chart").select("svg")
+    /*const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .call(d3.zoom()
@@ -48,7 +47,7 @@ function initGraphs(): void {
                 .scaleExtent([1, 5])
                 .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
                 .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+                .on("zoom", (event) => { svg.attr("transform", event.transform); }));*/
 }
 function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
@@ -73,8 +72,8 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
     const startDate: Date = new Date($("#startDate").val().toString());
     const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
-    PortofolioPresenter.printResults($("#menu1"), portofolio);
-    PortofolioPresenter.printSummary($("#home"), tradeData, portofolio);
+    PortofolioPresenter.printResults((<HTMLDivElement>document.getElementById("menu1")), portofolio);
+    PortofolioPresenter.printSummary((<HTMLDivElement>document.getElementById("home")), tradeData, portofolio);
     drawTransactionsGraph(tradeData, portofolio);
     const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chartEquity").select("svg");
     PortofolioPresenter.drawEquityGraph(svgContainer, portofolio, margin);
@@ -83,23 +82,21 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
         const t: TradeHistoryItem = portofolio.history.find(x => x.date === item.date);
         item.trade = t ? `On ${t.date.toISOString().split('T')[0]} ${t.action} ${t.numberOfShares} shares for ${t.sharePrice}$ each. Total number of shares ${t.totalNumberOfShares}. Total Equity ${t.totalEquity}$. <br/>RULE: ${t.executionDescription}` : "";
     });
-    $("#menu2").empty();
-    StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
+    document.getElementById("menu2").innerHTML = "";
+    StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
 }
 function addStrategy(strategy: Strategy): void {
-    $("#run").prop("disabled", false);
+    document.getElementById("run").removeAttribute("disabled");
     const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
     const action: Action = actionPresenter.read();
     const strategyBranch: StrategyBranch = new StrategyBranch(action, new CompositeCondition(binaryCondition));
     strategy.strategyBranches.push(strategyBranch);
-    $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
+    document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
     // REFACTORING
-    $("#actionRender").empty();
-    $("#actionRender").html(actionPresenter.render());
-    $("#conditionRender").empty();
-    $("#conditionRender").html(`${binaryConditionPresenter.render()}`);
+    document.getElementById("actionRender").innerHTML = actionPresenter.render();
+    document.getElementById("conditionRender").innerHTML = `${binaryConditionPresenter.render()}`;
 }
-$(() => {
+document.addEventListener("DOMContentLoaded", () => {
     $.getJSON(`.\\tickersList.json`, (data) => {
         $.each(data['tickers'], (index, value) => {
             $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
@@ -117,14 +114,14 @@ $(() => {
     });
     let tradeData: Array<StockAndTradeHistoryItem>;
     let strategy: Strategy = new Strategy();
-    $("#ticker").on("change", () => {
-        const ticker: string = $("#ticker").val().toString();
-        $("#startDate").prop("disabled", true);
-        $("#startingAmount").prop("disabled", true);
+    document.getElementById("ticker").addEventListener("change", () => {
+        const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
+        document.getElementById("startDate").setAttribute("disabled", "disabled");
+        document.getElementById("startingAmount").setAttribute("disabled", "disabled");
         $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
             tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
             $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            StockHistoryItemsPresenterTable.printHistoricData($("#menu2"), tradeData);
+            StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
             const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
             const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
             graph.drawDayOpenGraph();
@@ -135,19 +132,19 @@ $(() => {
             graph.draw100DaysEMAGraph();
             graph.draw200DaysEMAGraph();
             graph.drawLegend();
-            $("#startDate").prop("disabled", false);
-            $("#startingAmount").prop("disabled", false);
+            document.getElementById("startDate").removeAttribute("disabled");
+            document.getElementById("startingAmount").removeAttribute("disabled");
         }).fail(() => {
             console.log("Error while reading json");
         }).always(() => {
         });
     });
-    $("#run").on("click", () => runStrategy(tradeData, strategy));
+    document.getElementById("run").addEventListener("click", () => runStrategy(tradeData, strategy));
     initGraphs();
     // REFACTORING
     const urlParamStrategy = "strategy";
-    $("#getLink").on("click", () => {
-        $("#link").val(window.location.href + "?" + urlParamStrategy + "=" + encodeURIComponent(strategy.toCode()));
+    document.getElementById("getLink").addEventListener("click", () => {
+        document.getElementById("link").setAttribute("value", window.location.href + "?" + urlParamStrategy + "=" + encodeURIComponent(strategy.toCode()));
     });
     const searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has(urlParamStrategy)) {
@@ -155,34 +152,34 @@ $(() => {
 		const parser: StrategyParser = new StrategyParser();
         strategy = parser.parse(decodeURIComponent(strategiesString));
         strategy.simplify();
-        $("#globalStrategy").html(`<p>${strategy.toString()}</p>`);
-        $("#run").prop("disabled", false);
+        document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
+        document.getElementById("run").removeAttribute("disabled");
     }
 
-    $("#iconIndicator").on("dragstart", (e) => {
+    /*document.getElementById("iconIndicator").addEventListener("dragstart", (e) => {
         e.originalEvent.dataTransfer.setData("text/plain", "indicator");
     });
-    $("#iconArithmeticOperator").on("dragstart", (e) => {
+    document.getElementById("iconArithmeticOperator").addEventListener("dragstart", (e) => {
         e.originalEvent.dataTransfer.setData("text/plain", "arithmeticOperator");
     });
-    $("#iconComparisonOperator").on("dragstart", (e) => {
+    document.getElementById("iconComparisonOperator").addEventListener("dragstart", (e) => {
         e.originalEvent.dataTransfer.setData("text/plain", "comparisonOperator");
     });
-    $("#iconNumber").on("dragstart", (e) => {
+    document.getElementById("iconNumber").addEventListener("dragstart", (e) => {
         e.originalEvent.dataTransfer.setData("text/plain", "number");
     });
-    $("#conditionRender").on("dragenter", (e) => {
+    document.getElementById("conditionRender").addEventListener("dragenter", (e) => {
         e.preventDefault();
         e.target.style.backgroundColor = "SkyBlue";
     });
-    $("#conditionRender").on("dragover", (e) => {
+    document.getElementById("conditionRender").addEventListener("dragover", (e) => {
         e.preventDefault();
         e.target.style.backgroundColor = "SkyBlue";
     });
-    $("#conditionRender").on("dragleave", (e) => {
+    document.getElementById("conditionRender").addEventListener("dragleave", (e) => {
         e.target.style.backgroundColor = "Azure";
     });
-    $("#conditionRender").on("drop", (e) => {
+    document.getElementById("conditionRender").addEventListener("drop", (e) => {
         e.target.style.backgroundColor = "Azure";
         const dt: string = e.originalEvent.dataTransfer.getData("text/plain");
         if(dt === "indicator") {
@@ -204,8 +201,8 @@ $(() => {
             e.target.appendChild(input);
         }
     });
-    $("#addStrategyBranch").on("click", () => {
-        $("#conditionRender").children().each(() => {
+    document.getElementById("addStrategyBranch").addEventListener("click", () => {
+        document.getElementById("conditionRender").children().each(() => {
             console.log($(this));
             console.log($(this).data('data-glyph-type'));
             console.log($(this).attr('data-glyph-type'));
@@ -216,5 +213,5 @@ $(() => {
             console.log((child as HTMLElement).dataset.glyphType);
         }
         //addStrategy(strategy)
-    });
+    });*/
 });
