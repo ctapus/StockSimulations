@@ -66,6 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .ajaxStop(() => {
         $("#overlay").fadeOut();
     });*/
+    let tradeData: Array<StockAndTradeHistoryItem>;
+    const strategies: Array<Strategy> = new Array<Strategy>();
+    let strategy: Strategy = new Strategy();
     document.getElementById("ticker").addEventListener("change", () => {
         const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
         document.getElementById("startingAmount").setAttribute("disabled", "disabled");
@@ -91,9 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log(error.message);
             });
     });
-    let tradeData: Array<StockAndTradeHistoryItem>;
-    const strategies: Array<Strategy> = new Array<Strategy>();
-    let strategy: Strategy = new Strategy();
     document.getElementById("addStrategyBranch").addEventListener("click", () => {
         const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
         const action: Action = actionPresenter.read();
@@ -102,13 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
         // REFACTORING
         document.getElementById("actionRender").innerHTML = actionPresenter.render();
-        document.getElementById("conditionRender").innerHTML = `${binaryConditionPresenter.render()}`;
+        document.getElementById("conditionRender").innerHTML = binaryConditionPresenter.render();
     });
     document.getElementById("addStrategy").addEventListener("click", () => {
+        if(null == strategy.strategyBranches) {
+            return;
+        }
         strategies.push(strategy);
         document.getElementById("run").setAttribute("value", `Run ${strategies.length} strategies`);
-        document.getElementById("globalStrategies").append(`<p>${strategy.toString()}</p>`);
-        document.getElementById("globalStrategies").append(`<hr/>`);
+        const p: HTMLParagraphElement = document.createElement("p");
+        p.innerHTML = strategy.toString();
+        document.getElementById("globalStrategies").append(p);
+        document.getElementById("globalStrategies").append(document.createElement("hr"));
         strategy = new Strategy();
         document.getElementById("globalStrategy").innerHTML = "";
     });
@@ -166,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("globalStrategies").append(p);
             document.getElementById("globalStrategies").append(document.createElement("hr"));
         });
-        document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
         document.getElementById("run").removeAttribute("disabled");
     }
     // Build predefined

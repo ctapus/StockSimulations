@@ -6,6 +6,10 @@ import StockHistoryItemsPresenterTable from "./Presenters/StockHistoryItemsPrese
 import StockHistoryItemsPresenterGraph from "./Presenters/StockHistoryItemsPresenterGraph";
 import BinaryConditionPresenter from "./Presenters/BinaryConditionPresenter";
 import ActionPresenter from "./Presenters/ActionPresenter";
+import BinaryCondition from "./entities/BinaryCondition";
+import Action from "./entities/Action";
+import StrategyBranch from "./entities/StrategyBranch";
+import CompositeCondition from "./entities/CompositeCondition";
 import * as d3 from "d3";
 
 interface TimeSelector {
@@ -40,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });*/
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
-    strategies.push(new Strategy());
+    let strategy: Strategy = new Strategy();
     document.getElementById("ticker").addEventListener("change", () => {
         let ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
         document.getElementById("startDate").setAttribute("disabled", "disabled");
@@ -61,39 +65,41 @@ document.addEventListener("DOMContentLoaded", () => {
                 graph.draw100DaysEMAGraph();
                 graph.draw200DaysEMAGraph();
                 graph.drawLegend();
-                $("#startDate").prop("disabled", false);
-                $("#startingAmount").prop("disabled", false);
+                document.getElementById("startDate").removeAttribute("disabled");
+                document.getElementById("startingAmount").removeAttribute("disabled");
             })
             .catch(error => {
                 console.log(error.message);
             });
     });
-    document.getElementById("newStrategy").addEventListener("click", function() {
-        strategies.push(new Strategy());
-        document.getElementById("globalStrategies").append(`<hr/>`);
-    });
     document.getElementById("addStrategyBranch").addEventListener("click", function() {
-        /*$("#run").prop("disabled", false);
-        let action: string = $("#action option:selected").val().toString();
-        let numberOfSharesOrPercentage: number = Number($("#numberOfSharesOrPercentage").val());
-        let condition: string = $("#condition option:selected").val().toString();
-        let thresholdValue: number = Number($("#thresholdValue").val());
-        const strategyBranch: StrategyBranch = new StrategyBranch(
-                                                    new TradeCondition(tradeConditionTemplates[condition], thresholdValue), new TradeAction(tradeActionTemplates[action], numberOfSharesOrPercentage),
-                                                    tradeConditionTemplates[condition].instanceDescription, tradeActionTemplates[action].instanceDescription);
-        strategies[strategies.length - 1].strategyBranches.push(strategyBranch);
-        let strategiesDescription: string = "";
-        strategies.forEach((strategy: Strategy) => {
-            strategiesDescription += `<p>${strategy.toString()}</p><hr/>`;
-        });
-        $("#globalStrategies").html(strategiesDescription);*/
+        const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
+        const action: Action = actionPresenter.read();
+        const strategyBranch: StrategyBranch = new StrategyBranch(action, new CompositeCondition(binaryCondition));
+        strategy.strategyBranches.push(strategyBranch);
+        document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
+        // REFACTORING
+        document.getElementById("actionRender").innerHTML = actionPresenter.render();
+        document.getElementById("conditionRender").innerHTML = binaryConditionPresenter.render();
+    });
+    document.getElementById("addStrategy").addEventListener("click", function() {
+        if(null == strategy.strategyBranches) {
+            return;
+        }
+        strategies.push(strategy);
+        const p: HTMLParagraphElement = document.createElement("p");
+        p.innerHTML = strategy.toString();
+        document.getElementById("globalStrategies").append(p);
+        document.getElementById("globalStrategies").append(document.createElement("hr"));
+        strategy = new Strategy();
+        document.getElementById("globalStrategy").innerHTML = "";
     });
     document.getElementById("run").addEventListener("click", function() {
-        const startingAmount = Number($("#startingAmount").val());
-        const startDate: Date = new Date($("#startDate").val().toString());
+        const startingAmount = Number((<HTMLInputElement>document.getElementById("startingAmount")).value);
+        const startDate: Date = new Date((<HTMLInputElement>document.getElementById("startDate")).value.toString());
         document.getElementById("globalStrategies").innerHTML = "";
         strategies.forEach((strategy:Strategy) => {
-            $("#globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
+            document.getElementById("globalStrategies").append(`<p>${strategy.toString()}</p><br/>`);
             const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
             strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
             const firstTimeValue: StockHistoryItem = tradeData[0];

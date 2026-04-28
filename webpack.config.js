@@ -28,13 +28,6 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-      new webpack.ProvidePlugin({
-          $: 'jquery',
-          jQuery: 'jquery',
-          jquery: 'jquery'
-      })
-  ],
   devServer: {
       compress: true,
       host: process.env.HOST,
