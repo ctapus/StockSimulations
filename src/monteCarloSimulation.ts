@@ -71,8 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
         document.getElementById("startingAmount").setAttribute("disabled", "disabled");
         document.getElementById("numberOfSimulations").setAttribute("disabled", "disabled");
-        document.querySelector('[id^="action"]').setAttribute("disabled", "disabled");
-        document.querySelector('[id^="condition"]').setAttribute("disabled", "disabled");
+        document.querySelectorAll('[id^="action"]').forEach(value => value.setAttribute("disabled", "disabled"));
+        document.querySelectorAll('[id^="condition"]').forEach(value => value.setAttribute("disabled", "disabled"));
         document.getElementById("addStrategyBranch").setAttribute("disabled", "disabled");
         fetch(`.\\alphavantage\\${ticker}.json`)
             .then(res => res.json())
@@ -84,8 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 graph.drawDayOpenGraph();
                 document.getElementById("startingAmount").removeAttribute("disabled");
                 document.getElementById("numberOfSimulations").removeAttribute("disabled");
-                document.querySelector('[id^="action"]').removeAttribute("disabled");
-                document.querySelector('[id^="condition"]').removeAttribute("disabled");
+                document.querySelectorAll('[id^="action"]').forEach(value => value.removeAttribute("disabled"));
+                document.querySelectorAll('[id^="condition"]').forEach(value => value.removeAttribute("disabled"));
                 document.getElementById("addStrategyBranch").removeAttribute("disabled");
             })
             .catch(error => {

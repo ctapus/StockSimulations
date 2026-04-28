@@ -44,21 +44,21 @@ export default class StockHistoryItem {
     }
     public static loadFromAlphavantage(data: any):Array<StockHistoryItem> {
         const ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
-        $.each(data["Time Series (Daily)"], (index, value) =>{
+        Object.entries(data["Time Series (Daily)"]).forEach(element => {
             const tradeData: StockHistoryItem = new StockHistoryItem();
-            tradeData.date = new Date(index.toString());
-            tradeData.open = Number(data["Time Series (Daily)"][index]["1. open"]);
-            tradeData.high = Number(data["Time Series (Daily)"][index]["2. high"]);
-            tradeData.low = Number(data["Time Series (Daily)"][index]["3. low"]);
-            tradeData.close = Number(data["Time Series (Daily)"][index]["4. close"]);
-            tradeData.volume = Number(data["Time Series (Daily)"][index]["6. volume"]);
+            tradeData.date = new Date(element[0].toString());
+            tradeData.open = Number(element[1]["1. open"]);
+            tradeData.high = Number(element[1]["2. high"]);
+            tradeData.low = Number(element[1]["3. low"]);
+            tradeData.close = Number(element[1]["4. close"]);
+            tradeData.volume = Number(element[1]["6. volume"]);
             ret.push(tradeData);
         });
         let previousDayTrade: StockHistoryItem = null;
         ret.sort((a, b) => a.date.getTime() - b.date.getTime());
-        $.each(ret, (index, value) => {
-            ret[index].previousDay = previousDayTrade;
-            previousDayTrade = ret[index];
+        Array.prototype.forEach.call(ret, (currentValue, index, arr) => {
+            currentValue.previousDay = previousDayTrade;
+            previousDayTrade = currentValue;
         });
         const indicator: Indicators = new Indicators(ret, (stockHistoryItem: StockHistoryItem) => { return stockHistoryItem.open; });
         // TODO: investigate running all in the same loop to improve performance

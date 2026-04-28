@@ -5,6 +5,7 @@ export default class StockHistoryItemsPresenterTable {
         const table: HTMLTableElement = document.createElement("table");
         table.classList.add("table", "table-striped");
         table.style.width = "100%";
+        table.createTHead();
         table.tHead.style = "position: sticky; inset-block-start: 0; background: #eee; border-bottom: 2px solid #ccc;";
         const theadRow: HTMLTableRowElement = table.tHead.insertRow(-1);
         const theadCell0: HTMLTableCellElement = theadRow.insertCell(-1);
@@ -104,6 +105,7 @@ export default class StockHistoryItemsPresenterTable {
         theadCell24.style.width = "80px";
         theadCell24.style.textAlign = "right";
         theadCell24.innerHTML = "3 days variation";
+        table.createTBody();
         tradeData.forEach(item => {
             let variationIcon: string = "";
             if(item.openVariation > 100) {
