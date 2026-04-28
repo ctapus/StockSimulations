@@ -1,4 +1,3 @@
-import "jquery-ui/ui/widgets/tooltip";
 import "datatables.net"
 import * as d3 from "d3";
 import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";
@@ -114,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("globalStrategy").innerHTML = "";
     });
     document.getElementById("run").addEventListener("click", () => {
-        const startingAmount = Number($("#startingAmount").val());
-        const numberOfSimulations = Number($("#numberOfSimulations").val());
+        const startingAmount = Number((<HTMLInputElement>document.getElementById("startingAmount")).value);
+        const numberOfSimulations = Number((<HTMLInputElement>document.getElementById("numberOfSimulations")).value);
         const portofolios: Array<Portofolio> = new Array<Portofolio>();
         const firstTradingDay: Date = tradeData[0].date;
         const lastTradingDay: Date = tradeData[tradeData.length - 1].date;
@@ -162,12 +161,14 @@ document.addEventListener("DOMContentLoaded", () => {
             strategy.simplify();
             strategies.push(strategy);
             document.getElementById("run").setAttribute("value", `Run ${strategies.length} strategies`);
-            document.getElementById("globalStrategies").append(`<p>${strategy.toString()}</p>`);
-            document.getElementById("globalStrategies").append(`<hr/>`);
+            const p: HTMLParagraphElement = document.createElement("p");
+            p.innerHTML = strategy.toString();
+            document.getElementById("globalStrategies").append(p);
+            document.getElementById("globalStrategies").append(document.createElement("hr"));
         });
         document.getElementById("globalStrategy").innerHTML = `<p>${strategy.toString()}</p>`;
         document.getElementById("run").removeAttribute("disabled");
     }
     // Build predefined
-    document.getElementById("menu6").innerHTML = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='#?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
+    document.getElementById("menu6").innerHTML = PredefinedStrategies.multipleStrategies.map(x => `<br/><a href='?strategies=${encodeURIComponent(x[0])}'>${x[1]}</a>`).reduce((p, c) => p + c);
 });
