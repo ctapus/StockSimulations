@@ -22,9 +22,11 @@ interface TimeSelector {
     (tradeDate: StockHistoryItem, startDate: Date): boolean;
 }
 const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startDate: Date): boolean => { return tradeDate.date >= startDate; };
-
 const binaryConditionPresenter: BinaryConditionPresenter = new BinaryConditionPresenter("binaryCondition");
 const actionPresenter: ActionPresenter = new ActionPresenter("action");
+let tradeData: Array<StockAndTradeHistoryItem>;
+const strategies: Array<Strategy> = new Array<Strategy>();
+let strategy: Strategy = new Strategy();
 
 const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         width = window.innerWidth - margin.left - margin.right,
@@ -52,48 +54,47 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`.\\tickersList.json`)
         .then(res => res.json())
         .then(data => {
+            const tickerList: HTMLSelectElement = (<HTMLSelectElement>document.getElementById('ticker'));
             Array.prototype.forEach.call(data['tickers'], (currentValue, index, arr) => {
-                document.getElementById('ticker').append(new Option(data['tickers'][index].name, data['tickers'][index].symbol));
+                const option: HTMLOptionElement = document.createElement("option");
+                option.value = data['tickers'][index].symbol;
+                option.text = data['tickers'][index].name;
+                tickerList.append(option);
+            });
+            tickerList.addEventListener("change", () => {
+                const overlay: HTMLDivElement = (<HTMLDivElement>document.getElementById('overlay'));
+                overlay.style.display = "block";
+                const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
+                document.getElementById("startingAmount").setAttribute("disabled", "disabled");
+                document.getElementById("numberOfSimulations").setAttribute("disabled", "disabled");
+                document.querySelectorAll('[id^="action"]').forEach(value => value.setAttribute("disabled", "disabled"));
+                document.querySelectorAll('[id^="condition"]').forEach(value => value.setAttribute("disabled", "disabled"));
+                document.getElementById("addStrategyBranch").setAttribute("disabled", "disabled");
+                fetch(`.\\alphavantage\\${ticker}.json`)
+                    .then(res => res.json())
+                    .then(data => {
+                        tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
+                        StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
+                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+                        const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+                        graph.drawDayOpenGraph();
+                        document.getElementById("startingAmount").removeAttribute("disabled");
+                        document.getElementById("numberOfSimulations").removeAttribute("disabled");
+                        document.querySelectorAll('[id^="action"]').forEach(value => value.removeAttribute("disabled"));
+                        document.querySelectorAll('[id^="condition"]').forEach(value => value.removeAttribute("disabled"));
+                        document.getElementById("addStrategyBranch").removeAttribute("disabled");
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                    })
+                    .finally(() => {
+                        overlay.style.display = "none";
+                    });
             });
         })
         .catch(error => {
             console.log(error.message);
         });
-    /*$(document)
-    .ajaxStart(() => {
-        $("#overlay").fadeIn();
-    })
-    .ajaxStop(() => {
-        $("#overlay").fadeOut();
-    });*/
-    let tradeData: Array<StockAndTradeHistoryItem>;
-    const strategies: Array<Strategy> = new Array<Strategy>();
-    let strategy: Strategy = new Strategy();
-    document.getElementById("ticker").addEventListener("change", () => {
-        const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
-        document.getElementById("startingAmount").setAttribute("disabled", "disabled");
-        document.getElementById("numberOfSimulations").setAttribute("disabled", "disabled");
-        document.querySelectorAll('[id^="action"]').forEach(value => value.setAttribute("disabled", "disabled"));
-        document.querySelectorAll('[id^="condition"]').forEach(value => value.setAttribute("disabled", "disabled"));
-        document.getElementById("addStrategyBranch").setAttribute("disabled", "disabled");
-        fetch(`.\\alphavantage\\${ticker}.json`)
-            .then(res => res.json())
-            .then(data => {
-                tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-                StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
-                const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-                const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-                graph.drawDayOpenGraph();
-                document.getElementById("startingAmount").removeAttribute("disabled");
-                document.getElementById("numberOfSimulations").removeAttribute("disabled");
-                document.querySelectorAll('[id^="action"]').forEach(value => value.removeAttribute("disabled"));
-                document.querySelectorAll('[id^="condition"]').forEach(value => value.removeAttribute("disabled"));
-                document.getElementById("addStrategyBranch").removeAttribute("disabled");
-            })
-            .catch(error => {
-                console.log(error.message);
-            });
-    });
     document.getElementById("addStrategyBranch").addEventListener("click", () => {
         const binaryCondition: BinaryCondition = binaryConditionPresenter.read();
         const action: Action = actionPresenter.read();
