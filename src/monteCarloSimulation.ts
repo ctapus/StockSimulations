@@ -28,26 +28,16 @@ let tradeData: Array<StockAndTradeHistoryItem>;
 const strategies: Array<Strategy> = new Array<Strategy>();
 let strategy: Strategy = new Strategy();
 
-const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
-        width = window.innerWidth - margin.left - margin.right,
-        height = window.innerHeight - margin.top - margin.bottom;
+const margin = { top: 50, right: 50, bottom: 50, left: 50 },
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    /*const svg = d3.select("#chart").select("svg")
+    const svg = d3.select("chart").select("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom()
-                .scaleExtent([1, 5])
-                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
-                .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
-    const svg2 = d3.select("#chartEquity").select("svg")
+        .attr("height", height + margin.top + margin.bottom);
+    const svg2 = d3.select("chartEquity").select("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom()
-                .scaleExtent([1, 5])
-                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
-                .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));*/
+        .attr("height", height + margin.top + margin.bottom);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -57,8 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const tickerList: HTMLSelectElement = (<HTMLSelectElement>document.getElementById('ticker'));
             Array.prototype.forEach.call(data['tickers'], (currentValue, index, arr) => {
                 const option: HTMLOptionElement = document.createElement("option");
-                option.value = data['tickers'][index].symbol;
-                option.text = data['tickers'][index].name;
+                option.value = currentValue.symbol;
+                option.text = currentValue.name;
                 tickerList.append(option);
             });
             tickerList.addEventListener("change", () => {
@@ -75,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then(data => {
                         tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
                         StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
-                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
+                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chart").select("svg");
                         const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
                         graph.drawDayOpenGraph();
                         document.getElementById("startingAmount").removeAttribute("disabled");
@@ -156,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("getLink").addEventListener("click", () => {
         let strategiesString = "";
         strategies.forEach(x => { strategiesString += `{${x.toCode()}}`; });
-        (<HTMLInputElement>document.getElementById("link")).setAttribute("value", window.location.href + "?" + urlParamStrategies + "=" + encodeURIComponent(strategiesString));
+        (<HTMLInputElement>document.getElementById("link")).value = window.location.href + "?" + urlParamStrategies + "=" + encodeURIComponent(strategiesString);
     });
     const searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has(urlParamStrategies)) {
@@ -166,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const strategy: Strategy = parser.parse(strategyString.replace("{", "").replace("}", ""));
             strategy.simplify();
             strategies.push(strategy);
-            document.getElementById("run").setAttribute("value", `Run ${strategies.length} strategies`);
+            (<HTMLButtonElement>document.getElementById("run")).value = `Run ${strategies.length} strategies`;
             const p: HTMLParagraphElement = document.createElement("p");
             p.innerHTML = strategy.toString();
             document.getElementById("globalStrategies").append(p);
