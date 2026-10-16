@@ -141,7 +141,7 @@ export default class PortofolioPresenter {
         }
         container.append(table);
     }
-    public static drawEquityGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, portofolio: Portofolio, margin): void {
+    public static drawEquityGraph(svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, portofolio: Portofolio, margin: { top: number; right: number; bottom: number; left: number }): void {
         const width: number = window.innerWidth - margin.left - margin.right;
         const height: number = window.innerHeight - margin.top - margin.bottom;
         const xScale = d3.scaleTime().domain(d3.extent<TradeHistoryItem, Date>(portofolio.history, d => { return d.date; })).range([0, width]);

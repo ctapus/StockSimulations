@@ -22,24 +22,17 @@ const   margin = { top: 50, right: 50, bottom: 50, left: 50 },
         height = window.innerHeight - margin.top - margin.bottom;
 
 document.addEventListener("DOMContentLoaded", () => {
-    /*$(document)
-    .ajaxStart(function () {
-        $('#overlay').fadeIn();
-    })
-    .ajaxStop(function () {
-        $('#overlay').fadeOut();
-    });*/
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategy: Strategy = new Strategy();
     document.getElementById("ticker").addEventListener("change", () => {
-        const ticker: string = $("#ticker").val().toString();
+        const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
         document.getElementById("startDate").setAttribute("disabled", "disabled")
         document.getElementById("startingAmount").setAttribute("disabled", "disabled")
         fetch(`.\\alphavantage\\${ticker}.json`)
             .then(res => res.json())
             .then(data => {
                 tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-                $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
+                (<HTMLInputElement>document.getElementById("startDate")).value = tradeData[0].date.toISOString().split('T')[0];
                 StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
                 const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
                 const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);

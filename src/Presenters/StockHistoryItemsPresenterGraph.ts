@@ -165,21 +165,24 @@ export default class StockHistoryItemsPresenterGraph {
             const lineId = `#${dict[i][2]}`;
             const color: string = dict[i][1];
             this.svg.append("rect").attr("x", legendOffsetX + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10)
-                            .attr("width", squareLength).attr("height", squareLength)
-                            .style("fill", color).style("stroke", color).style("stroke-width", 2)
-                            .attr("id", `icon${dict[i][2]}`)
-            .on("click", (sender) => {
-                const d3Sender: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select(`#${sender.currentTarget.id}`);
-                const opacity = Number(d3.select(lineId).style("opacity"));
-                if(0 === opacity) {
-                    d3.select(lineId).style("opacity", 1);
-                    d3Sender.style("fill", color);
-                }
-                else {
-                    d3.select(lineId).style("opacity", 0);
-                    d3Sender.style("fill", legendBgColor);
-                }
-            });
+                    .attr("width", squareLength)
+                    .attr("height", squareLength)
+                    .style("fill", color)
+                    .style("stroke", color)
+                    .style("stroke-width", 2)
+                    .attr("id", `icon${dict[i][2]}`)
+                    .on("click", (sender) => {
+                        const d3Sender = d3.select(sender.currentTarget as HTMLElement);
+                        const opacity = Number(d3.select(lineId).style("opacity"));
+                        if(0 === opacity) {
+                            d3.select(lineId).style("opacity", 1);
+                            d3Sender.style("fill", color);
+                        }
+                        else {
+                            d3.select(lineId).style("opacity", 0);
+                            d3Sender.style("fill", legendBgColor);
+                        }
+                    });
             this.svg.append("text").attr("x", legendOffsetX + squareLength + 10 + 10).attr("y", legendOffsetY + i * (squareLength + 10) + 10 + 10)
                             .style("fill", "black").text(dict[i][0]).attr("text-anchor", "left").style("alignment-baseline", "middle");
         }

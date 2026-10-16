@@ -4,13 +4,13 @@
     <title>Stocks history</title>
     <link rel="stylesheet" href="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.css" />
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.13.0/css/all.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.1/css/all.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" />
     <script src="//code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.js"></script>
     <script src="//d3js.org/d3.v6.min.js"></script>
-    <script src="./scripts/index.js?v=1"></script>
+    <script src="./src/indexExperimental.ts"></script>
     <meta name="viewport" content="width=device-width">
     <style>
         body{
@@ -22,6 +22,16 @@
         }
         #strategies {
             background-color: lavenderblush;
+        }
+        #dragableIcon {
+            display: inline-block;
+            text-align: center;
+            border-radius: 3px;
+            background-color: aliceblue;
+            font-size: 16px;
+            color: darkblue;
+            margin: 4px 2px;
+            padding: 20px;
         }
         .table{
             width:50%;
@@ -102,8 +112,18 @@
         </thead>
         <tbody>
             <tr>
-                <td id="actionRender"></td>
-                <td id="conditionRender"></td>
+                <td></td>
+                <td>
+                    <button class="dragableIcon"><i class="fa-solid fa-arrow-trend-up" id="iconIndicator" draggable="true"></i>&nbsp;</button>
+                    <button class="dragableIcon"><i id="iconArithmeticOperator" draggable="true">+-*/</i>&nbsp;</button>
+                    <button class="dragableIcon"><i id="iconComparisonOperator" draggable="true">&lt;&gt;=</i>&nbsp;</button>
+                    <button class="dragableIcon"><i id="iconNumber" draggable="true">n</i>&nbsp;</button>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td id="actionRender" style="background-color: cadetblue;"></td>
+                <td id="conditionRender" style="background-color: cadetblue;"></td>
                 <td><input type="button" id="addStrategyBranch" class="btn btn-info" value="Add strategy" /></td>
             </tr>
         </tbody>
@@ -132,12 +152,6 @@
         <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#menu5">Share</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#menu6">Experimental Graph</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#menu7">Predefined</a>
-        </li>
     </ul>
     <div class="tab-content">
         <div id="home" class="tab-pane active">
@@ -159,13 +173,6 @@
         <div id="menu5" class="tab-pane">
             <input type="button" id="getLink" class="btn btn-info" value="Generate Link" /><br />
             <textarea id="link" rows="5" cols="160"></textarea>
-        </div>
-        <div id="menu6" class="tab-pane">
-            <div id="chartExperimental">
-                <svg></svg>
-            </div>
-        </div>
-        <div id="menu7" class="tab-pane">
         </div>
     </div>
 </body>

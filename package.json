@@ -1,40 +1,21 @@
 {
-  "name": "misc",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "stocksimulations",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "webpack serve",
-    "build": "webpack --mode production",
-    "build-dev": "webpack --mode development",
-    "test": "mocha"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "npm": "^11.13.0"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.2.10",
-    "@types/chai": "^5.2.3",
+    "@types/bootstrap": "^5.2.11",
     "@types/d3": "^7.4.3",
-    "@types/datatables.net": "^1.12.3",
-    "@types/jest": "^30.0.0",
-    "@types/mocha": "^10.0.10",
-    "@typescript-eslint/eslint-plugin": "^8.59.0",
-    "@typescript-eslint/parser": "^8.59.0",
+    "@types/node": "^26.6.5",
     "bootstrap": "^5.3.8",
-    "chai": "^6.2.2",
     "d3": "^7.9.0",
-    "datatables.net": "^2.3.7",
-    "eslint": "^10.2.1",
-    "jest": "^30.3.0",
-    "mocha": "^11.7.5",
-    "ts-loader": "^9.5.7",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3",
-    "webpack": "^5.106.2",
-    "webpack-cli": "^7.0.2",
-    "webpack-dev-server": "^5.2.3"
+    "datatables.net": "^3.1.4",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
   }
 }

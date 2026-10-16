@@ -1,5 +1,3 @@
-import "jquery-ui/ui/widgets/tooltip";
-import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
 import TradeHistoryItem from "./entities/TradeHistoryItem";
 import StockAndTradeHistoryItem from "./entities/StockAndTradeHistoryItem";

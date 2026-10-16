@@ -1,5 +1,13 @@
 import Indicators from "./Indicators";
 
+interface AlphavantageDayData {
+    "1. open": string;
+    "2. high": string;
+    "3. low": string;
+    "4. close": string;
+    "5. volume"?: string; // Optional depending on standard vs adjusted endpoint
+    "6. volume"?: string;
+}
 export default class StockHistoryItem {
     public date: Date;
     public open: number;
@@ -44,7 +52,8 @@ export default class StockHistoryItem {
     }
     public static loadFromAlphavantage(data: any):Array<StockHistoryItem> {
         const ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
-        Object.entries(data["Time Series (Daily)"]).forEach(element => {
+        const entries = Object.entries(data["Time Series (Daily)"]) as [string, AlphavantageDayData][];
+        entries.forEach(element => {
             const tradeData: StockHistoryItem = new StockHistoryItem();
             tradeData.date = new Date(element[0].toString());
             tradeData.open = Number(element[1]["1. open"]);

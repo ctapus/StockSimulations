@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Monte Carlo simulation</title>
-    <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
+    <title>Stocks history</title>
+    <link rel="stylesheet" href="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.css" />
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.13.0/css/all.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous" />
     <script src="//code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="//cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.js"></script>
     <script src="//d3js.org/d3.v6.min.js"></script>
-    <script src="./scripts/monteCarloSimulation.js?v=1"></script>
+    <script type="module" src="./src/index.ts"></script>
+    <meta name="viewport" content="width=device-width">
     <style>
         body{
             background-color: lightgrey;
@@ -31,6 +32,7 @@
             position: fixed;
             height: 100%;
             width: 100%;
+            z-index: 5000;
             top: 0;
             left: 0;
             float: left;
@@ -76,18 +78,18 @@
         </tr>
         <tr>
             <td>
-                <label for="startingAmount">Starting amount: </label>
+                <label for="startDate">Starting date:</label>
             </td>
             <td>
-                <input type="text" id="startingAmount" value="5000" disabled />
+                <input type="date" id="startDate" disabled />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="numberOfSimulations">Number of simulations: </label>
+                <label for="startingAmount">Starting amount: </label>
             </td>
             <td>
-                <input type="text" id="numberOfSimulations" value="50" disabled />
+                <input type="text" id="startingAmount" value="5000" disabled />
             </td>
         </tr>
     </table>
@@ -102,21 +104,13 @@
             <tr>
                 <td id="actionRender"></td>
                 <td id="conditionRender"></td>
-                <td><input type="button" id="addStrategyBranch" class="btn btn-info" value="Add strategy branch" /></td>
+                <td><input type="button" id="addStrategyBranch" class="btn btn-info" value="Add strategy" /></td>
             </tr>
         </tbody>
     </table>
     <br/>
-    <br/>
     <div id="globalStrategy"></div>
-    <br/>
-    <input type="button" id="addStrategy" class="btn btn-info" value="Add Strategy" />
-    <br/>
-    <br/>
-    <div id="globalStrategies"></div>
-    <br/>
-    <br/>
-    <input type="button" id="run" class="btn btn-info" value="Run" />
+    <input type="button" id="run" class="btn btn-info" value="Run" disabled />
     <br/>
     <br/>
     <ul class="nav nav-tabs">
@@ -139,7 +133,10 @@
             <a class="nav-link" data-toggle="tab" href="#menu5">Share</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#menu6">Predefined</a>
+            <a class="nav-link" data-toggle="tab" href="#menu6">Experimental Graph</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu7">Predefined</a>
         </li>
     </ul>
     <div class="tab-content">
@@ -164,6 +161,11 @@
             <textarea id="link" rows="5" cols="160"></textarea>
         </div>
         <div id="menu6" class="tab-pane">
+            <div id="chartExperimental">
+                <svg></svg>
+            </div>
+        </div>
+        <div id="menu7" class="tab-pane">
         </div>
     </div>
 </body>

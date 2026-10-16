@@ -1,4 +1,3 @@
-import "jquery-ui/ui/widgets/tooltip";
 import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
 import TradeHistoryItem from "./entities/TradeHistoryItem";
@@ -27,6 +26,8 @@ const startingDateSelector : TimeSelector = (tradeDate: StockHistoryItem, startD
 
 const binaryConditionPresenter: BinaryConditionPresenter = new BinaryConditionPresenter("binaryCondition");
 const actionPresenter: ActionPresenter = new ActionPresenter("action");
+let tradeData: Array<StockAndTradeHistoryItem>;
+let strategy: Strategy = new Strategy();
 
 const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
@@ -68,8 +69,8 @@ function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: P
     [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(x => { return new bootstrap.Tooltip(x); })
 }
 function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strategy): void {
-    const startingAmount = Number($("#startingAmount").val());
-    const startDate: Date = new Date($("#startDate").val().toString());
+    const startingAmount = Number((<HTMLInputElement>document.getElementById("startingAmount")).value);
+    const startDate: Date = new Date((<HTMLInputElement>document.getElementById("startDate")).value);
     const portofolio: Portofolio = new Portofolio(startingAmount, 0, startDate, tradeData);
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
     PortofolioPresenter.printResults((<HTMLDivElement>document.getElementById("menu1")), portofolio);
@@ -97,48 +98,47 @@ function addStrategy(strategy: Strategy): void {
     document.getElementById("conditionRender").innerHTML = `${binaryConditionPresenter.render()}`;
 }
 document.addEventListener("DOMContentLoaded", () => {
-    $.getJSON(`.\\tickersList.json`, (data) => {
-        $.each(data['tickers'], (index, value) => {
-            $('#ticker').append($('<option></option>').val(data['tickers'][index].symbol).html(data['tickers'][index].name));
+    fetch(`.\\tickersList.json`)
+        .then(res => res.json())
+        .then(data => {
+            const tickerList: HTMLSelectElement = (<HTMLSelectElement>document.getElementById('ticker'));
+            Array.prototype.forEach.call(data['tickers'], (currentValue, index, arr) => {
+                const option: HTMLOptionElement = document.createElement("option");
+                option.value = currentValue.symbol;
+                option.text = currentValue.name;
+                tickerList.append(option);
+            });
+            tickerList.addEventListener("change", () => {
+                const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
+                document.getElementById("startDate").setAttribute("disabled", "disabled");
+                document.getElementById("startingAmount").setAttribute("disabled", "disabled");
+                fetch(`.\\alphavantage\\${ticker}.json`)
+                    .then(res => res.json())
+                    .then(data => {
+                        tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
+                        (<HTMLInputElement>document.getElementById("startDate")).value = tradeData[0].date.toISOString().split('T')[0];
+                        StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
+                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chart").select("svg");
+                        const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
+                        graph.drawDayOpenGraph();
+                        graph.draw50DaysSMAGraph();
+                        graph.draw100DaysSMAGraph();
+                        graph.draw200DaysSMAGraph();
+                        graph.draw50DaysEMAGraph();
+                        graph.draw100DaysEMAGraph();
+                        graph.draw200DaysEMAGraph();
+                        graph.drawLegend();
+                        document.getElementById("startDate").removeAttribute("disabled");
+                        document.getElementById("startingAmount").removeAttribute("disabled");
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                    });
+            });
+        })
+        .catch(error => {
+            console.log(error.message);
         });
-    }).fail(() => {
-        console.log("Error while reading json");
-    }).always(() => {
-    });
-    $(document)
-    .ajaxStart(function () {
-        $('#overlay').fadeIn();
-    })
-    .ajaxStop(function () {
-        $('#overlay').fadeOut();
-    });
-    let tradeData: Array<StockAndTradeHistoryItem>;
-    let strategy: Strategy = new Strategy();
-    document.getElementById("ticker").addEventListener("change", () => {
-        const ticker: string = (<HTMLInputElement>document.getElementById("ticker")).value;
-        document.getElementById("startDate").setAttribute("disabled", "disabled");
-        document.getElementById("startingAmount").setAttribute("disabled", "disabled");
-        $.getJSON(`.\\alphavantage\\${ticker}.json`, (data) => {
-            tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
-            $("#startDate").val(tradeData[0].date.toISOString().split('T')[0]);
-            StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
-            const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
-            const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
-            graph.drawDayOpenGraph();
-            graph.draw50DaysSMAGraph();
-            graph.draw100DaysSMAGraph();
-            graph.draw200DaysSMAGraph();
-            graph.draw50DaysEMAGraph();
-            graph.draw100DaysEMAGraph();
-            graph.draw200DaysEMAGraph();
-            graph.drawLegend();
-            document.getElementById("startDate").removeAttribute("disabled");
-            document.getElementById("startingAmount").removeAttribute("disabled");
-        }).fail(() => {
-            console.log("Error while reading json");
-        }).always(() => {
-        });
-    });
     document.getElementById("run").addEventListener("click", () => runStrategy(tradeData, strategy));
     initGraphs();
     // REFACTORING

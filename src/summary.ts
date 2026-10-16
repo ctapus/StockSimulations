@@ -35,13 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => {
             console.log(error.message);
         });
-    /*$(document)
-    .ajaxStart(function () {
-        $('#overlay').fadeIn();
-    })
-    .ajaxStop(function () {
-        $('#overlay').fadeOut();
-    });*/
     let tradeData: Array<StockAndTradeHistoryItem>;
     const strategies: Array<Strategy> = new Array<Strategy>();
     let strategy: Strategy = new Strategy();
