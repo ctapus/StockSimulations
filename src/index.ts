@@ -30,13 +30,13 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    const svg = d3.select("chart").select("svg")
+    const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
-    const svg2 = d3.select("chartEquity").select("svg")
+    const svg2 = d3.select("#chartEquity").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
-    const svg3 = d3.select("chartExperimental").select("svg")
+    const svg3 = d3.select("#chartExperimental").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 }
@@ -48,10 +48,10 @@ function runStrategy(tradeData: Array<StockAndTradeHistoryItem>, strategy: Strat
     strategy.run(tradeData.filter((item) => { return startingDateSelector(item, startDate); }), portofolio);
     PortofolioPresenter.printResults((<HTMLDivElement>document.getElementById("menu1")), portofolio);
     PortofolioPresenter.printSummary((<HTMLDivElement>document.getElementById("home")), tradeData, portofolio);
-    const svgChart = d3.select('chart').select("svg");
+    const svgChart = d3.select('#chart').select("svg");
     const graph: TradeHistoryItemsPresenterGraph = new TradeHistoryItemsPresenterGraph(svgChart, tradeData, portofolio, margin);
     graph.drawTransactionsGraph();
-    const svgChartEquity: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chartEquity").select("svg");
+    const svgChartEquity: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select('#chartEquity').select("svg");
     PortofolioPresenter.drawEquityGraph(svgChartEquity, portofolio, margin);
     //HACK
     tradeData.forEach(item => {
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
                         (<HTMLInputElement>document.getElementById("startDate")).value = tradeData[0].date.toISOString().split('T')[0];
                         StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
-                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chart").select("svg");
+                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
                         const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
                         graph.drawDayOpenGraph();
                         graph.draw50DaysSMAGraph();
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         graph.draw200DaysEMAGraph();
                         graph.draw14DaysRSIGraph();
                         graph.drawLegend();
-                        const svgContainerExperimental: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chartExperimental").select("svg");
+                        const svgContainerExperimental: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chartExperimental").select("svg");
                         const graphExperimental: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainerExperimental, tradeData, margin);
                         graphExperimental.drawDayOpenGraph();
                         graphExperimental.drawDerivativeFirstGraph();

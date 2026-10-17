@@ -32,10 +32,10 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    const svg = d3.select("chart").select("svg")
+    const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
-    const svg2 = d3.select("chartEquity").select("svg")
+    const svg2 = d3.select("#chartEquity").select("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 }
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then(data => {
                         tradeData = StockHistoryItem.loadFromAlphavantage(data).map(x => x as StockAndTradeHistoryItem);
                         StockHistoryItemsPresenterTable.printHistoricData(document.getElementById("menu2"), tradeData);
-                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("chart").select("svg");
+                        const svgContainer: d3.Selection<d3.BaseType, unknown, HTMLElement, any> = d3.select("#chart").select("svg");
                         const graph: StockHistoryItemsPresenterGraph = new StockHistoryItemsPresenterGraph(svgContainer, tradeData, margin);
                         graph.drawDayOpenGraph();
                         document.getElementById("startingAmount").removeAttribute("disabled");

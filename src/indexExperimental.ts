@@ -33,22 +33,12 @@ const margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 function initGraphs(): void {
-    /*const svg = d3.select("#chart").select("svg")
+    const svg = d3.select("#chart").select("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom()
-                .scaleExtent([1, 5])
-                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
-                .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));
+        .attr("height", height + margin.top + margin.bottom);
     const svg2 = d3.select("#chartEquity").select("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom()
-                .scaleExtent([1, 5])
-                .translateExtent([[0, 0], [width - margin.left - margin.right, Infinity]])
-                .extent([[0, 0], [width, height]])
-                .on("zoom", (event) => { svg.attr("transform", event.transform); }));*/
+        .attr("height", height + margin.top + margin.bottom);
 }
 function drawTransactionsGraph(tradeData: Array<StockHistoryItem>, portofolio: Portofolio): void {
     const xScale = d3.scaleTime().domain(d3.extent<StockHistoryItem, Date>(tradeData, d => { return d.date; })).range([0, width]);
@@ -156,40 +146,40 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("run").removeAttribute("disabled");
     }
 
-    /*document.getElementById("iconIndicator").addEventListener("dragstart", (e) => {
-        e.originalEvent.dataTransfer.setData("text/plain", "indicator");
+    document.getElementById("iconIndicator").addEventListener("dragstart", (e: DragEvent) => {
+        e.dataTransfer.setData("text/plain", "indicator");
     });
-    document.getElementById("iconArithmeticOperator").addEventListener("dragstart", (e) => {
-        e.originalEvent.dataTransfer.setData("text/plain", "arithmeticOperator");
+    document.getElementById("iconArithmeticOperator").addEventListener("dragstart", (e: DragEvent) => {
+        e.dataTransfer.setData("text/plain", "arithmeticOperator");
     });
-    document.getElementById("iconComparisonOperator").addEventListener("dragstart", (e) => {
-        e.originalEvent.dataTransfer.setData("text/plain", "comparisonOperator");
+    document.getElementById("iconComparisonOperator").addEventListener("dragstart", (e: DragEvent   ) => {
+        e.dataTransfer.setData("text/plain", "comparisonOperator");
     });
-    document.getElementById("iconNumber").addEventListener("dragstart", (e) => {
-        e.originalEvent.dataTransfer.setData("text/plain", "number");
+    document.getElementById("iconNumber").addEventListener("dragstart", (e: DragEvent) => {
+        e.dataTransfer.setData("text/plain", "number");
     });
-    document.getElementById("conditionRender").addEventListener("dragenter", (e) => {
+    document.getElementById("conditionRender").addEventListener("dragenter", (e: DragEvent) => {
         e.preventDefault();
-        e.target.style.backgroundColor = "SkyBlue";
+        (<HTMLElement>e.target).style.backgroundColor = "SkyBlue";
     });
-    document.getElementById("conditionRender").addEventListener("dragover", (e) => {
+    document.getElementById("conditionRender").addEventListener("dragover", (e: DragEvent) => {
         e.preventDefault();
-        e.target.style.backgroundColor = "SkyBlue";
+        (<HTMLElement>e.target).style.backgroundColor = "SkyBlue";
     });
-    document.getElementById("conditionRender").addEventListener("dragleave", (e) => {
-        e.target.style.backgroundColor = "Azure";
+    document.getElementById("conditionRender").addEventListener("dragleave", (e: DragEvent) => {
+        (<HTMLElement>e.target).style.backgroundColor = "Azure";
     });
-    document.getElementById("conditionRender").addEventListener("drop", (e) => {
-        e.target.style.backgroundColor = "Azure";
-        const dt: string = e.originalEvent.dataTransfer.getData("text/plain");
+    document.getElementById("conditionRender").addEventListener("drop", (e: DragEvent) => {
+        (<HTMLElement>e.target).style.backgroundColor = "Azure";
+        const dt: string = e.dataTransfer.getData("text/plain");
         if(dt === "indicator") {
-            e.target.appendChild((new IndicatorPresenter("indicator")).renderHTML());
+            (<HTMLElement>e.target).appendChild((new IndicatorPresenter("indicator")).renderHTML());
         }
         if(dt === "arithmeticOperator") {
-            e.target.appendChild((new ArithmeticOperatorPresenter("arithmeticOperator")).renderHTML());
+            (<HTMLElement>e.target).appendChild((new ArithmeticOperatorPresenter("arithmeticOperator")).renderHTML());
         }
         if(dt === "comparisonOperator") {
-            e.target.appendChild((new ComparisonOperatorPresenter("comparisonOperator")).renderHTML());
+            (<HTMLElement>e.target).appendChild((new ComparisonOperatorPresenter("comparisonOperator")).renderHTML());
         }
         if(dt === "number") {
             const input: HTMLElement = document.createElement("input");
@@ -198,20 +188,18 @@ document.addEventListener("DOMContentLoaded", () => {
             input.setAttribute("step", ".01");
             input.setAttribute("class", "input-sm");
             input.setAttribute('data-glyph-type', 'Value');
-            e.target.appendChild(input);
+            (<HTMLElement>e.target).appendChild(input);
         }
     });
     document.getElementById("addStrategyBranch").addEventListener("click", () => {
-        document.getElementById("conditionRender").children().each(() => {
-            console.log($(this));
-            console.log($(this).data('data-glyph-type'));
-            console.log($(this).attr('data-glyph-type'));
-        });
         const myElement: HTMLElement = document.getElementById("conditionRender");
         for (const child of myElement.children) {
+            console.log(child);
+            console.log((child as HTMLElement).dataset.glyphType);
+            console.log((child as HTMLElement).getAttribute('data-glyph-type'));
             console.log(child.tagName);
             console.log((child as HTMLElement).dataset.glyphType);
         }
-        //addStrategy(strategy)
-    });*/
+        addStrategy(strategy)
+    });
 });
