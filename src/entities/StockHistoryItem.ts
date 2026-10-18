@@ -8,6 +8,14 @@ interface AlphavantageDayData {
     "5. volume"?: string; // Optional depending on standard vs adjusted endpoint
     "6. volume"?: string;
 }
+interface TiingoDayData {
+    "date": string;
+    "open": number;
+    "high": number;
+    "low": number;
+    "close": number;
+    "volume": number;
+}
 export default class StockHistoryItem {
     public date: Date;
     public open: number;
@@ -61,6 +69,47 @@ export default class StockHistoryItem {
             tradeData.low = Number(element[1]["3. low"]);
             tradeData.close = Number(element[1]["4. close"]);
             tradeData.volume = Number(element[1]["6. volume"]);
+            ret.push(tradeData);
+        });
+        let previousDayTrade: StockHistoryItem = null;
+        ret.sort((a, b) => a.date.getTime() - b.date.getTime());
+        Array.prototype.forEach.call(ret, (currentValue, index, arr) => {
+            currentValue.previousDay = previousDayTrade;
+            previousDayTrade = currentValue;
+        });
+        const indicator: Indicators = new Indicators(ret, (stockHistoryItem: StockHistoryItem) => { return stockHistoryItem.open; });
+        // TODO: investigate running all in the same loop to improve performance
+        indicator.populateOpenVariation();
+        indicator.populateDayVariation();
+        indicator.populate52WeeksRange();
+        indicator.populate10DaysOpenSMA();
+        indicator.populate20DaysOpenSMA();
+        indicator.populate50DaysOpenSMA();
+        indicator.populate100DaysOpenSMA();
+        indicator.populate200DaysOpenSMA();
+        indicator.populate10DaysOpenEMA();
+        indicator.populate20DaysOpenEMA();
+        indicator.populate50DaysOpenEMA();
+        indicator.populate100DaysOpenEMA();
+        indicator.populate200DaysOpenEMA();
+        indicator.populate14DaysOpenAverages();
+        indicator.populate14DaysOpenRSI();
+        indicator.populateDerivativeFirst();
+        indicator.populateDerivativeSecond();
+        indicator.populateDerivativeThird();
+        return ret;
+    }
+    public static loadFromTiingo(data: any):Array<StockHistoryItem> {
+        const ret: Array<StockHistoryItem> = new Array<StockHistoryItem>();
+        const entries = data as TiingoDayData[];
+        entries.forEach(element => {
+            const tradeData: StockHistoryItem = new StockHistoryItem();
+            tradeData.date = new Date(element.date);
+            tradeData.open = Number(element.open);
+            tradeData.high = Number(element.high);
+            tradeData.low = Number(element.low);
+            tradeData.close = Number(element.close);
+            tradeData.volume = Number(element.volume);
             ret.push(tradeData);
         });
         let previousDayTrade: StockHistoryItem = null;
