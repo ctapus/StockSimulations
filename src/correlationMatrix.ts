@@ -47,7 +47,7 @@ function calculateCorrelationForOpen(stockData1: StockData, stockData2: StockDat
             }
         }
     }
-    const r: number = n * (sumBoth - sum1 * sum2) / Math.sqrt((n * sum1Squared - sum1 * sum1) * (n * sum2Squared - sum2 * sum2));
+    const r: number = (n * sumBoth - sum1 * sum2) / Math.sqrt((n * sum1Squared - sum1 * sum1) * (n * sum2Squared - sum2 * sum2));
     return r;
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -73,20 +73,27 @@ document.addEventListener("DOMContentLoaded", () => {
         table.createTHead();
         const theadRow: HTMLTableRowElement = table.tHead.insertRow();
         const theadCell0: HTMLTableCellElement = theadRow.insertCell();
-        theadCell0.style = "background: #eee; border: 2px solid #555; border-padding: 0.5rem; text-align: center;";
+        theadCell0.style = "background: #eee; border: 2px solid #555; padding: 1rem; text-align: center;";
         table.createTBody();
         for(let i = 0; i < tickers.length; i++) {
             const theadCell: HTMLTableCellElement = theadRow.insertCell();
             theadCell.innerHTML = stockDataList[i].ticker;
-            theadCell.style = "background: #eee; border: 2px solid #555; border-padding: 0.5rem; text-align: center;";
+            theadCell.style = "background: #eee; border: 2px solid #555; padding: 1rem; text-align: center;";
             const tbodyRow: HTMLTableRowElement = table.tBodies[0].insertRow();
             const tbodyCell0: HTMLTableCellElement = tbodyRow.insertCell();
-            tbodyCell0.style = "background: #aaf; border: 2px solid #555; border-padding: 0.5rem; text-align: center;";
+            tbodyCell0.style = "background: #aaa; border: 2px solid #555; padding: 1rem; text-align: center;";
             tbodyCell0.innerHTML = stockDataList[i].ticker;
             for(let j = 0; j < tickers.length; j++) {
                 const tbodyCell: HTMLTableCellElement = tbodyRow.insertCell();
-                tbodyCell.style = "background: #aaf; border: 2px solid #555; border-padding: 0.5rem; text-align: center;";
-                tbodyCell.innerHTML = calculateCorrelationForOpen(stockDataList[i], stockDataList[j], startDate, endDate).toFixed(2) + " " + stockDataList[i].ticker + ", " + stockDataList[j].ticker;
+                tbodyCell.style = "background: #fff; border: 2px solid #555; padding: 1rem; text-align: center;";
+                const r: number = calculateCorrelationForOpen(stockDataList[i], stockDataList[j], startDate, endDate);
+                tbodyCell.innerHTML = r.toFixed(2);
+                if(r <0 ) {
+                    tbodyCell.style.background = `rgba(255, ${Math.abs(255 + 255 * r)}, 0, 1)`;
+                }
+                if(r > 0) {
+                    tbodyCell.style.background = `rgba(${Math.abs(255 - 255 * r)}, 255, 0, 1)`;
+                }
             }
         }
         document.getElementById("divMatrix").replaceChildren();
