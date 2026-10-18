@@ -1,3 +1,4 @@
+import { Statistics } from "./entities/Statistics";
 import StockHistoryItem from "./entities/StockHistoryItem";
 
 class StockData {
@@ -12,14 +13,10 @@ class StockData {
 let tickers: string[] = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA", "NVDA", "PYPL"];
 let stockDataList: StockData[] = [];
 function calculateCorrelationForOpen(stockData1: StockData, stockData2: StockData, startDate: Date, endDate: Date): number {
+    let v1: number[] = [];
+    let v2: number[] = [];
     let i1: number = 0;
     let i2: number = 0;
-    let sum1: number = 0;
-    let sum2: number = 0;
-    let sum1Squared: number = 0;
-    let sum2Squared: number = 0;
-    let sumBoth: number = 0;
-    let n: number = 0;
     while(i1 < stockData1.stockHistoryItems.length && i2 < stockData2.stockHistoryItems.length) {
         if(stockData1.stockHistoryItems[i1].date.getTime() < startDate.getTime() || stockData1.stockHistoryItems[i1].date.getTime() > endDate.getTime()) {
             i1++;
@@ -30,12 +27,8 @@ function calculateCorrelationForOpen(stockData1: StockData, stockData2: StockDat
             continue;
         }
         if(stockData1.stockHistoryItems[i1].date.getTime() === stockData2.stockHistoryItems[i2].date.getTime()) {
-            sum1 += stockData1.stockHistoryItems[i1].open;
-            sum2 += stockData2.stockHistoryItems[i2].open;
-            sum1Squared += stockData1.stockHistoryItems[i1].open * stockData1.stockHistoryItems[i1].open;
-            sum2Squared += stockData2.stockHistoryItems[i2].open * stockData2.stockHistoryItems[i2].open;
-            sumBoth += stockData1.stockHistoryItems[i1].open * stockData2.stockHistoryItems[i2].open;
-            n++;
+            v1.push(stockData1.stockHistoryItems[i1].open);
+            v2.push(stockData2.stockHistoryItems[i2].open);
             i1++;
             i2++;
         }
@@ -47,8 +40,7 @@ function calculateCorrelationForOpen(stockData1: StockData, stockData2: StockDat
             }
         }
     }
-    const r: number = (n * sumBoth - sum1 * sum2) / Math.sqrt((n * sum1Squared - sum1 * sum1) * (n * sum2Squared - sum2 * sum2));
-    return r;
+    return Statistics.calculateCorrelation(v1, v2);
 }
 document.addEventListener("DOMContentLoaded", () => {
     const initialEndDateValue: Date = new Date();
